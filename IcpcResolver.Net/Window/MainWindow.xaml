@@ -7,8 +7,5 @@
         xmlns:userControl="clr-namespace:IcpcResolver.Net.UserControl"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" WindowState="Maximized" WindowStyle="None">
-    <StackPanel x:Name="Panel">
-        <userControl:Team TeamRank="0" TeamName="Team1"/>
-        <userControl:Team TeamRank="1" TeamName="Team2"/>
-    </StackPanel>
+    <StackPanel x:Name="Panel"/>
 </Window>

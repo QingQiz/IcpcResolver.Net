@@ -5,10 +5,31 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local ="clr-namespace:IcpcResolver.Net.UserControl"
              mc:Ignorable="d"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}"
-             d:DesignHeight="Auto" d:DesignWidth="*">
-    <StackPanel Orientation="Horizontal">
-        <Label Content="{Binding TeamRank}"/>
-        <Label Content="{Binding TeamName}"/>
-    </StackPanel>
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid Margin="25 5 0 5" Height="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- team rank -->
+        <Label Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+               Content="{Binding TeamRank}"
+               VerticalAlignment="Center"
+               FontWeight="Bold"
+               FontSize="40" Width="70"/>
+
+        <!-- team (display) name -->
+        <Label Grid.Row="0" Grid.Column="1"
+               Content="{Binding TeamName}"
+               FontSize="30"/>
+
+        <!-- problems -->
+        <Grid Grid.Row="1" Grid.Column="1" x:Name="Problems"/>
+    </Grid>
 </UserControl>

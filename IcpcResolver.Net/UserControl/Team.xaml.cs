@@ -1,14 +1,31 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace IcpcResolver.Net.UserControl
 {
     public partial class Team : System.Windows.Controls.UserControl
     {
-        public Team()
+        private Team()
         {
             InitializeComponent();
+        }
+
+        public Team(TeamViewModel team) : this()
+        {
+            TeamRank = team.Rank;
+            TeamName = team.Name;
+
+            var cnt = 0;
+            foreach (var problemViewModel in team.Problems)
+            {
+                Problems.ColumnDefinitions.Add(new ColumnDefinition());
+                
+                var problem = new Problem(problemViewModel);
+                Problems.Children.Add(problem);
+
+                Grid.SetRow(problem, 0);
+                Grid.SetColumn(problem, cnt++);
+            }
         }
 
         public int TeamRank
