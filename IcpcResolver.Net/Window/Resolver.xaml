@@ -18,35 +18,35 @@
     <!-- main window -->
     <StackPanel Background="Gray">
         <!-- header -->
-        <Border BorderThickness="0 0 0 3" BorderBrush="White">
+        <Border BorderThickness="0 0 0 2" BorderBrush="White">
             <Grid Background="Black">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="90"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="110"/>
                 </Grid.ColumnDefinitions>
                 
                 <!-- rank -->
                 <Label Grid.Column="0"
-                       HorizontalContentAlignment="Left"
+                       HorizontalContentAlignment="Center"
                        Content="Rank"/>
                 
                 <!-- display name -->
                 <Label Grid.Column="1"
-                       Margin="37 0 10 0"
                        HorizontalContentAlignment="Left"
+                       Margin="5 0 0 0"
                        Content="Name"/>
                 
                 <!-- solved -->
                 <Label Grid.Column="2"
-                       HorizontalContentAlignment="Right"
+                       HorizontalContentAlignment="Center"
                        Content="Solved"/>
                 
                 <!-- time -->
                 <Label Grid.Column="3"
                        HorizontalContentAlignment="Right"
-                       Margin="10 0 20 0"
+                       Margin="0 0 10 0"
                        Content="Time"/>
             </Grid>
         </Border>

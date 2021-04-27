@@ -6,7 +6,7 @@
              xmlns:local ="clr-namespace:IcpcResolver.Net.UserControl"
              mc:Ignorable="d"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <Grid Margin="25 5 0 5" Height="Auto">
+    <Grid Margin="25 0 0 0" Height="Auto">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
@@ -27,8 +27,8 @@
         <Grid Grid.Row="0" Grid.Column="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="110"/>
             </Grid.ColumnDefinitions>
             
             <!-- team (display) name -->
@@ -39,14 +39,14 @@
             <!-- solved -->
             <Label Grid.Column="1"
                    FontSize="28"
-                   HorizontalContentAlignment="Right"
+                   HorizontalContentAlignment="Center"
                    Content="{Binding Solved}"/>
 
             <!-- time -->
             <Label Grid.Column="2"
                    FontSize="28"
                    HorizontalContentAlignment="Right"
-                   Margin="20 0 5 0"
+                   Margin="0 0 10 0"
                    Content="{Binding Time}"/>
         </Grid>
 
