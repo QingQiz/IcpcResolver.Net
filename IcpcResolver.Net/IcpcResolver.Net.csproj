@@ -12,4 +12,19 @@
         <XamlRuntime>Wpf</XamlRuntime>
       </ApplicationDefinition>
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Window\Resolver.xaml.cs">
+        <DependentUpon>Resolver.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="UserControl\ProblemDto.cs">
+        <DependentUpon>Problem.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="UserControl\ProblemStatus.cs">
+        <DependentUpon>Problem.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="UserControl\TeamDto.cs">
+        <DependentUpon>Team.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

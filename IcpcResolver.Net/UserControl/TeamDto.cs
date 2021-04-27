@@ -2,10 +2,10 @@
 
 namespace IcpcResolver.Net.UserControl
 {
-    public class TeamViewModel
+    public class TeamDto
     {
         public int Rank;
         public string Name;
-        public IEnumerable<ProblemViewModel> Problems;
+        public IEnumerable<ProblemDto> Problems;
     }
 }

@@ -10,7 +10,7 @@ namespace IcpcResolver.Net.UserControl
             InitializeComponent();
         }
         
-        public Problem(ProblemViewModel problem) : this()
+        public Problem(ProblemDto problem) : this()
         {
             _status = problem.Status;
             _label = problem.Label;

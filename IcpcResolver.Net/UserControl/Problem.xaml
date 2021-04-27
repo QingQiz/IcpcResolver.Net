@@ -9,19 +9,23 @@
              Margin="0 0 10 0"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <!-- background color -->
-    <Border Background="{Binding Color}" CornerRadius="10">
-        <!-- border brush color -->
-        <!-- NOTE: use Background and BorderBrush in one Border tag will cause a white thin border inside Border -->
-        <Border BorderBrush="{Binding BorderColor}"
-                BorderThickness="3 4 3 4"
-                VerticalAlignment="Center"
-                CornerRadius="8">
+    <Border Background="{Binding Color}" CornerRadius="9" Height="30">
+        <Grid>
+            <!-- border brush color -->
+            <!-- NOTE: use Background and BorderBrush in one Border tag will cause a white thin border inside Border -->
+            <!-- NOTE: can not put Label in Border, Height is not enough for FontSize=16 -->
+            <Border BorderBrush="{Binding BorderColor}"
+                    BorderThickness="2 3"
+                    VerticalAlignment="Center"
+                    Height="30"
+                    CornerRadius="8">
+            </Border>
             <!-- submission info -->
             <Label Content="{Binding Path=LabelOrContent}"
                    Foreground="{Binding Path=FontColor}"
-                   FontSize="20"
-                   FontWeight="Black"
+                   FontSize="18"
+                   FontWeight="Bold"
                    HorizontalAlignment="Center"/>
-        </Border>
+        </Grid>
     </Border>
 </UserControl>

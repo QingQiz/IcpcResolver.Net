@@ -1,6 +1,6 @@
 ﻿namespace IcpcResolver.Net.UserControl
 {
-    public class ProblemViewModel
+    public class ProblemDto
     {
         public ProblemStatus Status;
         public string Label;

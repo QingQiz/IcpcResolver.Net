@@ -10,7 +10,7 @@ namespace IcpcResolver.Net.UserControl
             InitializeComponent();
         }
 
-        public Team(TeamViewModel team) : this()
+        public Team(TeamDto team) : this()
         {
             TeamRank = team.Rank;
             TeamName = team.Name;
