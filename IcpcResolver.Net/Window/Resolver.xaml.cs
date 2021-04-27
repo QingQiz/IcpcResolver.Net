@@ -1,4 +1,7 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Linq;
+using System.Windows.Controls;
+using System.Windows.Input;
 using IcpcResolver.Net.UserControl;
 
 namespace IcpcResolver.Net.Window
@@ -11,64 +14,41 @@ namespace IcpcResolver.Net.Window
         public Resolver()
         {
             InitializeComponent();
-            var problems = new[]
+
+            var values = Enum.GetValues(typeof(ProblemStatus));
+            var random = new Random();
+
+            ProblemDto GetProblem(int n) => new()
             {
-                new ProblemDto
-                {
-                    Label = "A",
-                    Status = ProblemStatus.Accept,
-                    Time = 233,
-                    Try = 1
-                },
-                new ProblemDto
-                {
-                    Label = "B",
-                    Status = ProblemStatus.UnAccept,
-                    Time = 233,
-                    Try = 2
-                },
-                new ProblemDto
-                {
-                    Label = "C",
-                    Status = ProblemStatus.NotTried,
-                    Time = 0,
-                    Try = 0
-                },
-                new ProblemDto
-                {
-                    Label = "D",
-                    Status = ProblemStatus.Pending,
-                    Time = 2,
-                    Try = 299
-                },
-                new ProblemDto
-                {
-                    Label = "E",
-                    Status = ProblemStatus.FirstBlood,
-                    Time = 1,
-                    Try = 12 
-                }
+                Label = new string(new[] {(char) ('A' + n)}),
+                Status = (ProblemStatus) (values.GetValue(random.Next(values.Length)) ?? ProblemStatus.NotTried),
+                Time = random.Next(1, 300), Try = random.Next(1, 5)
             };
+
+            const int problemN = 16;
+
+            var teams = Enumerable.Range(0, MaxTeamNumberToDisplay)
+                .Select(n => new TeamDto
+                {
+                    Rank = n,
+                    Name = "Team" + n,
+                    Problems = Enumerable.Range(0, problemN).Select((Func<int, ProblemDto>) GetProblem)
+                });
+
+            var cnt = 0;
+            foreach (var t in teams)
+            {
+                var team = new Team(t);
+
+                Teams.RowDefinitions.Add(new RowDefinition());
+                Teams.Children.Add(team);
                 
-            Panel.Children.Add(new Team(new TeamDto
-            {
-                Rank = 1,
-                Name = "Team1",
-                Problems = problems
-            }));
-            Panel.Children.Add(new Team(new TeamDto
-            {
-                Rank = 2,
-                Name = "Team2",
-                Problems = problems
-            }));
-            Panel.Children.Add(new Team(new TeamDto
-            {
-                Rank = 3,
-                Name = "Team3",
-                Problems = problems
-            }));
+                Grid.SetRow(team, cnt++);
+                Grid.SetColumn(team, 0);
+            }
         }
+
+        public const int MaxTeamNumberToDisplay = 12;
 
         protected override void OnKeyDown(KeyEventArgs e)
         {

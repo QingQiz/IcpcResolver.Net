@@ -7,5 +7,51 @@
         xmlns:userControl="clr-namespace:IcpcResolver.Net.UserControl"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" WindowState="Maximized" WindowStyle="None">
-    <StackPanel x:Name="Panel"/>
+    <!-- style -->
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- main window -->
+    <StackPanel Background="Gray">
+        <!-- header -->
+        <Border BorderThickness="0 0 0 3" BorderBrush="White">
+            <Grid Background="Black">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- rank -->
+                <Label Grid.Column="0"
+                       HorizontalContentAlignment="Left"
+                       Content="Rank"/>
+                
+                <!-- display name -->
+                <Label Grid.Column="1"
+                       Margin="37 0 10 0"
+                       HorizontalContentAlignment="Left"
+                       Content="Name"/>
+                
+                <!-- solved -->
+                <Label Grid.Column="2"
+                       HorizontalContentAlignment="Right"
+                       Content="Solved"/>
+                
+                <!-- time -->
+                <Label Grid.Column="3"
+                       HorizontalContentAlignment="Right"
+                       Margin="10 0 20 0"
+                       Content="Time"/>
+            </Grid>
+        </Border>
+
+        <!-- content -->
+        <Grid x:Name="Teams"/>
+    </StackPanel>
 </Window>
