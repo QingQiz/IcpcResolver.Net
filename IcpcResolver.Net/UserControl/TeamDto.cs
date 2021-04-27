@@ -10,6 +10,6 @@ namespace IcpcResolver.Net.UserControl
         public List<ProblemDto> Problems;
 
         public int AcceptedCount => Problems.Count(p => p.IsAccepted());
-        public int ScoreAll => Problems.Sum(p => p.GetScore());
+        public int TimeAll => Problems.Sum(p => p.GetScore());
     }
 }

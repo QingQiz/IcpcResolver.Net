@@ -6,7 +6,7 @@
              xmlns:local ="clr-namespace:IcpcResolver.Net.UserControl"
              mc:Ignorable="d"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <Grid Margin="25 0 0 0" Height="Auto">
+    <Grid Height="Auto">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
@@ -21,8 +21,8 @@
         <Label Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
                Content="{Binding TeamRank}"
                VerticalAlignment="Center"
-               FontWeight="Bold"
-               FontSize="40" Width="70"/>
+               HorizontalContentAlignment="Center"
+               FontSize="40" Width="90"/>
 
         <Grid Grid.Row="0" Grid.Column="1">
             <Grid.ColumnDefinitions>
@@ -34,7 +34,7 @@
             <!-- team (display) name -->
             <Label Grid.Column="0"
                    Content="{Binding TeamName}"
-                   FontSize="28"/>
+                   FontSize="30"/>
             
             <!-- solved -->
             <Label Grid.Column="1"

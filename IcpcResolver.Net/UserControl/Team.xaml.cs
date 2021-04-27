@@ -18,7 +18,7 @@ namespace IcpcResolver.Net.UserControl
             TeamName = team.Name;
 
             Solved = team.Problems.Count(p => p.IsAccepted());
-            Time = team.ScoreAll;
+            Time = team.TimeAll;
 
             var cnt = 0;
             foreach (var problemViewModel in team.Problems)

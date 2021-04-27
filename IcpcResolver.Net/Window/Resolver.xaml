@@ -35,7 +35,6 @@
                 <!-- display name -->
                 <Label Grid.Column="1"
                        HorizontalContentAlignment="Left"
-                       Margin="5 0 0 0"
                        Content="Name"/>
                 
                 <!-- solved -->

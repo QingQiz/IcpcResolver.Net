@@ -34,10 +34,10 @@ namespace IcpcResolver.Net.Window
                 };
             }
 
-            const int problemN = 16;
+            const int problemN = 13;
 
             var teamDtos = Enumerable
-                .Range(0, MaxTeamNumberToDisplay)
+                .Range(0, 200)
                 .Select(n =>
                 {
                     // NOTE there must be `ToList`
@@ -52,22 +52,26 @@ namespace IcpcResolver.Net.Window
                     };
                 })
                 .OrderByDescending(t => t.AcceptedCount)
-                .ThenBy(t => t.ScoreAll)
+                .ThenBy(t => t.TimeAll)
                 .ToList();
 
-            for (var i = 0; i < Math.Min(MaxTeamNumberToDisplay, teamDtos.Count); i++)
+            for (var i = 0; i < teamDtos.Count; i++)
             {
                 var team = new Team(teamDtos[i]);
             
-                Teams.Children.Add(team);
                 _teams.Add(team);
-            
+
+                if (i >= MaxTeamNumberToDisplay) continue;
+
+                Teams.Children.Add(team);
                 Grid.SetRow(team, i);
                 Grid.SetColumn(team, 0);
             }
+            
+            UpdateTeamRank();
         }
 
-        private const int MaxTeamNumberToDisplay = 13;
+        private const int MaxTeamNumberToDisplay = 32;
 
         private List<Team> _teams = new();
 
@@ -83,7 +87,7 @@ namespace IcpcResolver.Net.Window
                     Background = (i & 1) == 0
                         ? new SolidColorBrush(Color.FromRgb(0x3c, 0x3c, 0x3c))
                         : new SolidColorBrush(Color.FromRgb(0, 0, 0)),
-                    Height = 84
+                    Height = 85
                 };
                 
                 Teams.RowDefinitions.Add(new RowDefinition());
@@ -91,6 +95,22 @@ namespace IcpcResolver.Net.Window
                 
                 Grid.SetRow(border, i);
                 Grid.SetColumn(border, 0);
+            }
+        }
+
+        private void UpdateTeamRank()
+        {
+            _teams[0].TeamRank = 1;
+            for (int i = 1, j = 1; i < _teams.Count; i++)
+            {
+                if (_teams[i].Solved != _teams[i - 1].Solved || _teams[i].Time != _teams[i - 1].Time)
+                {
+                    _teams[i].TeamRank = ++j;
+                }
+                else
+                {
+                    _teams[i].TeamRank = j;
+                }
             }
         }
 
