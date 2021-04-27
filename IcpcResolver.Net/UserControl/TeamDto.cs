@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace IcpcResolver.Net.UserControl
 {
@@ -6,6 +7,9 @@ namespace IcpcResolver.Net.UserControl
     {
         public int Rank;
         public string Name;
-        public IEnumerable<ProblemDto> Problems;
+        public List<ProblemDto> Problems;
+
+        public int AcceptedCount => Problems.Count(p => p.IsAccepted());
+        public int ScoreAll => Problems.Sum(p => p.GetScore());
     }
 }

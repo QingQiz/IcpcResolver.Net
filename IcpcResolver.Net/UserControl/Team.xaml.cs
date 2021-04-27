@@ -16,25 +16,25 @@ namespace IcpcResolver.Net.UserControl
         {
             TeamRank = team.Rank;
             TeamName = team.Name;
-            _problems = team.Problems.ToList();
+
+            Solved = team.Problems.Count(p => p.IsAccepted());
+            Time = team.ScoreAll;
 
             var cnt = 0;
-            foreach (var problemViewModel in _problems)
+            foreach (var problemViewModel in team.Problems)
             {
                 Problems.ColumnDefinitions.Add(new ColumnDefinition());
                 
                 var problem = new Problem(problemViewModel);
                 Problems.Children.Add(problem);
+                _problems.Add(problem);
 
                 Grid.SetRow(problem, 0);
                 Grid.SetColumn(problem, cnt++);
             }
-
-            Solved = _problems.Count(p => p.Status == ProblemStatus.Accept);
-            Time = _problems.Sum(p => p.Time + 20 * (p.Try - 1));
         }
 
-        private List<ProblemDto> _problems;
+        private List<Problem> _problems = new();
 
         public int TeamRank
         {
