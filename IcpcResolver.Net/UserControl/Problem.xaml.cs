@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using IcpcResolver.Net.AppConstants;
 
 namespace IcpcResolver.Net.UserControl
 {
@@ -18,7 +19,7 @@ namespace IcpcResolver.Net.UserControl
             _try = problem.Try;
 
             Color = GetStatusColor(_status);
-            FontColor = _status == ProblemStatus.NotTried ? "#6F6F6F" : "White";
+            FontColor = _status == ProblemStatus.NotTried ? Colors.Gray : Colors.White;
             BorderColor = _status == ProblemStatus.FirstBlood ? GetStatusColor(ProblemStatus.Accept) : Color;
             LabelOrContent = _status == ProblemStatus.NotTried ? _label : $"{_try} - {_time}";
         }
@@ -27,11 +28,11 @@ namespace IcpcResolver.Net.UserControl
         {
             return status switch
             {
-                ProblemStatus.Accept     => "#0BA70B",
-                ProblemStatus.UnAccept   => "#A20000",
-                ProblemStatus.Pending    => "#9C9C00",
-                ProblemStatus.NotTried   => "#282828",
-                ProblemStatus.FirstBlood => "#0B4F0B",
+                ProblemStatus.Accept     => Colors.Green,
+                ProblemStatus.UnAccept   => Colors.Red,
+                ProblemStatus.Pending    => Colors.Yellow,
+                ProblemStatus.NotTried   => Colors.DarkGray,
+                ProblemStatus.FirstBlood => Colors.DarkGreen,
                 _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
             };
         }
