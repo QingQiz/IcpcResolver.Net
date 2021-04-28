@@ -7,14 +7,11 @@
         public int Time;
         public int Try;
 
-        public int GetScore(int penalty = 20)
+        public int TimeAll(int penalty = 20)
         {
-            return Status == ProblemStatus.Accept ? Time + (Try - 1) * penalty : 0;
+            return IsAccepted ? Time + (Try - 1) * penalty : 0;
         }
 
-        public bool IsAccepted()
-        {
-            return Status is ProblemStatus.Accept or ProblemStatus.FirstBlood;
-        }
+        public bool IsAccepted => Status is ProblemStatus.Accept or ProblemStatus.FirstBlood;
     }
 }

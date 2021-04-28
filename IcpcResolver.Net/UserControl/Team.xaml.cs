@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -14,14 +14,15 @@ namespace IcpcResolver.Net.UserControl
 
         public Team(TeamDto team) : this()
         {
-            TeamRank = team.Rank;
-            TeamName = team.Name;
+            _teamInfo = team;
+            TeamRank = _teamInfo.Rank;
+            TeamName = _teamInfo.Name;
 
-            Solved = team.Problems.Count(p => p.IsAccepted());
+            Solved = team.AcceptedCount;
             Time = team.TimeAll;
 
             var cnt = 0;
-            foreach (var problemViewModel in team.Problems)
+            foreach (var problemViewModel in _teamInfo.ProblemsFrom)
             {
                 Problems.ColumnDefinitions.Add(new ColumnDefinition());
                 
@@ -35,6 +36,8 @@ namespace IcpcResolver.Net.UserControl
         }
 
         private List<Problem> _problems = new();
+        private TeamDto _teamInfo;
+
 
         public int TeamRank
         {
@@ -72,5 +75,27 @@ namespace IcpcResolver.Net.UserControl
         private static readonly DependencyProperty SolvedProperty =
             DependencyProperty.Register("Solved", typeof(int), typeof(Team));
 
+
+        public async Task UpdateTeamStatusStep()
+        {
+            for (var i = 0; i < _teamInfo.ProblemsFrom.Count; i++)
+            {
+                // only update pending problems
+                if (_teamInfo.ProblemsFrom[i].Status != ProblemStatus.Pending) continue;
+
+                await _problems[i].UpdateStatus(_teamInfo.ProblemsTo[i]);
+
+                _teamInfo.ProblemsFrom[i].Status = _teamInfo.ProblemsTo[i].Status;
+                // for rollback
+                _teamInfo.ProblemsTo[i].Status = ProblemStatus.Pending;
+
+                // if problem is note accepted, update next
+                if (!_teamInfo.ProblemsFrom[i].IsAccepted) continue;
+                break;
+            }
+            // if problem is accepted, update solved-count and time and break
+            Solved = _teamInfo.AcceptedCount;
+            Time = _teamInfo.TimeAll;
+        }
     }
 }

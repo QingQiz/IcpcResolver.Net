@@ -9,7 +9,9 @@
              Margin="0 0 10 0"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <!-- background color -->
-    <Border Background="{Binding Color}" CornerRadius="9" Height="30">
+    <Border Background="{Binding BgColor}"
+            CornerRadius="9"
+            Height="30">
         <Grid>
             <!-- border brush color -->
             <!-- NOTE: use Background and BorderBrush in one Border tag will cause a white thin border inside Border -->

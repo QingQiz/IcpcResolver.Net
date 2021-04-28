@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using IcpcResolver.Net.UserControl;
+using Colors = IcpcResolver.Net.AppConstants.Colors;
 
 namespace IcpcResolver.Net.Window
 {
@@ -37,19 +39,22 @@ namespace IcpcResolver.Net.Window
             const int problemN = 13;
 
             var teamDtos = Enumerable
-                .Range(0, 200)
+                .Range(0, 20)
                 .Select(n =>
                 {
                     // NOTE there must be `ToList`
-                    var problems = Enumerable
-                        .Range(0, problemN).Select((Func<int, ProblemDto>) GetProblem)
-                        .ToList();
+                    List<ProblemDto> Problems() =>
+                        Enumerable.Range(0, problemN)
+                            .Select((Func<int, ProblemDto>) GetProblem)
+                            .ToList();
+
                     return new TeamDto
                     {
                         Rank = 0,
                         Name = "Team" + n,
-                        Problems = problems
-                    };
+                        ProblemsFrom = Problems(),
+                        ProblemsTo = Problems()
+                    }.PostInit();
                 })
                 .OrderByDescending(t => t.AcceptedCount)
                 .ThenBy(t => t.TimeAll)
@@ -74,6 +79,8 @@ namespace IcpcResolver.Net.Window
         private const int MaxTeamNumberToDisplay = 32;
 
         private List<Team> _teams = new();
+        private int _currentTeamIdx = 0;
+        private bool _teamUpdated = true;
 
         /// <summary>
         /// init grid background color to (gray, black, gray, black...)
@@ -85,8 +92,8 @@ namespace IcpcResolver.Net.Window
                 var border = new Border
                 {
                     Background = (i & 1) == 0
-                        ? new SolidColorBrush(Color.FromRgb(0x3c, 0x3c, 0x3c))
-                        : new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+                        ? new SolidColorBrush(Colors.FromString(Colors.BgGray))
+                        : new SolidColorBrush(Colors.FromString(Colors.Black)),
                     Height = 85
                 };
                 
@@ -114,17 +121,24 @@ namespace IcpcResolver.Net.Window
             }
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
+        protected override async void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
 
-            // press `shift` THEN press `escape`
-            if (!e.Handled
-                && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-                && e.IsDown
-                && e.Key == Key.Escape)
+            switch (e.Handled)
             {
-                Close();
+                // press `shift` THEN press `escape`
+                case false when (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                                && e.IsDown && e.Key == Key.Escape:
+                    Close();
+                    break;
+                case false when e.IsDown && e.Key == Key.Space:
+                    if (!_teamUpdated) break;
+                    _teamUpdated = false;
+                    await _teams[_currentTeamIdx].UpdateTeamStatusStep();
+                    _teamUpdated = true;
+                    MessageBox.Show(_teamUpdated.ToString());
+                    break;
             }
         }
     }
