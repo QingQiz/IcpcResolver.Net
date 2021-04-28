@@ -63,7 +63,7 @@ namespace IcpcResolver.Net.Window
         {
             InitializeComponent();
 
-            var teamDtos = DataGenerator(13, 15);
+            var teamDtos = DataGenerator(13, 250);
             
             for (var i = 0; i < teamDtos.Count; i++)
             {
@@ -74,12 +74,12 @@ namespace IcpcResolver.Net.Window
 
                 _teams.Add(team);
 
-                if (i >= AppConst.MaxDisplayCount) continue;
+                if (i >= AppConst.MaxRenderCount) continue;
 
                 Teams.Children.Add(team);
             }
             
-            InitGrid();
+            InitResolverBackground();
             UpdateTeamRank();
         }
 
@@ -93,7 +93,7 @@ namespace IcpcResolver.Net.Window
         /// <summary>
         /// init resolver background
         /// </summary>
-        private void InitGrid()
+        private void InitResolverBackground()
         {
             for (var i = 0; i <= AppConst.MaxDisplayCount; i++)
             {
@@ -162,35 +162,102 @@ namespace IcpcResolver.Net.Window
             _cursor.BeginAnimation(Border.MarginProperty, ani);
         }
 
+        /// <summary>
+        /// scroll down
+        /// </summary>
+        /// <param name="duration">one team scroll up duration (milliseconds)</param>
+        private void ScrollDown(int duration)
+        {
+            // no need to scroll
+            if (_teams.Count <= AppConst.MaxDisplayCount)
+            {
+                _scrollDown = true;
+                return;
+            }
+
+            _animationDone = false;
+            
+            var animations = new List<DoubleAnimation>();
+
+            var stopTeamIdx = _teams.Count - AppConst.MaxDisplayCount;
+
+            // create animations
+            for (var i = 0; i < stopTeamIdx; i++)
+            {
+                var ani = new DoubleAnimation
+                {
+                    From = AppConst.TeamGridHeight,
+                    To = 0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
+                    FillBehavior = FillBehavior.HoldEnd
+                };
+
+                animations.Add(ani);
+            }
+
+            // add event handler to each animation
+            animations.Last().Completed += (_, _) =>
+            {
+                var teamIdx = animations.Count - 1;
+
+                if (teamIdx + AppConst.MaxRenderCount < _teams.Count)
+                {
+                    Teams.Children.Add(_teams[teamIdx + AppConst.MaxRenderCount]);
+                }
+                
+                Teams.Children.Remove(_teams[animations.Count - 1]);
+                _animationDone = true;
+                _scrollDown = true;
+            };
+
+            for (var i = animations.Count - 2; i >= 0; --i)
+            {
+                var i1 = i;
+                animations[i].Completed += (_, _) =>
+                {
+                    if (i1 + AppConst.MaxRenderCount < _teams.Count)
+                    {
+                        Teams.Children.Add(_teams[i1 + AppConst.MaxRenderCount]);
+                    }
+                    _teams[i1 + 1].BeginAnimation(HeightProperty, animations[i1 + 1]);
+                    Teams.Children.Remove(_teams[i1]);
+                };
+            }
+
+            // begin animation
+            _teams[0].BeginAnimation(HeightProperty, animations[0]);
+        }
+
         protected override async void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
 
             switch (e.Handled)
             {
-                // press `shift` THEN press `escape`
+                // press `shift` THEN press `escape` close window
                 case false when (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                                 && e.IsDown && e.Key == Key.Escape:
                     Close();
                     break;
-                case false when _cursor.Visibility == Visibility.Hidden:
-                    _cursor.Visibility = Visibility.Visible;
+                // break when animation is running
+                case false when !_animationDone:
                     break;
-                case false when e.IsDown && e.Key == Key.Space:
-                    if (!_animationDone) break;
-
-                    if (_scrollDown)
+                // key down and key is `space` and `scrolled down`
+                case false when e.IsDown && e.Key == Key.Space && _scrollDown:
+                    // show cursor first
+                    if (_cursor.Visibility == Visibility.Hidden)
                     {
-                        _animationDone = false;
-                        // TODO update team rank
-                        await _teams[_currentTeamIdx].UpdateTeamStatusStep();
-                        _animationDone = true;
+                        _cursor.Visibility = Visibility.Visible;
+                        break;
                     }
-                    else
-                    {
-                        CursorUp(1000);
-                        //_scrollDown = true;
-                    }
+                    // TODO move cursor up automatically
+                    // _animationDone = false;
+                    // await _teams[_currentTeamIdx].UpdateTeamStatusStep();
+                    // _animationDone = true;
+                    break;
+                // key down and key is `space` and not `scrolled down`
+                case false when e.IsDown && e.Key == Key.Space && !_scrollDown:
+                    ScrollDown(200);
                     break;
             }
         }

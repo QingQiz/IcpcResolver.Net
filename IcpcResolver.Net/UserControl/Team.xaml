@@ -6,7 +6,7 @@
              xmlns:local ="clr-namespace:IcpcResolver.Net.UserControl"
              mc:Ignorable="d"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <Grid Height="Auto">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
