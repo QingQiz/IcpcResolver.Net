@@ -5,7 +5,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using IcpcResolver.Net.UserControl;
+using IcpcResolver.Net.AppConstants;
 using Colors = IcpcResolver.Net.AppConstants.Colors;
 
 namespace IcpcResolver.Net.Window
@@ -15,11 +17,8 @@ namespace IcpcResolver.Net.Window
     /// </summary>
     public partial class Resolver : System.Windows.Window
     {
-        public Resolver()
+        private static List<TeamDto> DataGenerator(int problemN, int teamN)
         {
-            InitializeComponent();
-            InitGrid();
-
             var values = Enum.GetValues(typeof(ProblemStatus));
             var random = new Random();
 
@@ -36,10 +35,8 @@ namespace IcpcResolver.Net.Window
                 };
             }
 
-            const int problemN = 13;
-
-            var teamDtos = Enumerable
-                .Range(0, 20)
+            return Enumerable
+                .Range(0, teamN)
                 .Select(n =>
                 {
                     // NOTE there must be `ToList`
@@ -59,50 +56,71 @@ namespace IcpcResolver.Net.Window
                 .OrderByDescending(t => t.AcceptedCount)
                 .ThenBy(t => t.TimeAll)
                 .ToList();
+            
+        }
 
+        public Resolver()
+        {
+            InitializeComponent();
+
+            var teamDtos = DataGenerator(13, 15);
+            
             for (var i = 0; i < teamDtos.Count; i++)
             {
-                var team = new Team(teamDtos[i]);
-            
+                var team = new Team(teamDtos[i])
+                {
+                    Height = AppConst.TeamGridHeight
+                };
+
                 _teams.Add(team);
 
-                if (i >= MaxTeamNumberToDisplay) continue;
+                if (i >= AppConst.MaxDisplayCount) continue;
 
                 Teams.Children.Add(team);
-                Grid.SetRow(team, i);
-                Grid.SetColumn(team, 0);
             }
             
+            InitGrid();
             UpdateTeamRank();
         }
 
-        private const int MaxTeamNumberToDisplay = 32;
-
         private List<Team> _teams = new();
+        private Border _cursor;
+
         private int _currentTeamIdx = 0;
-        private bool _teamUpdated = true;
+        private bool _animationDone = true;
+        private bool _scrollDown = false;
 
         /// <summary>
-        /// init grid background color to (gray, black, gray, black...)
+        /// init resolver background
         /// </summary>
         private void InitGrid()
         {
-            for (var i = 0; i <= MaxTeamNumberToDisplay; i++)
+            for (var i = 0; i <= AppConst.MaxDisplayCount; i++)
             {
                 var border = new Border
                 {
                     Background = (i & 1) == 0
                         ? new SolidColorBrush(Colors.FromString(Colors.BgGray))
                         : new SolidColorBrush(Colors.FromString(Colors.Black)),
-                    Height = 85
+                    Height = AppConst.TeamGridHeight,
+                    Opacity = 1
                 };
                 
-                Teams.RowDefinitions.Add(new RowDefinition());
-                Teams.Children.Add(border);
-                
-                Grid.SetRow(border, i);
-                Grid.SetColumn(border, 0);
+                BgGrid.Children.Add(border);
             }
+
+            // init cursor
+            _cursor = new Border
+            {
+                Background = new SolidColorBrush(Colors.FromString(Colors.Blue)),
+                Height = AppConst.TeamGridHeight,
+                Visibility = Visibility.Hidden,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Thickness(0, 0, 0, _teams.Count < AppConst.MaxDisplayCount
+                    ? (AppConst.MaxDisplayCount - _teams.Count + 1) * AppConst.TeamGridHeight
+                    : AppConst.TeamGridHeight)
+            };
+            Layout.Children.Insert(1, _cursor);
         }
 
         private void UpdateTeamRank()
@@ -121,6 +139,29 @@ namespace IcpcResolver.Net.Window
             }
         }
 
+        /// <summary>
+        /// move cursor up
+        /// </summary>
+        /// <param name="duration">animation duration in milliseconds</param>
+        private void CursorUp(int duration)
+        {
+            _animationDone = false;
+
+            var ani = new ThicknessAnimation
+            {
+                From = _cursor.Margin,
+                To = new Thickness(0, 0 , 0, _cursor.Margin.Bottom + AppConst.TeamGridHeight),
+                Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
+                FillBehavior = FillBehavior.HoldEnd
+            };
+            ani.Completed += (_, _) =>
+            {
+                _animationDone = true;
+            };
+
+            _cursor.BeginAnimation(Border.MarginProperty, ani);
+        }
+
         protected override async void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -132,12 +173,24 @@ namespace IcpcResolver.Net.Window
                                 && e.IsDown && e.Key == Key.Escape:
                     Close();
                     break;
+                case false when _cursor.Visibility == Visibility.Hidden:
+                    _cursor.Visibility = Visibility.Visible;
+                    break;
                 case false when e.IsDown && e.Key == Key.Space:
-                    if (!_teamUpdated) break;
-                    _teamUpdated = false;
-                    await _teams[_currentTeamIdx].UpdateTeamStatusStep();
-                    _teamUpdated = true;
-                    MessageBox.Show(_teamUpdated.ToString());
+                    if (!_animationDone) break;
+
+                    if (_scrollDown)
+                    {
+                        _animationDone = false;
+                        // TODO update team rank
+                        await _teams[_currentTeamIdx].UpdateTeamStatusStep();
+                        _animationDone = true;
+                    }
+                    else
+                    {
+                        CursorUp(1000);
+                        //_scrollDown = true;
+                    }
                     break;
             }
         }

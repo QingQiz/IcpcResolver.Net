@@ -13,6 +13,8 @@ namespace IcpcResolver.Net.AppConstants
         public const string LightYellow = "#FEFF00";
 
         public const string Black = "#000000";
+
+        public const string Blue = "#4B82E0";
         
         // DarkGray > BgGray > Gray
         public const string Gray = "#6F6F6F";

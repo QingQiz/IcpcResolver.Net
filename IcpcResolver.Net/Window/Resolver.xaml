@@ -16,7 +16,7 @@
     </Window.Resources>
 
     <!-- main window -->
-    <StackPanel Background="Gray">
+    <StackPanel>
         <!-- header -->
         <Border BorderThickness="0 0 0 2" BorderBrush="White">
             <Grid Background="Black">
@@ -51,6 +51,9 @@
         </Border>
 
         <!-- content -->
-        <Grid x:Name="Teams"/>
+        <Grid x:Name="Layout">
+            <StackPanel x:Name="BgGrid"/>
+            <StackPanel x:Name="Teams" Background="Transparent"/>
+        </Grid>
     </StackPanel>
 </Window>
