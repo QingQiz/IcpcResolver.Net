@@ -16,9 +16,21 @@
     </Window.Resources>
 
     <!-- main window -->
-    <StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="37"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- content -->
+        <!-- NOTE: Define `Grid.Row="1"` in advance to make its Z-Index smaller -->
+        <Grid Grid.Row="1" x:Name="Layout">
+            <StackPanel x:Name="BgGrid"/>
+            <StackPanel x:Name="Teams" Background="Transparent"/>
+        </Grid>
+
         <!-- header -->
-        <Border BorderThickness="0 0 0 2" BorderBrush="White">
+        <Border Grid.Row="0" BorderThickness="0 0 0 2" BorderBrush="White">
             <Grid Background="Black">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90"/>
@@ -49,11 +61,5 @@
                        Content="Time"/>
             </Grid>
         </Border>
-
-        <!-- content -->
-        <Grid x:Name="Layout">
-            <StackPanel x:Name="BgGrid"/>
-            <StackPanel x:Name="Teams" Background="Transparent"/>
-        </Grid>
-    </StackPanel>
+    </Grid>
 </Window>

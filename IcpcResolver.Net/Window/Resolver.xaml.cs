@@ -152,7 +152,7 @@ namespace IcpcResolver.Net.Window
                 From = _cursor.Margin,
                 To = new Thickness(0, 0 , 0, _cursor.Margin.Bottom + AppConst.TeamGridHeight),
                 Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
-                FillBehavior = FillBehavior.HoldEnd
+                FillBehavior = FillBehavior.HoldEnd,
             };
             ani.Completed += (_, _) =>
             {
@@ -166,31 +166,35 @@ namespace IcpcResolver.Net.Window
         /// scroll down
         /// </summary>
         /// <param name="duration">one team scroll up duration (milliseconds)</param>
-        private void ScrollDown(int duration)
+        /// <param name="durationAdjust">adjust time span between animations of two row</param>
+        private void ScrollDown(int duration, int durationAdjust=0)
         {
-            // no need to scroll
             if (_teams.Count <= AppConst.MaxDisplayCount)
             {
                 _scrollDown = true;
                 return;
             }
 
+            var d = new Duration(TimeSpan.FromMilliseconds(duration));
+
             _animationDone = false;
             
-            var animations = new List<DoubleAnimation>();
+            var animations = new List<ThicknessAnimation>();
 
             var stopTeamIdx = _teams.Count - AppConst.MaxDisplayCount;
 
             // create animations
             for (var i = 0; i < stopTeamIdx; i++)
             {
-                var ani = new DoubleAnimation
+                var ani = new ThicknessAnimation
                 {
-                    From = AppConst.TeamGridHeight,
-                    To = 0,
-                    Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
+                    BeginTime = TimeSpan.FromMilliseconds((duration - durationAdjust) * i),
+                    From = Teams.Margin,
+                    To = new Thickness(0, Teams.Margin.Top - AppConst.TeamGridHeight, 0, 0),
+                    Duration = d,
                     FillBehavior = FillBehavior.HoldEnd
                 };
+                Timeline.SetDesiredFrameRate(ani, 120);
 
                 animations.Add(ani);
             }
@@ -204,28 +208,29 @@ namespace IcpcResolver.Net.Window
                 {
                     Teams.Children.Add(_teams[teamIdx + AppConst.MaxRenderCount]);
                 }
+                // NOTE: no need to remove
                 
-                Teams.Children.Remove(_teams[animations.Count - 1]);
                 _animationDone = true;
                 _scrollDown = true;
             };
 
-            for (var i = animations.Count - 2; i >= 0; --i)
+            for (var i = 0; i < animations.Count; i++)
             {
                 var i1 = i;
                 animations[i].Completed += (_, _) =>
                 {
+                    Teams.Children.RemoveAt(0);
                     if (i1 + AppConst.MaxRenderCount < _teams.Count)
                     {
                         Teams.Children.Add(_teams[i1 + AppConst.MaxRenderCount]);
                     }
-                    _teams[i1 + 1].BeginAnimation(HeightProperty, animations[i1 + 1]);
-                    Teams.Children.Remove(_teams[i1]);
                 };
             }
 
-            // begin animation
-            _teams[0].BeginAnimation(HeightProperty, animations[0]);
+            for (var i = 0; i < animations.Count; i++)
+            {
+                _teams[i].BeginAnimation(MarginProperty, animations[i]);
+            }
         }
 
         protected override async void OnKeyDown(KeyEventArgs e)
@@ -257,7 +262,7 @@ namespace IcpcResolver.Net.Window
                     break;
                 // key down and key is `space` and not `scrolled down`
                 case false when e.IsDown && e.Key == Key.Space && !_scrollDown:
-                    ScrollDown(200);
+                    ScrollDown(300);
                     break;
             }
         }
