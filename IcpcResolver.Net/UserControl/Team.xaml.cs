@@ -15,10 +15,10 @@ namespace IcpcResolver.Net.UserControl
         public Team(TeamDto team) : this()
         {
             _teamInfo = team;
-            TeamRank = _teamInfo.Rank;
-            TeamName = _teamInfo.Name;
+            TeamRank = _teamInfo.TeamRank;
+            TeamName = _teamInfo.TeamName;
 
-            Solved = team.AcceptedCount;
+            Solved = team.Solved;
             Time = team.TimeAll;
 
             var cnt = 0;
@@ -94,7 +94,7 @@ namespace IcpcResolver.Net.UserControl
                 break;
             }
             // if problem is accepted, update solved-count and time and break
-            Solved = _teamInfo.AcceptedCount;
+            Solved = _teamInfo.Solved;
             Time = _teamInfo.TimeAll;
         }
     }

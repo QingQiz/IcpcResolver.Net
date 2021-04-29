@@ -5,14 +5,14 @@ namespace IcpcResolver.Net.UserControl
 {
     public class TeamDto
     {
-        public int Rank;
-        public string Name;
+        public int TeamRank;
+        public string TeamName;
         // Problem status before freeze
         public List<ProblemDto> ProblemsFrom;
         // Problem status after contest
         public List<ProblemDto> ProblemsTo;
 
-        public int AcceptedCount => ProblemsFrom.Count(p => p.IsAccepted);
+        public int Solved => ProblemsFrom.Count(p => p.IsAccepted);
         public int TimeAll => ProblemsFrom.Sum(p => p.TimeAll());
 
         public TeamDto PostInit()

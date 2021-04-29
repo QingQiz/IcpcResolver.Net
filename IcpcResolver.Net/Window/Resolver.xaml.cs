@@ -17,6 +17,8 @@ namespace IcpcResolver.Net.Window
     /// </summary>
     public partial class Resolver : System.Windows.Window
     {
+        #region Init
+
         private static List<TeamDto> DataGenerator(int problemN, int teamN)
         {
             var values = Enum.GetValues(typeof(ProblemStatus));
@@ -47,13 +49,13 @@ namespace IcpcResolver.Net.Window
 
                     return new TeamDto
                     {
-                        Rank = 0,
-                        Name = "Team" + n,
+                        TeamRank = 0,
+                        TeamName = "Team" + n,
                         ProblemsFrom = Problems(),
                         ProblemsTo = Problems()
                     }.PostInit();
                 })
-                .OrderByDescending(t => t.AcceptedCount)
+                .OrderByDescending(t => t.Solved)
                 .ThenBy(t => t.TimeAll)
                 .ToList();
             
@@ -62,38 +64,65 @@ namespace IcpcResolver.Net.Window
         public Resolver()
         {
             InitializeComponent();
-
-            var teamDtos = DataGenerator(13, 250);
-            
-            for (var i = 0; i < teamDtos.Count; i++)
-            {
-                var team = new Team(teamDtos[i])
-                {
-                    Height = AppConst.TeamGridHeight
-                };
-
-                _teams.Add(team);
-
-                if (i >= AppConst.MaxRenderCount) continue;
-
-                Teams.Children.Add(team);
-            }
-            
-            InitResolverBackground();
-            UpdateTeamRank();
+            _teamDtos = DataGenerator(12, 30);
+            InitResolverBackgroundGrid();
         }
 
-        private List<Team> _teams = new();
-        private Border _cursor;
+        private void WindowRendered(object sender, EventArgs e)
+        {
+            InitTeams();
+            InitCursor();
+        }
 
-        private int _currentTeamIdx = 0;
-        private bool _animationDone = true;
-        private bool _scrollDown = false;
+        private void InitCursor()
+        {
+            // init cursor
+            _cursor = new Border
+            {
+                Background = new SolidColorBrush(Colors.FromString(Colors.Blue)),
+                Height = AppConst.TeamGridHeight,
+                Visibility = Visibility.Hidden,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0,
+                    _teams.Count < AppConst.MaxDisplayCount
+                        ? (_teams.Count - 1) * AppConst.TeamGridHeight
+                        : (AppConst.MaxDisplayCount - 1) * AppConst.TeamGridHeight
+                    , 0, 0)
+            };
+            Layout.Children.Insert(1, _cursor);
+        }
+
+        private void InitTeams()
+        {
+            // disable animations
+            _animationDone = false;
+
+            for (var i = 0; i < AppConst.MaxRenderCount; i++)
+            {
+                _teams.Add(new Team(_teamDtos[i])
+                {
+                    Height = AppConst.TeamGridHeight,
+                });
+                Teams.Children.Add(_teams[i]);
+            }
+
+            for (var i = AppConst.MaxRenderCount; i < _teamDtos.Count; i++)
+            {
+                _teams.Add(new Team(_teamDtos[i])
+                {
+                    Height = AppConst.TeamGridHeight
+                });
+            }
+            ReCalcTeamRank();
+
+            // enable animations
+            _animationDone = true;
+        }
 
         /// <summary>
         /// init resolver background
         /// </summary>
-        private void InitResolverBackground()
+        private void InitResolverBackgroundGrid()
         {
             for (var i = 0; i <= AppConst.MaxDisplayCount; i++)
             {
@@ -109,21 +138,22 @@ namespace IcpcResolver.Net.Window
                 BgGrid.Children.Add(border);
             }
 
-            // init cursor
-            _cursor = new Border
-            {
-                Background = new SolidColorBrush(Colors.FromString(Colors.Blue)),
-                Height = AppConst.TeamGridHeight,
-                Visibility = Visibility.Hidden,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Margin = new Thickness(0, 0, 0, _teams.Count < AppConst.MaxDisplayCount
-                    ? (AppConst.MaxDisplayCount - _teams.Count + 1) * AppConst.TeamGridHeight
-                    : AppConst.TeamGridHeight)
-            };
-            Layout.Children.Insert(1, _cursor);
         }
 
-        private void UpdateTeamRank()
+        #endregion
+
+        private readonly List<Team> _teams = new();
+        private readonly List<TeamDto> _teamDtos;
+        private Border _cursor;
+
+        private bool _animationDone = true;
+        private bool _scrollDown;
+        private int _currentTeamIdx;
+
+
+        #region Animations
+
+        private void ReCalcTeamRank()
         {
             _teams[0].TeamRank = 1;
             for (int i = 1, j = 1; i < _teams.Count; i++)
@@ -209,7 +239,8 @@ namespace IcpcResolver.Net.Window
                     Teams.Children.Add(_teams[teamIdx + AppConst.MaxRenderCount]);
                 }
                 // NOTE: no need to remove
-                
+
+                _currentTeamIdx = _teams.Count - 1;
                 _animationDone = true;
                 _scrollDown = true;
             };
@@ -232,7 +263,12 @@ namespace IcpcResolver.Net.Window
                 _teams[i].BeginAnimation(MarginProperty, animations[i]);
             }
         }
+        
+        #endregion
 
+
+        #region KeyHandler
+        
         protected override async void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -256,15 +292,17 @@ namespace IcpcResolver.Net.Window
                         break;
                     }
                     // TODO move cursor up automatically
-                    // _animationDone = false;
-                    // await _teams[_currentTeamIdx].UpdateTeamStatusStep();
-                    // _animationDone = true;
+                    _animationDone = false;
+                    await _teams[_currentTeamIdx].UpdateTeamStatusStep();
+                    _animationDone = true;
                     break;
                 // key down and key is `space` and not `scrolled down`
                 case false when e.IsDown && e.Key == Key.Space && !_scrollDown:
-                    ScrollDown(300);
+                    ScrollDown(30);
                     break;
             }
         }
+
+        #endregion
     }
 }
