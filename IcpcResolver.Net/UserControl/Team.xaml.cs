@@ -76,14 +76,16 @@ namespace IcpcResolver.Net.UserControl
             DependencyProperty.Register("Solved", typeof(int), typeof(Team));
 
 
-        public async Task UpdateTeamStatusStep()
+        public async Task<bool> UpdateTeamStatusAnimation()
         {
+            var isUpdated = false;
             for (var i = 0; i < _teamInfo.ProblemsFrom.Count; i++)
             {
                 // only update pending problems
                 if (_teamInfo.ProblemsFrom[i].Status != ProblemStatus.Pending) continue;
 
-                await _problems[i].UpdateStatus(_teamInfo.ProblemsTo[i]);
+                await _problems[i].UpdateStatusAnimation(_teamInfo.ProblemsTo[i]);
+                isUpdated = true;
 
                 _teamInfo.ProblemsFrom[i].Status = _teamInfo.ProblemsTo[i].Status;
                 // for rollback
@@ -96,6 +98,7 @@ namespace IcpcResolver.Net.UserControl
             // if problem is accepted, update solved-count and time and break
             Solved = _teamInfo.Solved;
             Time = _teamInfo.TimeAll;
+            return isUpdated;
         }
     }
 }

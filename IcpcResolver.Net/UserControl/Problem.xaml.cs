@@ -89,7 +89,7 @@ namespace IcpcResolver.Net.UserControl
         private static readonly DependencyProperty LabelOrContentProperty =
             DependencyProperty.Register("LabelOrContent", typeof(string), typeof(Problem));
 
-        public async Task UpdateStatus(ProblemDto to)
+        public async Task UpdateStatusAnimation(ProblemDto to)
         {
             if (Status != ProblemStatus.Pending || to.Status == ProblemStatus.Pending) return;
 
