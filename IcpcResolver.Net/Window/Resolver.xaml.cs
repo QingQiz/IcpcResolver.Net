@@ -296,7 +296,7 @@ namespace IcpcResolver.Net.Window
                 break;
             }
 
-            if (newIdx == _currentTeamIdx || newIdx == -1)
+            if (newIdx >= _currentTeamIdx || newIdx == -1)
             {
                 _animationDone = true;
                 // rank not change, update again
@@ -379,15 +379,21 @@ namespace IcpcResolver.Net.Window
             };
             Timeline.SetDesiredFrameRate(aniDown, 120);
             // 2. add new team if needed
+            var nextTeamIdx = newIdx + 1;
             if (targetMt < 0)
             {
-                var newTeamIdx = _currentTeamIdx - _cursorIdx - 1;
-                if (newTeamIdx == newIdx) newTeamIdx = newIdx + 1;
+                nextTeamIdx = _currentTeamIdx - _cursorIdx;
+                if (nextTeamIdx == newIdx) nextTeamIdx = newIdx + 1;
 
                 // 2.1 insert new team to the top of Teams
-                Teams.Children.Insert(0, _teams[newTeamIdx]);
+                Teams.Children.Insert(0, _teams[nextTeamIdx]);
                 // 2.2 adjust the margin of Teams to hide the new team inserted
                 Teams.Margin = new Thickness(0, -AppConst.TeamGridHeight, 0, 0);
+                // 2.3 add completed event handler to change Teams margin back
+                aniDown.Completed += (_, _) =>
+                {
+                    Teams.Margin = new Thickness(0, 0, 0, 0);
+                };
             }
             
             // animation (adjust the margin of the team below old position back)
@@ -399,7 +405,12 @@ namespace IcpcResolver.Net.Window
                     From = _teams[_currentTeamIdx + 1].Margin,
                     To = new Thickness(0, 0, 0, 0),
                     Duration = dt,
-                    FillBehavior = FillBehavior.HoldEnd
+                    // NOTE: do NOT use FillBehavior.HoldEnd, it will prevent the next adjustment of Margin
+                    FillBehavior = FillBehavior.Stop
+                };
+                aniAdjBack.Completed += (_, _) =>
+                {
+                    _teams[_currentTeamIdx + 1].Margin = new Thickness(0, 0, 0, 0);
                 };
                 Timeline.SetDesiredFrameRate(aniDown, 120);
             }
@@ -410,16 +421,7 @@ namespace IcpcResolver.Net.Window
                 _teams[_currentTeamIdx + 1].BeginAnimation(MarginProperty, aniAdjBack);
             }
 
-            if (targetMt < 0)
-            {
-                aniDown.FillBehavior = FillBehavior.HoldEnd;
-                Teams.BeginAnimation(MarginProperty, aniDown);
-            }
-            else
-            {
-                _teams[newIdx + 1].BeginAnimation(MarginProperty, aniDown);
-            }
-            
+            _teams[nextTeamIdx].BeginAnimation(MarginProperty, aniDown);
             _teams[newIdx].BeginAnimation(MarginProperty, aniUp);
 
             return 0;

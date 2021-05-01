@@ -30,6 +30,14 @@ namespace IcpcResolver.Net.UserControl
                         ProblemsFrom[i].Time = ProblemsTo[i].Time;
                         ProblemsFrom[i].Try = ProblemsTo[i].Try;
                         break;
+                    case false when ProblemsTo[i].Status == ProblemStatus.Pending:
+                        ProblemsFrom[i].Status = ProblemStatus.NotTried;
+                        ProblemsFrom[i].Time = 0;
+                        ProblemsFrom[i].Try = 0;
+                        ProblemsTo[i].Status = ProblemStatus.NotTried;
+                        ProblemsTo[i].Time = 0;
+                        ProblemsTo[i].Try = 0;
+                        break;
                 }
             }
             return this;
