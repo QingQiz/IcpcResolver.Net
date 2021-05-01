@@ -76,7 +76,7 @@ namespace IcpcResolver.Net.UserControl
             DependencyProperty.Register("Solved", typeof(int), typeof(Team));
 
 
-        public async Task<bool> UpdateTeamStatusAnimation()
+        public async Task<bool> UpdateTeamStatusAnimation(int durationBeforeHighlight, int durationBeforeUpdate)
         {
             var isUpdated = false;
             for (var i = 0; i < _teamInfo.ProblemsFrom.Count; i++)
@@ -84,7 +84,8 @@ namespace IcpcResolver.Net.UserControl
                 // only update pending problems
                 if (_teamInfo.ProblemsFrom[i].Status != ProblemStatus.Pending) continue;
 
-                await _problems[i].UpdateStatusAnimation(_teamInfo.ProblemsTo[i]);
+                await _problems[i].UpdateStatusAnimation(_teamInfo.ProblemsTo[i], durationBeforeHighlight,
+                    durationBeforeUpdate);
                 isUpdated = true;
 
                 _teamInfo.ProblemsFrom[i].Status = _teamInfo.ProblemsTo[i].Status;

@@ -7,8 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using IcpcResolver.Net.UserControl;
 using IcpcResolver.Net.AppConstants;
+using IcpcResolver.Net.UserControl;
 using Colors = IcpcResolver.Net.AppConstants.Colors;
 
 namespace IcpcResolver.Net.Window
@@ -66,6 +66,21 @@ namespace IcpcResolver.Net.Window
         {
             InitializeComponent();
             _teamDtos = DataGenerator(2, 20);
+            Config = new ResolverConfig
+            {
+                TeamGridHeight = AppConst.TeamGridHeight,
+                MaxDisplayCount = 13,
+                MaxRenderCount = 15,
+                
+                ScrollDownDuration = 200,
+                ScrollDownDurationAdjust = 0,
+                CursorUpDuration = 500,
+                UpdateTeamRankDuration = 800,
+                AnimationFrameRate = 120,
+                UpdateProblemStatusDuration = new Tuple<int, int>(400, 700)
+            };
+            // hide mouse
+            Cursor = Cursors.None;
             InitResolverBackgroundGrid();
         }
 
@@ -81,16 +96,16 @@ namespace IcpcResolver.Net.Window
             _cursor = new Border
             {
                 Background = new SolidColorBrush(Colors.FromString(Colors.Blue)),
-                Height = AppConst.TeamGridHeight,
+                Height = Config.TeamGridHeight,
                 Visibility = Visibility.Hidden,
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0,
-                    _teams.Count < AppConst.MaxDisplayCount
-                        ? (_teams.Count - 1) * AppConst.TeamGridHeight
-                        : (AppConst.MaxDisplayCount - 1) * AppConst.TeamGridHeight
+                    _teams.Count < Config.MaxDisplayCount
+                        ? (_teams.Count - 1) * Config.TeamGridHeight
+                        : (Config.MaxDisplayCount - 1) * Config.TeamGridHeight
                     , 0, 0)
             };
-            _cursorIdx = (int)_cursor.Margin.Top / AppConst.TeamGridHeight;
+            _cursorIdx = (int)_cursor.Margin.Top / Config.TeamGridHeight;
             Layout.Children.Insert(1, _cursor);
         }
 
@@ -99,20 +114,20 @@ namespace IcpcResolver.Net.Window
             // disable animations
             _animationDone = false;
 
-            for (var i = 0; i < AppConst.MaxRenderCount; i++)
+            for (var i = 0; i < Config.MaxRenderCount; i++)
             {
                 _teams.Add(new Team(_teamDtos[i])
                 {
-                    Height = AppConst.TeamGridHeight,
+                    Height = Config.TeamGridHeight,
                 });
                 Teams.Children.Add(_teams[i]);
             }
 
-            for (var i = AppConst.MaxRenderCount; i < _teamDtos.Count; i++)
+            for (var i = Config.MaxRenderCount; i < _teamDtos.Count; i++)
             {
                 _teams.Add(new Team(_teamDtos[i])
                 {
-                    Height = AppConst.TeamGridHeight
+                    Height = Config.TeamGridHeight
                 });
             }
             ReCalcTeamRank();
@@ -126,14 +141,14 @@ namespace IcpcResolver.Net.Window
         /// </summary>
         private void InitResolverBackgroundGrid()
         {
-            for (var i = 0; i <= AppConst.MaxDisplayCount + 1; i++)
+            for (var i = 0; i <= Config.MaxDisplayCount + 1; i++)
             {
                 var border = new Border
                 {
                     Background = (i & 1) == 0
                         ? new SolidColorBrush(Colors.FromString(Colors.BgGray))
                         : new SolidColorBrush(Colors.FromString(Colors.Black)),
-                    Height = AppConst.TeamGridHeight,
+                    Height = Config.TeamGridHeight,
                     Opacity = 1
                 };
                 
@@ -152,6 +167,8 @@ namespace IcpcResolver.Net.Window
         private bool _animationDone = true;
         private bool _scrollDown;
         private int _currentTeamIdx;
+
+        private ResolverConfig Config;
 
         private void ReCalcTeamRank()
         {
@@ -183,13 +200,13 @@ namespace IcpcResolver.Net.Window
             _animationDone = false;
 
             var dt = new Duration(TimeSpan.FromMilliseconds(duration));
-            if (_cursorIdx > AppConst.MaxDisplayCount / 2 || _cursorIdx == _currentTeamIdx)
+            if (_cursorIdx > Config.MaxDisplayCount / 2 || _cursorIdx == _currentTeamIdx)
             {
                 // cursor up
                 var ani = new ThicknessAnimation
                 {
                     From = _cursor.Margin,
-                    To = new Thickness(0, _cursor.Margin.Top - AppConst.TeamGridHeight , 0, 0),
+                    To = new Thickness(0, _cursor.Margin.Top - Config.TeamGridHeight , 0, 0),
                     Duration = dt,
                     FillBehavior = FillBehavior.HoldEnd,
                 };
@@ -209,13 +226,13 @@ namespace IcpcResolver.Net.Window
                 // insert the new team to scroll down
                 Teams.Children.Insert(0, _teams[newTeamIdx]);
                 // hide new team on init
-                Teams.Margin = new Thickness(0, -AppConst.TeamGridHeight, 0, 0);
+                Teams.Margin = new Thickness(0, -Config.TeamGridHeight, 0, 0);
                 
                 // animation
                 var ani = new ThicknessAnimation
                 {
                     From = new Thickness(0, 0, 0, 0),
-                    To = new Thickness(0, AppConst.TeamGridHeight, 0, 0),
+                    To = new Thickness(0, Config.TeamGridHeight, 0, 0),
                     Duration = dt,
                     FillBehavior = FillBehavior.Stop
                 };
@@ -223,13 +240,13 @@ namespace IcpcResolver.Net.Window
                 {
                     Teams.Margin = new Thickness(0, 0, 0, 0);
                     _teams[newTeamIdx].Margin = new Thickness(0, 0, 0, 0);
-                    Teams.Children.RemoveAt(AppConst.MaxDisplayCount);
+                    Teams.Children.RemoveAt(Config.MaxDisplayCount);
 
                     _currentTeamIdx--;
                     _animationDone = true;
                 };
 
-                Timeline.SetDesiredFrameRate(ani, 120);
+                Timeline.SetDesiredFrameRate(ani, Config.AnimationFrameRate);
                 _teams[newTeamIdx].BeginAnimation(MarginProperty, ani);
             }
         }
@@ -241,7 +258,7 @@ namespace IcpcResolver.Net.Window
         /// <param name="durationAdjust">adjust time span between animations of two row</param>
         private void ScrollDownAnimation(int duration, int durationAdjust=0)
         {
-            if (_teams.Count <= AppConst.MaxDisplayCount)
+            if (_teams.Count <= Config.MaxDisplayCount)
             {
                 _scrollDown = true;
                 return;
@@ -253,20 +270,20 @@ namespace IcpcResolver.Net.Window
             
             var animations = new List<ThicknessAnimation>();
 
-            var stopTeamIdx = _teams.Count - AppConst.MaxDisplayCount;
+            var stopTeamIdx = _teams.Count - Config.MaxDisplayCount;
 
             // create animations
             for (var i = 0; i < stopTeamIdx; i++)
             {
                 var ani = new ThicknessAnimation
                 {
-                    BeginTime = TimeSpan.FromMilliseconds((duration - durationAdjust) * i),
+                    BeginTime = TimeSpan.FromMilliseconds((duration + durationAdjust) * i),
                     From = Teams.Margin,
-                    To = new Thickness(0, Teams.Margin.Top - AppConst.TeamGridHeight, 0, 0),
+                    To = new Thickness(0, Teams.Margin.Top - Config.TeamGridHeight, 0, 0),
                     Duration = d,
                     FillBehavior = FillBehavior.HoldEnd
                 };
-                Timeline.SetDesiredFrameRate(ani, 120);
+                Timeline.SetDesiredFrameRate(ani, Config.AnimationFrameRate);
 
                 animations.Add(ani);
             }
@@ -285,9 +302,9 @@ namespace IcpcResolver.Net.Window
                 animations[i].Completed += (_, _) =>
                 {
                     Teams.Children.RemoveAt(0);
-                    if (i1 + AppConst.MaxRenderCount < _teams.Count)
+                    if (i1 + Config.MaxRenderCount < _teams.Count)
                     {
-                        Teams.Children.Add(_teams[i1 + AppConst.MaxRenderCount]);
+                        Teams.Children.Add(_teams[i1 + Config.MaxRenderCount]);
                     }
                 };
             }
@@ -313,7 +330,9 @@ namespace IcpcResolver.Net.Window
 
             _animationDone = false;
 
-            var updated = await _teams[_currentTeamIdx].UpdateTeamStatusAnimation();
+            var updated = await _teams[_currentTeamIdx]
+                .UpdateTeamStatusAnimation(Config.UpdateProblemStatusDuration.Item1,
+                    Config.UpdateProblemStatusDuration.Item2);
 
             if (!updated)
             {
@@ -357,10 +376,10 @@ namespace IcpcResolver.Net.Window
             // re-calc team rank
             ReCalcTeamRank();
 
-            var targetMt = (_cursorIdx - _currentTeamIdx + newIdx) * AppConst.TeamGridHeight;
+            var targetMt = (_cursorIdx - _currentTeamIdx + newIdx) * Config.TeamGridHeight;
             if (targetMt < 0)
             {
-                targetMt = -AppConst.TeamGridHeight;
+                targetMt = -Config.TeamGridHeight;
             }
 
             var dt = new Duration(TimeSpan.FromMilliseconds(duration));
@@ -376,7 +395,7 @@ namespace IcpcResolver.Net.Window
             // 1.4 adjust the margin of the team below old position
             if (_currentTeamIdx != _teams.Count - 1)
             {
-                _teams[_currentTeamIdx + 1].Margin = new Thickness(0, AppConst.TeamGridHeight, 0, 0);
+                _teams[_currentTeamIdx + 1].Margin = new Thickness(0, Config.TeamGridHeight, 0, 0);
             }
             // 2. create animation to move current team to correct position
             // 2.1 create ThicknessAnimation, make current.Marget to target margin
@@ -403,23 +422,23 @@ namespace IcpcResolver.Net.Window
                     // 2.2.1 remove current team from Layout
                     Layout.Children.Remove(_teams[newIdx]);
                     // 2.2.2 insert current team to Teams
-                    Teams.Children.Insert(targetMt / AppConst.TeamGridHeight, _teams[newIdx]);
+                    Teams.Children.Insert(targetMt / Config.TeamGridHeight, _teams[newIdx]);
                 }
 
                 _animationDone = true;
             };
-            Timeline.SetDesiredFrameRate(aniUp, 120);
+            Timeline.SetDesiredFrameRate(aniUp, Config.AnimationFrameRate);
             
             // animation (move teams below target position down)
             // 1. create animation to move team down
             var aniDown = new ThicknessAnimation
             {
                 From = new Thickness(0, 0, 0, 0),
-                To = new Thickness(0, AppConst.TeamGridHeight, 0, 0),
+                To = new Thickness(0, Config.TeamGridHeight, 0, 0),
                 Duration = dt,
                 FillBehavior = FillBehavior.Stop
             };
-            Timeline.SetDesiredFrameRate(aniDown, 120);
+            Timeline.SetDesiredFrameRate(aniDown, Config.AnimationFrameRate);
             // 2. add new team if needed
             var nextTeamIdx = newIdx + 1;
             if (targetMt < 0)
@@ -430,7 +449,7 @@ namespace IcpcResolver.Net.Window
                 // 2.1 insert new team to the top of Teams
                 Teams.Children.Insert(0, _teams[nextTeamIdx]);
                 // 2.2 adjust the margin of Teams to hide the new team inserted
-                Teams.Margin = new Thickness(0, -AppConst.TeamGridHeight, 0, 0);
+                Teams.Margin = new Thickness(0, -Config.TeamGridHeight, 0, 0);
                 // 2.3 add completed event handler to change Teams margin back
                 aniDown.Completed += (_, _) =>
                 {
@@ -454,7 +473,7 @@ namespace IcpcResolver.Net.Window
                 {
                     _teams[_currentTeamIdx + 1].Margin = new Thickness(0, 0, 0, 0);
                 };
-                Timeline.SetDesiredFrameRate(aniDown, 120);
+                Timeline.SetDesiredFrameRate(aniDown, Config.AnimationFrameRate);
             }
             
             // START ANIMATION
@@ -497,11 +516,11 @@ namespace IcpcResolver.Net.Window
                         break;
                     }
 
-                    switch (await UpdateTeamRankAnimation(1000))
+                    switch (await UpdateTeamRankAnimation(Config.UpdateTeamRankDuration))
                     {
                         // no up and no down
                         case 1:
-                            CursorUpAnimation(500);
+                            CursorUpAnimation(Config.CursorUpDuration);
                             break;
                         // 1 up and 1 down
                         case 0:
@@ -512,7 +531,7 @@ namespace IcpcResolver.Net.Window
                     break;
                 // key down and key is `space` and not `scrolled down`
                 case false when e.IsDown && e.Key == Key.Space && !_scrollDown:
-                    ScrollDownAnimation(200);
+                    ScrollDownAnimation(Config.ScrollDownDuration, Config.ScrollDownDurationAdjust);
                     break;
             }
         }

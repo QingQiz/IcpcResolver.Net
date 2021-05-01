@@ -89,14 +89,14 @@ namespace IcpcResolver.Net.UserControl
         private static readonly DependencyProperty LabelOrContentProperty =
             DependencyProperty.Register("LabelOrContent", typeof(string), typeof(Problem));
 
-        public async Task UpdateStatusAnimation(ProblemDto to)
+        public async Task UpdateStatusAnimation(ProblemDto to, int durationBeforeHighlight, int durationBeforeUpdate)
         {
             if (Status != ProblemStatus.Pending || to.Status == ProblemStatus.Pending) return;
 
-            await Task.Delay(700);
+            await Task.Delay(durationBeforeHighlight);
             BorderColor = Colors.LightYellow;
 
-            await Task.Delay(1300);
+            await Task.Delay(durationBeforeUpdate);
             Status = to.Status;
             _try = to.Try;
             _time = to.Time;

@@ -26,5 +26,8 @@
       <Compile Update="UserControl\TeamDto.cs">
         <DependentUpon>Team.xaml</DependentUpon>
       </Compile>
+      <Compile Update="Window\ResolverConfig.cs">
+        <DependentUpon>Resolver.xaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>
