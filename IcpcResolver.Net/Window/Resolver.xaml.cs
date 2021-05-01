@@ -177,23 +177,61 @@ namespace IcpcResolver.Net.Window
         /// <param name="duration">animation duration in milliseconds</param>
         private void CursorUpAnimation(int duration)
         {
+            if (!_animationDone) return;
+            if (_cursorIdx == 0) return;
+
             _animationDone = false;
 
-            var ani = new ThicknessAnimation
+            var dt = new Duration(TimeSpan.FromMilliseconds(duration));
+            if (_cursorIdx > AppConst.MaxDisplayCount / 2 || _cursorIdx == _currentTeamIdx)
             {
-                From = _cursor.Margin,
-                To = new Thickness(0, _cursor.Margin.Top - AppConst.TeamGridHeight , 0, 0),
-                Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
-                FillBehavior = FillBehavior.HoldEnd,
-            };
-            ani.Completed += (_, _) =>
-            {
-                _cursorIdx--;
-                _currentTeamIdx--;
-                _animationDone = true;
-            };
+                // cursor up
+                var ani = new ThicknessAnimation
+                {
+                    From = _cursor.Margin,
+                    To = new Thickness(0, _cursor.Margin.Top - AppConst.TeamGridHeight , 0, 0),
+                    Duration = dt,
+                    FillBehavior = FillBehavior.HoldEnd,
+                };
+                ani.Completed += (_, _) =>
+                {
+                    _cursorIdx--;
+                    _currentTeamIdx--;
+                    _animationDone = true;
+                };
 
-            _cursor.BeginAnimation(Border.MarginProperty, ani);
+                _cursor.BeginAnimation(Border.MarginProperty, ani);
+            }
+            else
+            {
+                // not move cursor, but move Teams down
+                var newTeamIdx = _currentTeamIdx - _cursorIdx - 1;
+                // insert the new team to scroll down
+                Teams.Children.Insert(0, _teams[newTeamIdx]);
+                // hide new team on init
+                Teams.Margin = new Thickness(0, -AppConst.TeamGridHeight, 0, 0);
+                
+                // animation
+                var ani = new ThicknessAnimation
+                {
+                    From = new Thickness(0, 0, 0, 0),
+                    To = new Thickness(0, AppConst.TeamGridHeight, 0, 0),
+                    Duration = dt,
+                    FillBehavior = FillBehavior.Stop
+                };
+                ani.Completed += (_, _) =>
+                {
+                    Teams.Margin = new Thickness(0, 0, 0, 0);
+                    _teams[newTeamIdx].Margin = new Thickness(0, 0, 0, 0);
+                    Teams.Children.RemoveAt(AppConst.MaxDisplayCount);
+
+                    _currentTeamIdx--;
+                    _animationDone = true;
+                };
+
+                Timeline.SetDesiredFrameRate(ani, 120);
+                _teams[newTeamIdx].BeginAnimation(MarginProperty, ani);
+            }
         }
 
         /// <summary>
@@ -277,7 +315,11 @@ namespace IcpcResolver.Net.Window
 
             var updated = await _teams[_currentTeamIdx].UpdateTeamStatusAnimation();
 
-            if (!updated) return 1;
+            if (!updated)
+            {
+                _animationDone = true;
+                return 1;
+            }
             
             // find the correct position of current team after update
             var newIdx = -1;
