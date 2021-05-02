@@ -1,0 +1,33 @@
+﻿<Window x:Class="IcpcResolver.Net.Window.Loader"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IcpcResolver.Net.Window"
+        xmlns:userControl="clr-namespace:IcpcResolver.Net.UserControl"
+        mc:Ignorable="d"
+        Title="Loader" Height="500" Width="480">
+    <Grid Margin="0,0,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="43*"/>
+            <RowDefinition Height="5*"/>
+        </Grid.RowDefinitions>
+        <TabControl Margin="0,0,0,0">
+            <TabItem Header="Contest Data Config">
+                <StackPanel Margin="18,0,18,0" Height="382">
+                    <userControl:FileSelector LabelName="TestLabel" LabelWidth="70" SelectFolder="True"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Animation Config">
+                <Grid/>
+            </TabItem>
+        </TabControl>
+
+        <Button Grid.Row="1"
+                Content="OK"
+                Margin="400,10,0,0"
+                VerticalAlignment="Top"
+                Height="20"
+                Width="60"/>
+    </Grid>
+</Window>
