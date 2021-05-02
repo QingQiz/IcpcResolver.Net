@@ -7,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using IcpcResolver.Net.AppConstants;
 using IcpcResolver.Net.UserControl;
 using Colors = IcpcResolver.Net.AppConstants.Colors;
 
@@ -20,78 +19,22 @@ namespace IcpcResolver.Net.Window
     {
         #region Init
 
-        private static List<TeamDto> DataGenerator(int problemN, int teamN)
-        {
-            var values = Enum.GetValues(typeof(ProblemStatus));
-            var random = new Random();
-
-            ProblemDto GetProblem(int n)
-            {
-                var status = (ProblemStatus) (values.GetValue(random.Next(values.Length)) ?? ProblemStatus.NotTried);
-
-                return new ProblemDto
-                {
-                    Label = new string(new[] {(char) ('A' + n)}),
-                    Status = status,
-                    Time = status == ProblemStatus.NotTried ? 0 : random.Next(1, 300),
-                    Try = status == ProblemStatus.NotTried ? 0 : random.Next(1, 5)
-                };
-            }
-
-            return Enumerable
-                .Range(0, teamN)
-                .Select(n =>
-                {
-                    // NOTE there must be `ToList`
-                    List<ProblemDto> Problems() =>
-                        Enumerable.Range(0, problemN)
-                            .Select((Func<int, ProblemDto>) GetProblem)
-                            .ToList();
-
-                    return new TeamDto
-                    {
-                        TeamRank = 0,
-                        TeamName = "Team" + n,
-                        ProblemsFrom = Problems(),
-                        ProblemsTo = Problems()
-                    }.PostInit();
-                })
-                .OrderByDescending(t => t.Solved)
-                .ThenBy(t => t.TimeAll)
-                .ToList();
-            
-        }
-
-        public Resolver()
+        public Resolver(ResolverDto resolverDto)
         {
             InitializeComponent();
-            _teamDtos = DataGenerator(2, 20);
-            Config = new ResolverConfig
-            {
-                TeamGridHeight = AppConst.TeamGridHeight,
-                MaxDisplayCount = 13,
-                MaxRenderCount = 15,
-                
-                ScrollDownDuration = 200,
-                ScrollDownDurationAdjust = 0,
-                CursorUpDuration = 500,
-                UpdateTeamRankDuration = 800,
-                AnimationFrameRate = 120,
-                UpdateProblemStatusDuration = new Tuple<int, int>(400, 700)
-            };
-            // hide mouse
-            Cursor = Cursors.None;
-            InitResolverBackgroundGrid();
-        }
 
-        private void WindowRendered(object sender, EventArgs e)
-        {
+            Config = resolverDto.ResolverConfig;
+            _teams = resolverDto.Teams;
+
             InitTeams();
             InitCursor();
+            InitResolverBackgroundGrid();
         }
 
         private void InitCursor()
         {
+            // hide mouse
+            Cursor = Cursors.None;
             // init cursor
             _cursor = new Border
             {
@@ -116,19 +59,7 @@ namespace IcpcResolver.Net.Window
 
             for (var i = 0; i < Config.MaxRenderCount; i++)
             {
-                _teams.Add(new Team(_teamDtos[i])
-                {
-                    Height = Config.TeamGridHeight,
-                });
                 Teams.Children.Add(_teams[i]);
-            }
-
-            for (var i = Config.MaxRenderCount; i < _teamDtos.Count; i++)
-            {
-                _teams.Add(new Team(_teamDtos[i])
-                {
-                    Height = Config.TeamGridHeight
-                });
             }
             ReCalcTeamRank();
 
@@ -154,13 +85,11 @@ namespace IcpcResolver.Net.Window
                 
                 BgGrid.Children.Add(border);
             }
-
         }
 
         #endregion
 
-        private readonly List<Team> _teams = new();
-        private readonly List<TeamDto> _teamDtos;
+        private readonly List<Team> _teams;
         private Border _cursor;
         private int _cursorIdx;
 

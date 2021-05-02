@@ -29,5 +29,12 @@
       <Compile Update="Window\ResolverConfig.cs">
         <DependentUpon>Resolver.xaml</DependentUpon>
       </Compile>
+      <Compile Update="Window\ResolverDto.cs">
+        <DependentUpon>Resolver.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.1.0" />
     </ItemGroup>
 </Project>

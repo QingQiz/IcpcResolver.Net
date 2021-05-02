@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:IcpcResolver.Net"
         xmlns:userControl="clr-namespace:IcpcResolver.Net.UserControl"
         mc:Ignorable="d"
-        ContentRendered="WindowRendered"
         Title="Resolver" Height="450" Width="800" WindowState="Maximized" WindowStyle="None">
     <!-- style -->
     <Window.Resources>
