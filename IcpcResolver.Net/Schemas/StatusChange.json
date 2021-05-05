@@ -1,0 +1,72 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Status",
+    "description": "Description of the problems status change, listed by teams",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "TeamId": {
+                "description": "The unique identifier for a team",
+                "type": "integer"
+            },
+            "Teamname": {
+                "description": "Display name for a team",
+                "type": "string"
+            },
+            "StatusFrom": {
+                "description": "A list of last status change(before) for each problems",
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "Lable": {
+                            "description": "Display short name for a problem",
+                            "type": "string"
+                        },
+                        "Try": {
+                            "description": "Current total try time for this problem",
+                            "type": "integer"
+                        },
+                        "Time": {
+                            "description": "Current submit time",
+                            "type": "integer"
+                        },
+                        "Status": {
+                            "description": "Submit result",
+                            "enum": ["Accept", "UnAccept", "Pending", "NotTried", "FirstBlood"]
+                        }
+                    },
+                    "required": ["Lable", "Try", "Time", "Status"]
+                }
+            },
+            "StatusTo": {
+                "description": "A list of last status change(after) for each problems",
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "Lable": {
+                            "description": "Display short name for a problem",
+                            "type": "string"
+                        },
+                        "Try": {
+                            "description": "Current total try time for this problem",
+                            "type": "integer"
+                        },
+                        "Time": {
+                            "description": "Current submit time",
+                            "type": "integer"
+                        },
+                        "Status": {
+                            "description": "Submit result",
+                            "enum": ["Accept", "UnAccept", "Pending", "NotTried", "FirstBlood"]
+                        }
+                    },
+                    "required": ["Lable", "Try", "Time", "Status"]
+                }
+            }
+        },
+        "required": ["TeamId", "Teamname", "StatusFrom", "StatusTo"]
+    }
+}
