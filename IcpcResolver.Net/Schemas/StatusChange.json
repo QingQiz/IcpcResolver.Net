@@ -10,7 +10,7 @@
                 "description": "The unique identifier for a team",
                 "type": "integer"
             },
-            "Teamname": {
+            "TeamName": {
                 "description": "Display name for a team",
                 "type": "string"
             },
@@ -20,7 +20,7 @@
                 "items": {
                     "type": "object",
                     "properties": {
-                        "Lable": {
+                        "Label": {
                             "description": "Display short name for a problem",
                             "type": "string"
                         },
@@ -37,7 +37,7 @@
                             "enum": ["Accept", "UnAccept", "Pending", "NotTried", "FirstBlood"]
                         }
                     },
-                    "required": ["Lable", "Try", "Time", "Status"]
+                    "required": ["Label", "Try", "Time", "Status"]
                 }
             },
             "StatusTo": {
@@ -46,7 +46,7 @@
                 "items": {
                     "type": "object",
                     "properties": {
-                        "Lable": {
+                        "Label": {
                             "description": "Display short name for a problem",
                             "type": "string"
                         },
@@ -63,10 +63,10 @@
                             "enum": ["Accept", "UnAccept", "Pending", "NotTried", "FirstBlood"]
                         }
                     },
-                    "required": ["Lable", "Try", "Time", "Status"]
+                    "required": ["Label", "Try", "Time", "Status"]
                 }
             }
         },
-        "required": ["TeamId", "Teamname", "StatusFrom", "StatusTo"]
+        "required": ["TeamId", "TeamName", "StatusFrom", "StatusTo"]
     }
 }

@@ -30,18 +30,18 @@ Example:
 [
     {
         "TeamId": 1,
-        "Teamname": "SampleName",
+        "TeamName": "SampleName",
         "StatusFrom": [
             {
-                "Lable": "A",
+                "Label": "A",
                 "Try": 5,
                 "Time": 120,
                 "Status": "UnAccept"
             }
         ],
-        "StatusFrom": [
+        "StatusTo": [
             {
-                "Lable": "A",
+                "Label": "A",
                 "Try": 6,
                 "Time": 150,
                 "Status": "Accept"
