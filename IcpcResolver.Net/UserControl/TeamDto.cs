@@ -5,7 +5,7 @@ namespace IcpcResolver.Net.UserControl
 {
     public class TeamDto
     {
-        public int TeamRank;
+        public int TeamId;
         public string TeamName;
         // Problem status before freeze
         public List<ProblemDto> ProblemsFrom;

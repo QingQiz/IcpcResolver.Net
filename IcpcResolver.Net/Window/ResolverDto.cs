@@ -41,7 +41,7 @@ namespace IcpcResolver.Net.Window
 
                     return new TeamDto
                     {
-                        TeamRank = 0,
+                        TeamId = n,
                         TeamName = "Team" + n,
                         ProblemsFrom = Problems(),
                         ProblemsTo = Problems()

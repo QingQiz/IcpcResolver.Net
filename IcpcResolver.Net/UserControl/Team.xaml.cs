@@ -15,7 +15,6 @@ namespace IcpcResolver.Net.UserControl
         public Team(TeamDto team) : this()
         {
             _teamInfo = team;
-            TeamRank = _teamInfo.TeamRank;
             TeamName = _teamInfo.TeamName;
 
             Solved = team.Solved;
