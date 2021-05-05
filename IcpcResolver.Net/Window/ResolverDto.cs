@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using IcpcResolver.Net.AppConstants;
 using IcpcResolver.Net.UserControl;
 
 namespace IcpcResolver.Net.Window
@@ -41,6 +42,7 @@ namespace IcpcResolver.Net.Window
 
                     return new TeamDto
                     {
+                        PenaltyTime = AppConst.PenaltyTime,
                         TeamId = n,
                         TeamName = "Team" + n,
                         ProblemsFrom = Problems(),

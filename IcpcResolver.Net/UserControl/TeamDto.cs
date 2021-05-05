@@ -11,9 +11,11 @@ namespace IcpcResolver.Net.UserControl
         public List<ProblemDto> ProblemsFrom;
         // Problem status after contest
         public List<ProblemDto> ProblemsTo;
+        // penalty time
+        public int PenaltyTime;
 
         public int Solved => ProblemsFrom.Count(p => p.IsAccepted);
-        public int TimeAll => ProblemsFrom.Sum(p => p.TimeAll());
+        public int TimeAll => ProblemsFrom.Sum(p => p.TimeAll(PenaltyTime));
 
         public TeamDto PostInit()
         {

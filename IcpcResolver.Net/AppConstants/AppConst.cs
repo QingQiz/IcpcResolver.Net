@@ -4,5 +4,6 @@
     {
         public const int TeamGridHeight = 85;
         public const int MaxDisplayCount = 12;
+        public const int PenaltyTime = 20;
     }
 }
