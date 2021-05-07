@@ -12,7 +12,7 @@ namespace IcpcResolver.Net.Window
 
         public List<Team> Teams;
 
-        private static List<TeamDto> DataGenerator(int problemN, int teamN)
+        public static List<TeamDto> DataGenerator(int problemN, int teamN)
         {
             var values = Enum.GetValues(typeof(ProblemStatus));
             var random = new Random();

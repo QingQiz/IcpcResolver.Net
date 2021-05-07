@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using IcpcResolver.Net.AppConstants;
 
 namespace IcpcResolver.Net.Window
@@ -7,11 +8,12 @@ namespace IcpcResolver.Net.Window
     {
         public int TeamGridHeight = AppConst.TeamGridHeight;
         public int MaxDisplayCount = AppConst.MaxDisplayCount;
+
         /// <summary>
         /// team count to render on init
         /// </summary>
         public int MaxRenderCount = AppConst.MaxDisplayCount + 5;
-        
+
         /// <summary>
         /// see `ScrollDownAnimation`
         /// </summary>
@@ -40,6 +42,11 @@ namespace IcpcResolver.Net.Window
         /// <summary>
         /// (duration before highlight problem, duration before update problem status)
         /// </summary>
-        public Tuple<int, int> UpdateProblemStatusDuration = new Tuple<int, int>(400, 600);
+        public Tuple<int, int> UpdateProblemStatusDuration = new(400, 600);
+
+        /// <summary>
+        /// awards: [(TeamId, AwardName)]
+        /// </summary>
+        public List<Tuple<int, string>> Awards;
     }
 }
