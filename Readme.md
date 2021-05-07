@@ -6,23 +6,13 @@ ICPC's resolver provides scoreboard rolling function for XCPC contest. However, 
 
 To be added
 
-## TODO
-
-* Data schema definition (Ongoing)
-* Dataloader support
-  * Import directly from Domjudge's event feed
-  * Import from event feed file
-  * Import from domjudge database
-* Award utilities
-* Add images support
-
 ## Data schema
 
-* Status change
+### Status change
 
 Description: Description of the problems status change, listed by teams
 
-Schema ref: [./IcpcResolver.Net/Schemas/StatusChange.json](./IcpcResolver.Net/Schemas/StatusChange.json)
+Schema ref: [./config/Schemas/StatusChange.json](./config/Schemas/StatusChange.json)
 
 Example:
 
@@ -50,3 +40,13 @@ Example:
     }
 ]
 ```
+
+## TODO
+
+- [ ] Data schema definition (Ongoing)
+- [ ] Dataloader support
+  - [ ] Import directly from Domjudge's event feed
+  - [ ] Import from event feed file
+  - [ ] Import from domjudge database
+- [ ] Award utilities
+- [ ] Add images support
