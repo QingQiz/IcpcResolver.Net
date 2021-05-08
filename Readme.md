@@ -41,6 +41,10 @@ Example:
 ]
 ```
 
+### Animation Config
+
+see [ResolverConfig.cs](./src/IcpcResolver.Net/Window/ResolverConfig.cs)
+
 ## TODO
 
 - [ ] Data schema definition (Ongoing)
