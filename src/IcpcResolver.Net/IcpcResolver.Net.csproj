@@ -32,6 +32,9 @@
       <Compile Update="Window\ResolverDto.cs">
         <DependentUpon>Resolver.xaml</DependentUpon>
       </Compile>
+      <Compile Update="Window\ResolverStatus.cs">
+        <DependentUpon>Resolver.xaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

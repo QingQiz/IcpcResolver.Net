@@ -15,7 +15,7 @@ namespace IcpcResolver.Net.Window
         {
             InitializeComponent();
 
-            var teams = ResolverDto.DataGenerator(13, 20);
+            var teams = ResolverDto.DataGenerator(3, 20);
 
             const int teamGridHeight = AppConst.TeamGridHeight;
 
@@ -24,20 +24,21 @@ namespace IcpcResolver.Net.Window
                 ResolverConfig = new ResolverConfig
                 {
                     TeamGridHeight = teamGridHeight,
-                    MaxDisplayCount = AppConst.MaxDisplayCount + 1,
+                    MaxDisplayCount = AppConst.MaxDisplayCount,
                     MaxRenderCount = AppConst.MaxDisplayCount + 5,
                     ScrollDownDuration = 200,
-                    ScrollDownDurationAdjust = 0,
+                    ScrollDownInterval = 0,
                     CursorUpDuration = 500,
                     UpdateTeamRankDuration = 1000,
                     AnimationFrameRate = 120,
                     UpdateProblemStatusDuration = new Tuple<int, int>(400, 600),
-                    Awards = new List<Tuple<int, string>>() 
+                    AutoUpdateTeamStatusUntilRank = 10
                 },
                 Teams = teams.Select(t => new Team(t)
                 {
                     Height = teamGridHeight
-                }).ToList()
+                }).ToList(),
+                Awards = new List<Tuple<int, string>>()
             });
 
             resolver.Show();
