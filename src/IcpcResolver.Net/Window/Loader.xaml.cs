@@ -32,13 +32,13 @@ namespace IcpcResolver.Net.Window
                     UpdateTeamRankDuration = 1000,
                     AnimationFrameRate = 120,
                     UpdateProblemStatusDuration = new Tuple<int, int>(400, 600),
-                    Awards = new List<Tuple<int, string>>(),
                     AutoUpdateTeamStatusUntilRank = 10
                 },
                 Teams = teams.Select(t => new Team(t)
                 {
                     Height = teamGridHeight
-                }).ToList()
+                }).ToList(),
+                Awards = new List<Tuple<int, string>>()
             });
 
             resolver.Show();

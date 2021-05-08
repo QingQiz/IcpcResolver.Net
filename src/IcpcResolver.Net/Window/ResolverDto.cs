@@ -12,6 +12,11 @@ namespace IcpcResolver.Net.Window
 
         public List<Team> Teams;
 
+        /// <summary>
+        /// awards: [(TeamId, AwardName)]
+        /// </summary>
+        public List<Tuple<int, string>> Awards;
+
         public static List<TeamDto> DataGenerator(int problemN, int teamN)
         {
             var values = Enum.GetValues(typeof(ProblemStatus));

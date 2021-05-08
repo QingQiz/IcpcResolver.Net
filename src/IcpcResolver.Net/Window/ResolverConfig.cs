@@ -45,11 +45,6 @@ namespace IcpcResolver.Net.Window
         public Tuple<int, int> UpdateProblemStatusDuration = new(400, 600);
 
         /// <summary>
-        /// awards: [(TeamId, AwardName)]
-        /// </summary>
-        public List<Tuple<int, string>> Awards;
-
-        /// <summary>
         /// auto update team status until rank le this
         /// </summary>
         public int AutoUpdateTeamStatusUntilRank;
