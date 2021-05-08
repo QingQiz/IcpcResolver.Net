@@ -422,44 +422,51 @@ namespace IcpcResolver.Net.Window
         protected override async void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
+            
+            if (e.Handled) return;
 
-            switch (e.Handled)
+            // left-shift + Esc to close window
+            if (Keyboard.IsKeyDown(Key.LeftShift) && e.IsDown && e.Key == Key.Escape)
             {
-                // press `shift` THEN press `escape` close window
-                case false when (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-                                && e.IsDown && e.Key == Key.Escape:
-                    Close();
-                    break;
-                // break when animation is running
-                case false when !_status.AnimationDone:
-                    break;
-                // key down and key is `space` and `scrolled down`
-                case false when e.IsDown && e.Key == Key.Space && _status.ScrollDown:
-                    // show cursor first
-                    if (_cursor.Visibility == Visibility.Hidden)
-                    {
-                        _cursor.Visibility = Visibility.Visible;
-                        break;
-                    }
+                Close();
+                return;
+            }
 
-                    // TODO update team rank automatically if the team is not awarded.
-                    // TODO show award window when the team is awarded.
-                    switch (await UpdateTeamRankAnimation(_config.UpdateTeamRankDuration))
-                    {
-                        // no up and no down
-                        case 1:
-                            CursorUpAnimation(_config.CursorUpDuration);
-                            break;
-                        // 1 up and 1 down
-                        case 0:
-                        // no action
-                        case -1:
-                            break;
-                    }
+            // space to run animation a step
+            if (e.IsDown && e.Key == Key.Space)
+            {
+                await RunAnimationStep();
+            }
+        }
+
+        private async Task RunAnimationStep()
+        {
+            if (!_status.AnimationDone) return;
+
+            if (!_status.ScrollDown)
+            {
+                ScrollDownAnimation(_config.ScrollDownDuration, _config.ScrollDownDurationAdjust);
+                return;
+            }
+
+            if (!_cursor.IsVisible)
+            {
+                _cursor.Visibility = Visibility.Visible;
+                return;
+            }
+            
+            // TODO update team rank automatically if the team is not awarded.
+            // TODO show award window when the team is awarded.
+            switch (await UpdateTeamRankAnimation(_config.UpdateTeamRankDuration))
+            {
+                // no up and no down
+                case 1:
+                    CursorUpAnimation(_config.CursorUpDuration);
                     break;
-                // key down and key is `space` and not `scrolled down`
-                case false when e.IsDown && e.Key == Key.Space && !_status.ScrollDown:
-                    ScrollDownAnimation(_config.ScrollDownDuration, _config.ScrollDownDurationAdjust);
+                // 1 up and 1 down
+                case 0:
+                // no action
+                case -1:
                     break;
             }
         }
