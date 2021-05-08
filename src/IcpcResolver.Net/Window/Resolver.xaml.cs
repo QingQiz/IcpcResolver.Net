@@ -118,7 +118,8 @@ namespace IcpcResolver.Net.Window
         /// move cursor up
         /// </summary>
         /// <param name="duration">animation duration in milliseconds</param>
-        private void CursorUpAnimation(int duration)
+        /// <param name="callback">animation complete callback</param>
+        private void CursorUpAnimation(int duration, Func<object, EventArgs, object> callback=null)
         {
             if (!_status.AnimationDone) return;
             if (_status.CursorIdx == 0) return;
@@ -136,11 +137,13 @@ namespace IcpcResolver.Net.Window
                     Duration = dt,
                     FillBehavior = FillBehavior.HoldEnd,
                 };
-                ani.Completed += (_, _) =>
+                ani.Completed += (a, b) =>
                 {
                     _status.CursorIdx--;
                     _status.CurrentTeamIdx--;
                     _status.AniEnd();
+
+                    callback?.Invoke(a, b);
                 };
 
                 _cursor.BeginAnimation(Border.MarginProperty, ani);
@@ -162,7 +165,7 @@ namespace IcpcResolver.Net.Window
                     Duration = dt,
                     FillBehavior = FillBehavior.Stop
                 };
-                ani.Completed += (_, _) =>
+                ani.Completed += (a, b) =>
                 {
                     Teams.Margin = new Thickness(0, 0, 0, 0);
                     _teams[newTeamIdx].Margin = new Thickness(0, 0, 0, 0);
@@ -170,6 +173,8 @@ namespace IcpcResolver.Net.Window
 
                     _status.CurrentTeamIdx--;
                     _status.AniEnd();
+
+                    callback?.Invoke(a, b);
                 };
 
                 Timeline.SetDesiredFrameRate(ani, _config.AnimationFrameRate);
@@ -181,8 +186,8 @@ namespace IcpcResolver.Net.Window
         /// scroll down
         /// </summary>
         /// <param name="duration">one team scroll up duration (milliseconds)</param>
-        /// <param name="durationAdjust">adjust time span between animations of two row</param>
-        private void ScrollDownAnimation(int duration, int durationAdjust=0)
+        /// <param name="interval">time interval between animations of two row</param>
+        private void ScrollDownAnimation(int duration, int interval=0)
         {
             if (_teams.Count <= _config.MaxDisplayCount)
             {
@@ -203,7 +208,7 @@ namespace IcpcResolver.Net.Window
             {
                 var ani = new ThicknessAnimation
                 {
-                    BeginTime = TimeSpan.FromMilliseconds((duration + durationAdjust) * i),
+                    BeginTime = TimeSpan.FromMilliseconds((duration + interval) * i),
                     From = Teams.Margin,
                     To = new Thickness(0, Teams.Margin.Top - _config.TeamGridHeight, 0, 0),
                     Duration = d,
@@ -240,17 +245,18 @@ namespace IcpcResolver.Net.Window
                 _teams[i].BeginAnimation(MarginProperty, animations[i]);
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="duration">one step duration (milliseconds)</param>
+        /// <param name="callback">callback when animation completed</param>
         /// <returns>
         ///     `-1`: an animation is running
         ///     `1` : team can not be updated
         ///     `0` : update success
         /// </returns>
-        private async Task<int> UpdateTeamRankAnimation(int duration)
+        private async Task<int> UpdateTeamRankAnimation(int duration, Func<object, EventArgs, object> callback=null)
         {
             if (!_status.AnimationDone) return -1;
 
@@ -333,7 +339,7 @@ namespace IcpcResolver.Net.Window
                 FillBehavior = FillBehavior.Stop
             };
             // 2.2 move back current team to Teams
-            aniUp.Completed += (_, _) =>
+            aniUp.Completed += (a, b) =>
             {
                 // 2.2.0 change margin back
                 _teams[newIdx].Margin = new Thickness(0, 0, 0, 0);
@@ -352,6 +358,8 @@ namespace IcpcResolver.Net.Window
                 }
 
                 _status.AniEnd();
+
+                callback?.Invoke(a, b);
             };
             Timeline.SetDesiredFrameRate(aniUp, _config.AnimationFrameRate);
             
@@ -413,7 +421,87 @@ namespace IcpcResolver.Net.Window
 
             return 0;
         }
-        
+
+        /// <summary>
+        /// run animation a step
+        /// </summary>
+        private async Task RunAnimationStep()
+        {
+            if (!_status.AnimationDone) return;
+
+            // 1. scroll down
+            if (!_status.ScrollDown)
+            {
+                ScrollDownAnimation(_config.ScrollDownDuration, _config.ScrollDownInterval);
+                return;
+            }
+
+            // 2. show cursor
+            if (!_cursor.IsVisible)
+            {
+                _cursor.Visibility = Visibility.Visible;
+                return;
+            }
+
+            // 3 begin scroll up
+            // 3.1 show award if needed
+            if (_status.ShouldShowAward)
+            {
+                _status.ShouldShowAward = false;
+                // TODO show award window
+                return;
+            }
+
+            // 3.2 cursor up if needed
+            if (_status.ShouldCursorUp)
+            {
+                _status.ShouldCursorUp = false;
+                CursorUpAnimation(_config.CursorUpDuration);
+                return;
+            }
+
+            // 3.3 update team rank
+            var res = await UpdateTeamRankAnimation(_config.UpdateTeamRankDuration, (_, _) =>
+            {
+                if (_teams[_status.CurrentTeamIdx].TeamRank > _config.AutoUpdateTeamStatusUntilRank)
+                {
+                    // auto run animation until ^
+                    // NOTE should NOT wait
+#pragma warning disable 4014
+                    RunAnimationStep();
+#pragma warning restore 4014
+                }
+
+                return null;
+            });
+
+            if (res != 1) return;
+
+            // TODO
+            // if (is current team awarded)
+            // {
+            //     _status.ShouldCursorUp = true;
+            //     _status.ShouldShowAward = true;
+            //     return;
+            // }
+
+            // cursor up if there is no update for current team
+            CursorUpAnimation(_config.CursorUpDuration, (_, _) =>
+            {
+                if (_teams[_status.CurrentTeamIdx].TeamRank > _config.AutoUpdateTeamStatusUntilRank)
+                {
+                    // auto run animation until ^
+                    // NOTE should NOT wait
+#pragma warning disable 4014
+                    RunAnimationStep();
+#pragma warning restore 4014
+                }
+
+                return null;
+            });
+
+        }
+
         #endregion
 
 
@@ -436,38 +524,6 @@ namespace IcpcResolver.Net.Window
             if (e.IsDown && e.Key == Key.Space)
             {
                 await RunAnimationStep();
-            }
-        }
-
-        private async Task RunAnimationStep()
-        {
-            if (!_status.AnimationDone) return;
-
-            if (!_status.ScrollDown)
-            {
-                ScrollDownAnimation(_config.ScrollDownDuration, _config.ScrollDownDurationAdjust);
-                return;
-            }
-
-            if (!_cursor.IsVisible)
-            {
-                _cursor.Visibility = Visibility.Visible;
-                return;
-            }
-            
-            // TODO update team rank automatically if the team is not awarded.
-            // TODO show award window when the team is awarded.
-            switch (await UpdateTeamRankAnimation(_config.UpdateTeamRankDuration))
-            {
-                // no up and no down
-                case 1:
-                    CursorUpAnimation(_config.CursorUpDuration);
-                    break;
-                // 1 up and 1 down
-                case 0:
-                // no action
-                case -1:
-                    break;
             }
         }
 

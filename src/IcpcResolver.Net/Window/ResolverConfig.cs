@@ -22,7 +22,7 @@ namespace IcpcResolver.Net.Window
         /// <summary>
         /// see `ScrollDownAnimation`
         /// </summary>
-        public int ScrollDownDurationAdjust = 0;
+        public int ScrollDownInterval = 0;
 
         /// <summary>
         /// see `CursorUpAnimation`
@@ -48,5 +48,10 @@ namespace IcpcResolver.Net.Window
         /// awards: [(TeamId, AwardName)]
         /// </summary>
         public List<Tuple<int, string>> Awards;
+
+        /// <summary>
+        /// auto update team status until rank le this
+        /// </summary>
+        public int AutoUpdateTeamStatusUntilRank;
     }
 }
