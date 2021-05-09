@@ -34,7 +34,7 @@
             
             <!-- team (display) name -->
             <Label Grid.Column="0"
-                   Content="{Binding TeamName}"
+                   Content="{Binding DisplayName}"
                    FontSize="30"/>
             
             <!-- solved -->

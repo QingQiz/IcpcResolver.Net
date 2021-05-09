@@ -15,7 +15,7 @@ namespace IcpcResolver.Net.UserControl
         public Team(TeamDto team) : this()
         {
             TeamInfo = team;
-            TeamName = TeamInfo.TeamName;
+            DisplayName = TeamInfo.DisplayName;
 
             Solved = team.Solved;
             Time = team.TimeAll;
@@ -49,14 +49,14 @@ namespace IcpcResolver.Net.UserControl
         public static readonly DependencyProperty TeamRankProperty =
             DependencyProperty.Register("TeamRank", typeof(int), typeof(Team));
 
-        public string TeamName
+        public string DisplayName
         {
-            get => (string) GetValue(TeamNameProperty);
-            set => SetValue(TeamNameProperty, value);
+            get => (string) GetValue(DisplayNameProperty);
+            set => SetValue(DisplayNameProperty, value);
         }
 
-        public static readonly DependencyProperty TeamNameProperty =
-            DependencyProperty.Register("TeamName", typeof(string), typeof(Team));
+        public static readonly DependencyProperty DisplayNameProperty =
+            DependencyProperty.Register("DisplayName", typeof(string), typeof(Team));
 
         public int Time
         {

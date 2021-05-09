@@ -44,10 +44,12 @@ namespace IcpcResolver.Net.Window
                     {
                         PenaltyTime = AppConst.PenaltyTime,
                         TeamId = n,
-                        TeamName = "Team" + n,
+                        TeamName= "команда" + n,
                         ProblemsFrom = Problems(),
                         ProblemsTo = Problems(),
-                        Awards = new List<string>{"test award 1", "test award 2"}
+                        Awards = new List<string>{"test award 1|normal", "test award 2|medalist"},
+                        SchoolName = "学校" + n,
+                        DisplayName = $"Team {n} (School {n})"
                     }.PostInit();
                 })
                 .OrderByDescending(t => t.Solved)
