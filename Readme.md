@@ -52,5 +52,5 @@ see [ResolverConfig.cs](./src/IcpcResolver.Net/Window/ResolverConfig.cs)
   - [ ] Import directly from Domjudge's event feed
   - [ ] Import from event feed file
   - [ ] Import from domjudge database
-- [ ] Award utilities
+- [x] Award utilities
 - [ ] Add images support
