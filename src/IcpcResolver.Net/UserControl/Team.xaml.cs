@@ -37,6 +37,8 @@ namespace IcpcResolver.Net.UserControl
         private List<Problem> _problems = new();
         private TeamDto _teamInfo;
 
+        public List<string> Awards => _teamInfo.Awards;
+
 
         public int TeamRank
         {

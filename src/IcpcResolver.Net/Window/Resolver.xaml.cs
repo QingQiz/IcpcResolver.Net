@@ -90,6 +90,8 @@ namespace IcpcResolver.Net.Window
 
         #endregion
 
+        #region Variables & Help Functions
+
         private readonly List<Team> _teams;
         private Border _cursor;
 
@@ -111,6 +113,8 @@ namespace IcpcResolver.Net.Window
                 }
             }
         }
+
+        #endregion
 
         #region Animations
 
@@ -503,7 +507,6 @@ namespace IcpcResolver.Net.Window
         }
 
         #endregion
-
 
         #region KeyHandler
         

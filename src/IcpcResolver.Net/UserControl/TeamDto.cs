@@ -13,6 +13,7 @@ namespace IcpcResolver.Net.UserControl
         public List<ProblemDto> ProblemsTo;
         // penalty time
         public int PenaltyTime;
+        public List<string> Awards;
 
         public int Solved => ProblemsFrom.Count(p => p.IsAccepted);
         public int TimeAll => ProblemsFrom.Sum(p => p.TimeAll(PenaltyTime));
