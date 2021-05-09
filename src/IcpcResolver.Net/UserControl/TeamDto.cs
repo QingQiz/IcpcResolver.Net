@@ -6,13 +6,33 @@ namespace IcpcResolver.Net.UserControl
     public class TeamDto
     {
         public int TeamId;
+        
+        /// <summary>
+        /// display name
+        /// </summary>
+        public string DisplayName;
+
+        /// <summary>
+        /// team name
+        /// </summary>
         public string TeamName;
+
+        /// <summary>
+        /// school name
+        /// </summary>
+        public string SchoolName;
+
         // Problem status before freeze
         public List<ProblemDto> ProblemsFrom;
         // Problem status after contest
         public List<ProblemDto> ProblemsTo;
         // penalty time
         public int PenaltyTime;
+        
+        /// <summary>
+        /// award list, each award in Awards is: AwardName|AwardType, where AwardType is `normal` or `medalist`
+        /// </summary>
+        public List<string> Awards;
 
         public int Solved => ProblemsFrom.Count(p => p.IsAccepted);
         public int TimeAll => ProblemsFrom.Sum(p => p.TimeAll(PenaltyTime));

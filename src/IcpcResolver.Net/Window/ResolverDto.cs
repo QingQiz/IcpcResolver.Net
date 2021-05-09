@@ -12,11 +12,6 @@ namespace IcpcResolver.Net.Window
 
         public List<Team> Teams;
 
-        /// <summary>
-        /// awards: [(TeamId, AwardName)]
-        /// </summary>
-        public List<Tuple<int, string>> Awards;
-
         public static List<TeamDto> DataGenerator(int problemN, int teamN)
         {
             var values = Enum.GetValues(typeof(ProblemStatus));
@@ -49,9 +44,12 @@ namespace IcpcResolver.Net.Window
                     {
                         PenaltyTime = AppConst.PenaltyTime,
                         TeamId = n,
-                        TeamName = "Team" + n,
+                        TeamName= "команда" + n,
                         ProblemsFrom = Problems(),
-                        ProblemsTo = Problems()
+                        ProblemsTo = Problems(),
+                        Awards = new List<string>{"test award 1|normal", "test award 2|medalist"},
+                        SchoolName = "学校" + n,
+                        DisplayName = $"Team {n} (School {n})"
                     }.PostInit();
                 })
                 .OrderByDescending(t => t.Solved)

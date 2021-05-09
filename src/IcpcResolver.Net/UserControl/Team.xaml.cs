@@ -14,14 +14,14 @@ namespace IcpcResolver.Net.UserControl
 
         public Team(TeamDto team) : this()
         {
-            _teamInfo = team;
-            TeamName = _teamInfo.TeamName;
+            TeamInfo = team;
+            DisplayName = TeamInfo.DisplayName;
 
             Solved = team.Solved;
             Time = team.TimeAll;
 
             var cnt = 0;
-            foreach (var problemViewModel in _teamInfo.ProblemsFrom)
+            foreach (var problemViewModel in TeamInfo.ProblemsFrom)
             {
                 Problems.ColumnDefinitions.Add(new ColumnDefinition());
                 
@@ -34,8 +34,10 @@ namespace IcpcResolver.Net.UserControl
             }
         }
 
-        private List<Problem> _problems = new();
-        private TeamDto _teamInfo;
+        private readonly List<Problem> _problems = new();
+
+        public List<string> Awards => TeamInfo.Awards;
+        public TeamDto TeamInfo { get; }
 
 
         public int TeamRank
@@ -47,14 +49,14 @@ namespace IcpcResolver.Net.UserControl
         public static readonly DependencyProperty TeamRankProperty =
             DependencyProperty.Register("TeamRank", typeof(int), typeof(Team));
 
-        public string TeamName
+        public string DisplayName
         {
-            get => (string) GetValue(TeamNameProperty);
-            set => SetValue(TeamNameProperty, value);
+            get => (string) GetValue(DisplayNameProperty);
+            set => SetValue(DisplayNameProperty, value);
         }
 
-        public static readonly DependencyProperty TeamNameProperty =
-            DependencyProperty.Register("TeamName", typeof(string), typeof(Team));
+        public static readonly DependencyProperty DisplayNameProperty =
+            DependencyProperty.Register("DisplayName", typeof(string), typeof(Team));
 
         public int Time
         {
@@ -78,26 +80,26 @@ namespace IcpcResolver.Net.UserControl
         public async Task<bool> UpdateTeamStatusAnimation(int durationBeforeHighlight, int durationBeforeUpdate)
         {
             var isUpdated = false;
-            for (var i = 0; i < _teamInfo.ProblemsFrom.Count; i++)
+            for (var i = 0; i < TeamInfo.ProblemsFrom.Count; i++)
             {
                 // only update pending problems
-                if (_teamInfo.ProblemsFrom[i].Status != ProblemStatus.Pending) continue;
+                if (TeamInfo.ProblemsFrom[i].Status != ProblemStatus.Pending) continue;
 
-                await _problems[i].UpdateStatusAnimation(_teamInfo.ProblemsTo[i], durationBeforeHighlight,
+                await _problems[i].UpdateStatusAnimation(TeamInfo.ProblemsTo[i], durationBeforeHighlight,
                     durationBeforeUpdate);
                 isUpdated = true;
 
-                _teamInfo.ProblemsFrom[i].Status = _teamInfo.ProblemsTo[i].Status;
+                TeamInfo.ProblemsFrom[i].Status = TeamInfo.ProblemsTo[i].Status;
                 // for rollback
-                _teamInfo.ProblemsTo[i].Status = ProblemStatus.Pending;
+                TeamInfo.ProblemsTo[i].Status = ProblemStatus.Pending;
 
                 // if problem is note accepted, update next
-                if (!_teamInfo.ProblemsFrom[i].IsAccepted) continue;
+                if (!TeamInfo.ProblemsFrom[i].IsAccepted) continue;
                 break;
             }
             // if problem is accepted, update solved-count and time and break
-            Solved = _teamInfo.Solved;
-            Time = _teamInfo.TimeAll;
+            Solved = TeamInfo.Solved;
+            Time = TeamInfo.TimeAll;
             return isUpdated;
         }
     }

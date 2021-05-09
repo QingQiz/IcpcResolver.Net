@@ -90,6 +90,8 @@ namespace IcpcResolver.Net.Window
 
         #endregion
 
+        #region Variables & Help Functions
+
         private readonly List<Team> _teams;
         private Border _cursor;
 
@@ -111,6 +113,8 @@ namespace IcpcResolver.Net.Window
                 }
             }
         }
+
+        #endregion
 
         #region Animations
 
@@ -253,8 +257,9 @@ namespace IcpcResolver.Net.Window
         /// <param name="callback">callback when animation completed</param>
         /// <returns>
         ///     `-1`: an animation is running
-        ///     `1` : team can not be updated
-        ///     `0` : update success
+        ///     `2` : no update (problem status or team rank)
+        ///     `1` : problem status is updated, but team rank is not updated
+        ///     `0` : team rank is updated
         /// </returns>
         private async Task<int> UpdateTeamRankAnimation(int duration, Func<object, EventArgs, object> callback=null)
         {
@@ -269,7 +274,7 @@ namespace IcpcResolver.Net.Window
             if (!updated)
             {
                 _status.AniEnd();
-                return 1;
+                return 2;
             }
             
             // find the correct position of current team after update
@@ -293,7 +298,8 @@ namespace IcpcResolver.Net.Window
             {
                 _status.AniEnd();
                 // rank not change, update again
-                return await UpdateTeamRankAnimation(duration);
+                await UpdateTeamRankAnimation(duration);
+                return 1;
             }
 
             // insert current team to correct position
@@ -448,65 +454,78 @@ namespace IcpcResolver.Net.Window
             if (_status.ShouldShowAward)
             {
                 _status.ShouldShowAward = false;
-                // TODO show award window
+                var awardWindow = new Award(_teams[_status.CurrentTeamIdx].TeamInfo);
+                awardWindow.Show();
                 return;
             }
+
+            // help functions
+            var aniCallback = new Func<object>(() =>
+            {
+                if (_teams[_status.CurrentTeamIdx].TeamRank > _config.AutoUpdateTeamStatusUntilRank)
+                {
+                    // auto run animation until ^
+                    // NOTE: should NOT call by await or invoke .Wait()
+#pragma warning disable 4014
+                    RunAnimationStep();
+#pragma warning restore 4014
+                }
+
+                return null;
+            });
 
             // 3.2 cursor up if needed
             if (_status.ShouldCursorUp)
             {
                 _status.ShouldCursorUp = false;
-                CursorUpAnimation(_config.CursorUpDuration);
+                CursorUpAnimation(_config.CursorUpDuration, (_, _) => aniCallback());
                 return;
             }
 
             // 3.3 update team rank
-            var res = await UpdateTeamRankAnimation(_config.UpdateTeamRankDuration, (_, _) =>
+            var res = await UpdateTeamRankAnimation(_config.UpdateTeamRankDuration, (_, _) => aniCallback());
+
+            if (res != 1 && res != 2) return;
+
+            if (_teams[_status.CurrentTeamIdx].Awards.Any())
             {
-                if (_teams[_status.CurrentTeamIdx].TeamRank > _config.AutoUpdateTeamStatusUntilRank)
+                if (res == 2)
                 {
-                    // auto run animation until ^
-                    // NOTE should NOT wait
-#pragma warning disable 4014
-                    RunAnimationStep();
-#pragma warning restore 4014
+                    _status.ShouldCursorUp = true;
+
+                    // no update and not run animation automatically, show award window directly
+                    // if we don't show window directly, the SPACE will need to be pressed twice to show award window
+                    // if we don't check the second condition, the award window will be shown automatically
+                    if (_teams[_status.CurrentTeamIdx].TeamRank <= _config.AutoUpdateTeamStatusUntilRank)
+                    {
+                        var awardWindow = new Award(_teams[_status.CurrentTeamIdx].TeamInfo);
+                        awardWindow.Show();
+                    }
+                    else
+                    {
+                        _status.ShouldShowAward = true;
+                    }
                 }
-
-                return null;
-            });
-
-            if (res != 1) return;
-
-            // TODO
-            // if (is current team awarded)
-            // {
-            //     _status.ShouldCursorUp = true;
-            //     _status.ShouldShowAward = true;
-            //     return;
-            // }
-
-            // cursor up if there is no update for current team
-            CursorUpAnimation(_config.CursorUpDuration, (_, _) =>
-            {
-                if (_teams[_status.CurrentTeamIdx].TeamRank > _config.AutoUpdateTeamStatusUntilRank)
+                else
                 {
-                    // auto run animation until ^
-                    // NOTE should NOT wait
-#pragma warning disable 4014
-                    RunAnimationStep();
-#pragma warning restore 4014
+                    _status.ShouldCursorUp = true;
+                    _status.ShouldShowAward = true;
                 }
+                return;
+            }
 
-                return null;
-            });
-
+            // cursor up if the team rank is not updated
+            CursorUpAnimation(_config.CursorUpDuration, (_, _) => aniCallback());
         }
 
         #endregion
 
-
         #region KeyHandler
         
+        /// <summary>
+        /// keyboard handler
+        /// </summary>
+        /// <param name="e"></param>
         protected override async void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);

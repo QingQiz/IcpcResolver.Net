@@ -38,7 +38,6 @@ namespace IcpcResolver.Net.Window
                 {
                     Height = teamGridHeight
                 }).ToList(),
-                Awards = new List<Tuple<int, string>>()
             });
 
             resolver.Show();
