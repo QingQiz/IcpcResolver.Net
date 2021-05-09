@@ -46,7 +46,8 @@ namespace IcpcResolver.Net.Window
                         TeamId = n,
                         TeamName = "Team" + n,
                         ProblemsFrom = Problems(),
-                        ProblemsTo = Problems()
+                        ProblemsTo = Problems(),
+                        Awards = new List<string>{"test award 1", "test award 2"}
                     }.PostInit();
                 })
                 .OrderByDescending(t => t.Solved)
