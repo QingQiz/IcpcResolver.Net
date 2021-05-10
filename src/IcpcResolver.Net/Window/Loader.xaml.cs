@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using IcpcResolver.Net.AppConstants;
-using IcpcResolver.Net.UserControl;
+﻿using Microsoft.Win32;
+using System.Diagnostics;
 
 namespace IcpcResolver.Net.Window
 {
@@ -11,37 +8,35 @@ namespace IcpcResolver.Net.Window
     /// </summary>
     public partial class Loader : System.Windows.Window
     {
+
         public Loader()
         {
             InitializeComponent();
+        }
 
-            var teams = ResolverDto.DataGenerator(3, 20);
-
-            const int teamGridHeight = AppConst.TeamGridHeight;
-
-            var resolver = new Resolver(new ResolverDto
+        private void OpenCredWindow(object sender, System.Windows.RoutedEventArgs e)
+        {
+            CredRequest ReqWindow = new CredRequest();
+            ReqWindow.Owner = this;
+            ReqWindow.ShowInTaskbar = false;
+            ReqWindow.ShowDialog();
+            string LoadEventFeedPath = ReqWindow.ReturnedPath;
+            if (LoadEventFeedPath.Length != 0)
             {
-                ResolverConfig = new ResolverConfig
-                {
-                    TeamGridHeight = teamGridHeight,
-                    MaxDisplayCount = AppConst.MaxDisplayCount,
-                    MaxRenderCount = AppConst.MaxDisplayCount + 5,
-                    ScrollDownDuration = 200,
-                    ScrollDownInterval = 0,
-                    CursorUpDuration = 500,
-                    UpdateTeamRankDuration = 1000,
-                    AnimationFrameRate = 120,
-                    UpdateProblemStatusDuration = new Tuple<int, int>(400, 600),
-                    AutoUpdateTeamStatusUntilRank = 10
-                },
-                Teams = teams.Select(t => new Team(t)
-                {
-                    Height = teamGridHeight
-                }).ToList(),
-            });
+                this.EventFeedFilePath.Text = LoadEventFeedPath;
+                this.ValidateFile.IsEnabled = true;
+            }
+        }
 
-            resolver.Show();
-            Close();
+        private void OpenLoadEventFileWindow(object sender, System.Windows.RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Event Feed JSON file (*.json)|*.json";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                this.EventFeedFilePath.Text = openFileDialog.FileName;
+                this.ValidateFile.IsEnabled = true;
+            }
         }
     }
 }

@@ -21,6 +21,18 @@
             <TabItem Header="Animation Config">
                 <Grid/>
             </TabItem>
+            <TabItem Header="Contest Data Acquire">
+                <Grid>
+                    <Button x:Name="LoadRestApi" Content="Load" HorizontalAlignment="Left" Margin="288,13,0,0" VerticalAlignment="Top" Click="OpenCredWindow" Width="40"/>
+                    <Button Content="Help" HorizontalAlignment="Left" Margin="374,13,0,0" VerticalAlignment="Top" Width="40"/>
+                    <Label Content="Already have event feed?" HorizontalAlignment="Left" Margin="52,49,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Load data from Domjudge RestAPI?" HorizontalAlignment="Left" Margin="21,10,0,0" VerticalAlignment="Top"/>
+                    <Button Content="Open file..." HorizontalAlignment="Left" Margin="320,52,0,0" VerticalAlignment="Top" Click="OpenLoadEventFileWindow"/>
+                    <TextBox x:Name="EventFeedFilePath" HorizontalAlignment="Left" Margin="101,103,0,0" Text="&lt;Not-Selected&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="354" Height="20" IsEnabled="False"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="21,105,0,0" Text="Path:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                    <Button x:Name="ValidateFile" Content="Validate EventFeed" HorizontalAlignment="Center" Margin="0,143,0,0" VerticalAlignment="Top" IsEnabled="False"/>
+                </Grid>
+            </TabItem>
         </TabControl>
 
         <Button Grid.Row="1"
