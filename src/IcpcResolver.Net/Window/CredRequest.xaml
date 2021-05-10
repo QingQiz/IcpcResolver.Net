@@ -1,0 +1,23 @@
+﻿<Window x:Class="IcpcResolver.Net.Window.CredRequest"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IcpcResolver.Net.Window"
+        mc:Ignorable="d"
+        Title="CredRequest" Height="247" Width="413">
+    <Grid>
+        <Grid HorizontalAlignment="Left" Height="143" Margin="18,28,0,0" VerticalAlignment="Top" Width="343">
+            <TextBox x:Name="AddressBox" HorizontalAlignment="Left" Margin="172,23,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="148" AllowDrop="True"/>
+            <TextBox x:Name="UsernameBox" HorizontalAlignment="Left" Margin="172,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="148"/>
+            <TextBlock HorizontalAlignment="Left" Margin="56,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="77" Text="Address :"/>
+            <TextBlock HorizontalAlignment="Left" Margin="56,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="77" Text="Username :"/>
+            <TextBlock HorizontalAlignment="Left" Margin="56,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="77"><Run Language="zh-cn" Text="Password"/><Run Language="ja-jp" Text=" :"/></TextBlock>
+            <PasswordBox x:Name="PasswordBox" HorizontalAlignment="Left" Margin="172,104,0,0" VerticalAlignment="Top" Width="148"/>
+        </Grid>
+        <Button x:Name="VerifyButton" Content="Verify" HorizontalAlignment="Left" Margin="73,169,0,0" VerticalAlignment="Top" Width="50" Click="VerifyInfo"/>
+        <Button x:Name="GetButton" Content="Get" HorizontalAlignment="Center" Margin="0,169,0,0" VerticalAlignment="Top" Width="50" Click="GetButton_Click"/>
+        <Button x:Name="CancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="290,169,0,0" VerticalAlignment="Top" Width="50" Click="CancelButton_Click"/>
+
+    </Grid>
+</Window>
