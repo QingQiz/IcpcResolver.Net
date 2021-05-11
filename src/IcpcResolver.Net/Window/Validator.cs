@@ -5,48 +5,48 @@ using Newtonsoft.Json.Linq;
 
 namespace IcpcResolver.Net.Window
 {
-    class Validator
+    public class Validator
     {
-        public List<School> SchoolsList;
-        public List<Group> GroupsList;
-        public List<TeamInfo> TeamsList;
-        public List<Problem> ProblemsList;
-        public List<SubmissionWithResult> SubmissionWithResultsList;
-        public List<returnSummary> returnSummaryList;
-        public ContestInfo contestInfo;
-        public StreamReader jsonFileStream;
+        public readonly List<School> SchoolsList;
+        public readonly List<Group> GroupsList;
+        public readonly List<TeamInfo> TeamsList;
+        public readonly List<Problem> ProblemsList;
+        public readonly List<SubmissionWithResult> SubmissionWithResultsList;
+        public List<ReturnSummary> ReturnSummaryList;
+        public ContestInfo ContestInfo;
+        public readonly StreamReader JsonFileStream;
         
         public Validator(string pathToJson)
         {
-            this.jsonFileStream = new StreamReader(pathToJson);
+            JsonFileStream = new StreamReader(pathToJson);
             SchoolsList = new List<School>();
             GroupsList = new List<Group>();
             TeamsList = new List<TeamInfo>();
             ProblemsList = new List<Problem>();
-            returnSummaryList = new List<returnSummary>();
+            ReturnSummaryList = new List<ReturnSummary>();
             SubmissionWithResultsList = new List<SubmissionWithResult>();
-            contestInfo = new ContestInfo();
+            ContestInfo = new ContestInfo();
         }
 
         public void LoadAllEventData()
         {
             string jsonLine;
-            while ((jsonLine = this.jsonFileStream.ReadLine()) != null)
+            while ((jsonLine = JsonFileStream.ReadLine()) != null)
             {
-                JObject jsonLoader = JObject.Parse(jsonLine);
+                var jsonLoader = JObject.Parse(jsonLine);
                 JToken dataType = jsonLoader["type"], opType = jsonLoader["op"], opData = jsonLoader["data"];
                 if (dataType != null)
                     switch (dataType.ToString())
                     {
                         case "organizations":
-                            School school = opData.ToObject<School>();
+                            var school = opData.ToObject<School>();
                             if (opType.ToString() == "create")
                             {
                                 SchoolsList.Add(school);
                             }
                             else if (opType.ToString() == "update")
                             {
-                                int idx = SchoolsList.FindIndex(x => x.id == school.id);
+                                var idx = SchoolsList.FindIndex(x => x.id == school.id);
                                 if (idx != -1)
                                     SchoolsList[idx] = school;
                                 else
@@ -54,14 +54,14 @@ namespace IcpcResolver.Net.Window
                             }
                             break;
                         case "groups":
-                            Group group = opData.ToObject<Group>();
+                            var group = opData.ToObject<Group>();
                             if (opType.ToString() == "create")
                             {
                                 GroupsList.Add(group);
                             }
                             else if (opType.ToString() == "update")
                             {
-                                int idx = GroupsList.FindIndex(x => x.id == group.id);
+                                var idx = GroupsList.FindIndex(x => x.id == group.id);
                                 if (idx != -1)
                                     GroupsList[idx] = group;
                                 else
@@ -69,14 +69,14 @@ namespace IcpcResolver.Net.Window
                             }
                             break;
                         case "teams":
-                            TeamInfo team = opData.ToObject<TeamInfo>();
+                            var team = opData.ToObject<TeamInfo>();
                             if (opType.ToString() == "create")
                             {
                                 TeamsList.Add(team);
                             }
                             else if (opType.ToString() == "update")
                             {
-                                int idx = TeamsList.FindIndex(x => x.id == team.id);
+                                var idx = TeamsList.FindIndex(x => x.id == team.id);
                                 if (idx != -1)
                                     TeamsList[idx] = team;
                                 else
@@ -84,14 +84,14 @@ namespace IcpcResolver.Net.Window
                             }
                             break;
                         case "problems":
-                            Problem problem = opData.ToObject<Problem>();
+                            var problem = opData.ToObject<Problem>();
                             if (opType.ToString() == "create")
                             {
                                 ProblemsList.Add(problem);
                             }
                             else if (opType.ToString() == "update")
                             {
-                                int idx = ProblemsList.FindIndex(x => x.id == problem.id);
+                                var idx = ProblemsList.FindIndex(x => x.id == problem.id);
                                 if (idx != -1)
                                     ProblemsList[idx] = problem;
                                 else
@@ -99,25 +99,26 @@ namespace IcpcResolver.Net.Window
                             }
                             break;
                         case "submissions":
-                            Submission submission = opData.ToObject<Submission>();
+                            var submission = opData.ToObject<Submission>();
                             if (opType.ToString() == "delete")
                             {
                                 SubmissionWithResultsList.RemoveAt(
-                                    SubmissionWithResultsList.FindIndex(x => x.id == opData["id"].ToString()));
+                                    SubmissionWithResultsList.FindIndex(x => x.id == opData["id"]?.ToString()));
                             }
                             else
                             {
-                                SubmissionWithResult submissionWithResult = new SubmissionWithResult(submission);
+                                var submissionWithResult = new SubmissionWithResult(submission);
                                 SubmissionWithResultsList.Add(submissionWithResult);
                             }
 
                             break;
                         case "judgements":
-                            string submissionId = opData["submission_id"].ToString(), judgeResult = opData["judgement_type_id"].ToString();
+                            string submissionId = opData["submission_id"].ToString(),
+                                judgeResult = opData["judgement_type_id"].ToString();
                             SubmissionWithResultsList.First(x => x.id == submissionId).judgeResult = judgeResult;
                             break;
                         case "contests":
-                            contestInfo = opData.ToObject<ContestInfo>();
+                            ContestInfo = opData.ToObject<ContestInfo>();
                             break;
                         default:
                             break;
@@ -127,93 +128,94 @@ namespace IcpcResolver.Net.Window
         public bool CheckTeamInfo()
         {
             // Check if all group id in GroupList
-            returnSummary r = new returnSummary("No group ID found in group definition.\nTeam ID with error: ");
+            var r = new ReturnSummary("No group ID found in group definition.\nTeam ID with error: ");
             foreach (var team in TeamsList)
             {
                 foreach (var gid in team.group_ids)
                 {
                     if (GroupsList.Exists(x => x.id == gid) == false)
                     {
-                        r.retStatus = false;
-                        r.errList.Add(team.id);
+                        r.RetStatus = false;
+                        r.ErrList.Add(team.id);
                     }
                 }
             }
-            returnSummaryList.Add(r);
+            ReturnSummaryList.Add(r);
             // Check if all school id in SchoolList
-            returnSummary r1 = new returnSummary("No organization ID found in organization definition.\nTeam ID with error: ");
+            var r1 = new ReturnSummary("No organization ID found in organization definition.\nTeam ID with error: ");
             foreach (var team in TeamsList)
             {
                 if (SchoolsList.Exists(x => x.id == team.organization_id) == false)
                 {
-                    r1.retStatus = false;
-                    r1.errList.Add(team.id);
+                    r1.RetStatus = false;
+                    r1.ErrList.Add(team.id);
                 }
             }
-            returnSummaryList.Add(r1);
+            ReturnSummaryList.Add(r1);
             // Return team info check result
-            return r.retStatus && r1.retStatus;
+            return r.RetStatus && r1.RetStatus;
         }
 
         public bool CheckSubmissionInfo()
         {
             // Check if all teams in TeamList;
-            returnSummary r = new returnSummary("No team found in team definition.\nSubmission ID with error: ");
+            var r = new ReturnSummary("No team found in team definition.\nSubmission ID with error: ");
             foreach (var submission in SubmissionWithResultsList)
             {
                 if (TeamsList.Exists(x => x.id == submission.team_id) == false)
                 {
-                    r.retStatus = false;
-                    r.errList.Add(submission.id);
+                    r.RetStatus = false;
+                    r.ErrList.Add(submission.id);
                 }
             }
-            returnSummaryList.Add(r);
+            ReturnSummaryList.Add(r);
             // Check if all problems in ProblemList;
-            returnSummary r1 = new returnSummary("No problem found in problem definition.\nSubmission ID with error: ");
+            var r1 = new ReturnSummary("No problem found in problem definition.\nSubmission ID with error: ");
             foreach (var submission in SubmissionWithResultsList)
             {
                 if (ProblemsList.Exists(x => x.id == submission.problem_id) == false)
                 {
-                    r1.retStatus = false;
-                    r1.errList.Add(submission.id);
+                    r1.RetStatus = false;
+                    r1.ErrList.Add(submission.id);
                 }
             }
-            returnSummaryList.Add(r1);
+            ReturnSummaryList.Add(r1);
             // Return submission info check result
-            return r.retStatus && r1.retStatus;
+            return r.RetStatus && r1.RetStatus;
         }
 
         public bool CheckUnjudgedRuns()
         {
             // Check if all submissions have judge result;
-            returnSummary r = new returnSummary("No judge result found in these submissions.\nSubmission ID without judge result: ");
+            var r = new ReturnSummary("No judge result found in these submissions.\nSubmission ID without judge result: ");
             foreach (var submission in SubmissionWithResultsList)
             {
                 if (submission.judgeResult is null or "")
                 {
-                    r.retStatus = false;
-                    r.errList.Add(submission.id);
+                    r.RetStatus = false;
+                    r.ErrList.Add(submission.id);
                 }
             }
-            returnSummaryList.Add(r);
+            ReturnSummaryList.Add(r);
             // Return submission info check result
-            return r.retStatus;
+            return r.RetStatus;
         }
     }
 
-    public class returnSummary
+    public class ReturnSummary
     {
-        public returnSummary(string errInfo)
+        public ReturnSummary(string errInfo)
         {
-            this.retStatus = true;
-            this.errType = errInfo;
-            this.errList = new List<string>();
+            RetStatus = true;
+            ErrType = errInfo;
+            ErrList = new List<string>();
         }
-        public bool retStatus;
-        public string errType;
-        public List<string> errList;
+        public bool RetStatus;
+        public string ErrType;
+        public List<string> ErrList;
     }
 
+    // ReSharper disable InconsistentNaming
     public class School
     {
         public string id { get; set; }
@@ -274,4 +276,5 @@ namespace IcpcResolver.Net.Window
         public string duration { get; set; }
         public string scoreboard_freeze_duration { get; set; }
     }
+    // ReSharper restore InconsistentNaming
 }
