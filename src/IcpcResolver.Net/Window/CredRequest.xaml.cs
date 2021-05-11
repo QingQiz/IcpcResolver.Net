@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace IcpcResolver.Net.Window
 {
@@ -27,6 +28,7 @@ namespace IcpcResolver.Net.Window
             if (_processing) return;
 
             _processing = true;
+            Cursor = Cursors.Wait;
             
             try
             {
@@ -34,6 +36,7 @@ namespace IcpcResolver.Net.Window
             }
             finally
             {
+                Cursor = Cursors.Arrow;
                 _processing = false;
             }
         }

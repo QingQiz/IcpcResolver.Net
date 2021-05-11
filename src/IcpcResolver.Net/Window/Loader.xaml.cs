@@ -3,8 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Input;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 
 namespace IcpcResolver.Net.Window
@@ -54,6 +55,7 @@ namespace IcpcResolver.Net.Window
             if (_processing) return;
 
             _processing = true;
+            Cursor = Cursors.Wait;
 
             try
             {
@@ -95,6 +97,7 @@ namespace IcpcResolver.Net.Window
             }
             finally
             {
+                Cursor = Cursors.Arrow;
                 _processing = false;
             }
         }
