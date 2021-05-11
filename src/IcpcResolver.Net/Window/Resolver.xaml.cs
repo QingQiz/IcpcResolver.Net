@@ -455,7 +455,7 @@ namespace IcpcResolver.Net.Window
             {
                 _status.ShouldShowAward = false;
                 var awardWindow = new Award(_teams[_status.CurrentTeamIdx].TeamInfo);
-                awardWindow.Show();
+                awardWindow.ShowDialog();
                 return;
             }
 
@@ -499,7 +499,7 @@ namespace IcpcResolver.Net.Window
                     if (_teams[_status.CurrentTeamIdx].TeamRank <= _config.AutoUpdateTeamStatusUntilRank)
                     {
                         var awardWindow = new Award(_teams[_status.CurrentTeamIdx].TeamInfo);
-                        awardWindow.Show();
+                        awardWindow.ShowDialog();
                     }
                     else
                     {

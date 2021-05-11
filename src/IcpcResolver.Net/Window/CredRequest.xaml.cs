@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace IcpcResolver.Net.Window
@@ -8,42 +9,50 @@ namespace IcpcResolver.Net.Window
     /// <summary>
     /// Load event feed content from domjudge RestApi with given URL and ID
     /// </summary>
-    public partial class CredRequest : System.Windows.Window
+    public partial class CredRequest
     {
-        HttpWebResponse _response;
-        public string ReturnedPath { get; set; } = "";
+        private HttpWebResponse _response;
+        public string ReturnedPath { get; private set; } = "";
         public CredRequest()
         {
             InitializeComponent();
-            this.GetButton.IsEnabled = false;
-            this.AddressBox.Text = "http://192.168.0.102/domjudge/api/v4/contests/8/event-feed";
+            GetButton.IsEnabled = false;
+            AddressBox.Text = "http://192.168.0.102/domjudge/api/v4/contests/8/event-feed";
         }
 
-
-        private void VerifyInfo(object sender, RoutedEventArgs e)
+        private async void VerifyInfo(object sender, RoutedEventArgs e)
         {
-            string apiAddress = AddressBox.Text;
-            string username = UsernameBox.Text;
-            string password = PasswordBox.Password.ToString();
-            if (apiAddress.Length * username.Length * password.Length == 0) {
-                MessageBox.Show("Please input all given items.", "Event Loader", MessageBoxButton.OK, MessageBoxImage.Warning);
+            var apiAddress = AddressBox.Text;
+            var username = UsernameBox.Text;
+            var password = PasswordBox.Password.ToString();
+
+            if (apiAddress.Length * username.Length * password.Length == 0)
+            {
+                MessageBox.Show("Please input all given items.", "Event Loader", MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
-            else {
-                apiAddress = apiAddress + "?stream=false";
-                HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(apiAddress);
-                string encodedId = System.Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1")
-                               .GetBytes(username + ":" + password));
-                Request.Headers.Add("Authorization", "Basic " + encodedId);
-                Request.Accept = "application/x-ndjson";
-                try {
-                    this._response = (HttpWebResponse)Request.GetResponse();
-                    MessageBox.Show("Authenticate successfully", "Event Loader", MessageBoxButton.OK, MessageBoxImage.Information);
-                    this.GetButton.IsEnabled = true;
-                } 
+            else
+            {
+                apiAddress += "?stream=false";
+                var request = (HttpWebRequest) WebRequest.Create(apiAddress);
+                var encodedId = System.Convert
+                    .ToBase64String(Encoding.GetEncoding("ISO-8859-1")
+                        .GetBytes(username + ":" + password));
+                request.Headers.Add("Authorization", "Basic " + encodedId);
+                request.Accept = "application/x-ndjson";
+
+                try
+                {
+                    _response = (HttpWebResponse) await request.GetResponseAsync();
+                    MessageBox.Show("Authenticate successfully", "Event Loader", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    GetButton.IsEnabled = true;
+                }
                 catch (WebException exception)
                 {
-                    HttpWebResponse exceptionResponse = (HttpWebResponse)exception.Response;
+                    var exceptionResponse = (HttpWebResponse) exception.Response;
                     if (exceptionResponse != null)
+                    {
                         switch (exceptionResponse.StatusCode)
                         {
                             case HttpStatusCode.NotFound:
@@ -55,36 +64,37 @@ namespace IcpcResolver.Net.Window
                                     MessageBoxImage.Warning);
                                 break;
                             default:
-                                MessageBox.Show("Internal Error", "Event Loader", MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
-                                break;
+                                throw;
                         }
+                    }
                 }
             }
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void CancelButton_OnClick(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
-        private void GetButton_Click(object sender, RoutedEventArgs e)
+        private void GetButton_OnClick(object sender, RoutedEventArgs e)
         {
-            using (Stream eventStream = this._response.GetResponseStream())
+            using var eventStream = _response.GetResponseStream();
+
+            var reader = new StreamReader(eventStream);
+            var responseFromServer = reader.ReadToEnd();
+
+            var saveFileDialog = new System.Windows.Forms.SaveFileDialog
             {
-                StreamReader reader = new StreamReader(eventStream);
-                string responseFromServer = reader.ReadToEnd();
-                System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-                saveFileDialog.Filter = "JSON file (*.json)|*.json";
-                saveFileDialog.FileName = "Event-Feed.json";
-                if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    File.WriteAllText(saveFileDialog.FileName, responseFromServer);
-                    MessageBox.Show("Event feed saved.", "Event Loader", MessageBoxButton.OK, MessageBoxImage.Information);
-                    this.ReturnedPath = saveFileDialog.FileName;
-                    this.Close();
-                }
-            }
+                Filter = "JSON file (*.json)|*.json",
+                FileName = "Event-Feed.json"
+            };
+
+            if (saveFileDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+
+            File.WriteAllText(saveFileDialog.FileName, responseFromServer);
+            MessageBox.Show("Event feed saved.", "Event Loader", MessageBoxButton.OK, MessageBoxImage.Information);
+            ReturnedPath = saveFileDialog.FileName;
+            Close();
         }
     }
 }
