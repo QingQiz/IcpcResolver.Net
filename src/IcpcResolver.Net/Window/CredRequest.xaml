@@ -44,8 +44,8 @@
         <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="PasswordBox"/>
 
         <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
-            <Button Content="Verify" Click="VerifyInfo" HorizontalAlignment="Left"/>
-            <Button x:Name="GetButton" Content="Get" Click="GetButton_OnClick" HorizontalAlignment="Center"/>
+            <Button Content="Verify" Click="VerifyInfoWrapper" HorizontalAlignment="Left"/>
+            <Button x:Name="GetButton" Content="Get" Click="DownloadEventFeedWrapper" HorizontalAlignment="Center"/>
             <Button Content="Cancel" Click="CancelButton_OnClick" IsCancel="True" HorizontalAlignment="Right"/>
         </Grid>
 

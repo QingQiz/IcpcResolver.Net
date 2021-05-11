@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace IcpcResolver.Net.Window
     public partial class CredRequest
     {
         private HttpWebResponse _response;
+        private bool _processing = false;
         public string ReturnedPath { get; private set; } = "";
         public CredRequest()
         {
@@ -20,11 +22,32 @@ namespace IcpcResolver.Net.Window
             AddressBox.Text = "http://192.168.0.102/domjudge/api/v4/contests/8/event-feed";
         }
 
-        private async void VerifyInfo(object sender, RoutedEventArgs e)
+        private async Task OnProcessingWrapper(object sender, RoutedEventArgs e, Func<object, RoutedEventArgs, Task> func)
+        {
+            if (_processing) return;
+
+            _processing = true;
+            
+            try
+            {
+                await func(sender, e);
+            }
+            finally
+            {
+                _processing = false;
+            }
+        }
+
+        private async void VerifyInfoWrapper(object sender, RoutedEventArgs e)
+        {
+            await OnProcessingWrapper(sender, e, VerifyInfo);
+        }
+
+        private async Task VerifyInfo(object sender, RoutedEventArgs e)
         {
             var apiAddress = AddressBox.Text;
             var username = UsernameBox.Text;
-            var password = PasswordBox.Password.ToString();
+            var password = PasswordBox.Password;
 
             if (apiAddress.Length * username.Length * password.Length == 0)
             {
@@ -76,12 +99,17 @@ namespace IcpcResolver.Net.Window
             Close();
         }
 
-        private void GetButton_OnClick(object sender, RoutedEventArgs e)
+        private async void DownloadEventFeedWrapper(object sender, RoutedEventArgs e)
         {
-            using var eventStream = _response.GetResponseStream();
+            await OnProcessingWrapper(sender, e, DownloadEventFeed);
+        }
+
+        private async Task DownloadEventFeed(object sender, RoutedEventArgs e)
+        {
+            await using var eventStream = _response.GetResponseStream();
 
             var reader = new StreamReader(eventStream);
-            var responseFromServer = reader.ReadToEnd();
+            var responseFromServer = await reader.ReadToEndAsync();
 
             var saveFileDialog = new System.Windows.Forms.SaveFileDialog
             {
@@ -91,7 +119,8 @@ namespace IcpcResolver.Net.Window
 
             if (saveFileDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
 
-            File.WriteAllText(saveFileDialog.FileName, responseFromServer);
+            await File.WriteAllTextAsync(saveFileDialog.FileName, responseFromServer);
+
             MessageBox.Show("Event feed saved.", "Event Loader", MessageBoxButton.OK, MessageBoxImage.Information);
             ReturnedPath = saveFileDialog.FileName;
             Close();
