@@ -31,9 +31,9 @@ namespace IcpcResolver.Net.Window
         public void LoadAllEventData()
         {
             string jsonLine;
-            while ((jsonLine = this.JsonFileStream.ReadLine()) != null)
+            while ((jsonLine = JsonFileStream.ReadLine()) != null)
             {
-                JObject jsonLoader = JObject.Parse(jsonLine);
+                var jsonLoader = JObject.Parse(jsonLine);
                 JToken dataType = jsonLoader["type"], opType = jsonLoader["op"], opData = jsonLoader["data"];
                 if (dataType != null)
                     switch (dataType.ToString())

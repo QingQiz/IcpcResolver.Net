@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Windows;
-using System.Windows.Documents;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace IcpcResolver.Net.Window
 {
@@ -17,6 +15,7 @@ namespace IcpcResolver.Net.Window
     public partial class Loader
     {
         private Validator _validator;
+        private bool _processing = false;
         public Loader()
         {
             InitializeComponent();
@@ -50,39 +49,53 @@ namespace IcpcResolver.Net.Window
             ValidateFile.IsEnabled = true;
         }
 
-        private void ValidateData(object sender, RoutedEventArgs e)
+        private async void ValidateData(object sender, RoutedEventArgs e)
         {
-            LoadCheck.IsChecked = SubmissionCheck.IsChecked = TeamInfoCheck.IsChecked = UnjudgedCheck.IsChecked = false;
-            _validator = new Validator(EventFeedFilePath.Text);
-            _validator.LoadAllEventData();
-            LoadCheck.IsChecked = true;
+            if (_processing) return;
 
-            if (_validator.CheckTeamInfo())
-                TeamInfoCheck.IsChecked = true;
-            if (_validator.CheckSubmissionInfo())
-                SubmissionCheck.IsChecked = true;
-            if (_validator.CheckUnjudgedRuns())
-                UnjudgedCheck.IsChecked = true;
+            _processing = true;
 
-            var summaryInfo = "";
-
-            foreach (var summary in _validator.ReturnSummaryList.Where(summary => !summary.RetStatus))
+            try
             {
-                summaryInfo += summary.ErrType;
-                summaryInfo += string.Join(",", summary.ErrList) + "\n";
+                LoadCheck.IsChecked =
+                    SubmissionCheck.IsChecked = TeamInfoCheck.IsChecked = UnjudgedCheck.IsChecked = false;
+                _validator = new Validator(EventFeedFilePath.Text);
+                // validate event-feed async
+                await Task.Run(() => _validator.LoadAllEventData());
+                LoadCheck.IsChecked = true;
+
+                if (_validator.CheckTeamInfo())
+                    TeamInfoCheck.IsChecked = true;
+                if (_validator.CheckSubmissionInfo())
+                    SubmissionCheck.IsChecked = true;
+                if (_validator.CheckUnjudgedRuns())
+                    UnjudgedCheck.IsChecked = true;
+
+                var summaryInfo = "";
+
+                foreach (var summary in _validator.ReturnSummaryList.Where(summary => !summary.RetStatus))
+                {
+                    summaryInfo += summary.ErrType;
+                    summaryInfo += string.Join(",", summary.ErrList) + "\n";
+                }
+
+                if (summaryInfo.Length != 0)
+                {
+                    MessageBox.Show(summaryInfo + "You can automatically drop these item of fix it manually.",
+                        "Event validator", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    AutoFixButton.IsEnabled = true;
+                }
+                else
+                {
+                    MessageBox.Show("All info validate successfully.", "Event validator", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    SaveAsButton.IsEnabled = true;
+                }
+
             }
-
-            if (summaryInfo.Length != 0)
+            finally
             {
-                MessageBox.Show(summaryInfo + "You can automatically drop these item of fix it manually.",
-                    "Event validator", MessageBoxButton.OK, MessageBoxImage.Warning);
-                AutoFixButton.IsEnabled = true;
-            }
-            else
-            {
-                MessageBox.Show("All info validate successfully.", "Event validator", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                SaveAsButton.IsEnabled = true;
+                _processing = false;
             }
         }
 
@@ -187,13 +200,13 @@ namespace IcpcResolver.Net.Window
         private void LoadExportFromJsonFile(string openFilePath)
         {
             var jsonFileStream = new StreamReader(openFilePath);
-            var contestInfoObj = JsonConvert.DeserializeObject<ContestInfo>(jsonFileStream.ReadLine());
-            var groupsList = JsonConvert.DeserializeObject<List<Group>>(jsonFileStream.ReadLine());
-            var schoolsList = JsonConvert.DeserializeObject<List<School>>(jsonFileStream.ReadLine());
-            var teamsList = JsonConvert.DeserializeObject<List<TeamInfo>>(jsonFileStream.ReadLine());
-            var problemsList = JsonConvert.DeserializeObject<List<Problem>>(jsonFileStream.ReadLine());
+            var contestInfoObj = JsonConvert.DeserializeObject<ContestInfo>(jsonFileStream.ReadLine()!);
+            var groupsList = JsonConvert.DeserializeObject<List<Group>>(jsonFileStream.ReadLine()!);
+            var schoolsList = JsonConvert.DeserializeObject<List<School>>(jsonFileStream.ReadLine()!);
+            var teamsList = JsonConvert.DeserializeObject<List<TeamInfo>>(jsonFileStream.ReadLine()!);
+            var problemsList = JsonConvert.DeserializeObject<List<Problem>>(jsonFileStream.ReadLine()!);
             var submissionWithResultsList =
-                JsonConvert.DeserializeObject<List<SubmissionWithResult>>(jsonFileStream.ReadLine());
+                JsonConvert.DeserializeObject<List<SubmissionWithResult>>(jsonFileStream.ReadLine()!);
 
             if (schoolsList != null) TeamCount.Text = schoolsList.Count.ToString();
             if (problemsList != null) ProblemCount.Text = problemsList.Count.ToString();
