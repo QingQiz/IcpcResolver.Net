@@ -6,40 +6,81 @@
         xmlns:local="clr-namespace:IcpcResolver.Net.Window"
         xmlns:userControl="clr-namespace:IcpcResolver.Net.UserControl"
         mc:Ignorable="d"
-        Title="Loader" Height="500" Width="480">
+        Title="Loader" Height="500" Width="472">
     <Grid Margin="0,0,0,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="43*"/>
-            <RowDefinition Height="5*"/>
+            <RowDefinition Height="398*"/>
+            <RowDefinition Height="37*"/>
+            <RowDefinition Height="50*"/>
         </Grid.RowDefinitions>
-        <TabControl Margin="0,0,0,0">
+        <TabControl Grid.RowSpan="2">
             <TabItem Header="Contest Data Config">
-                <StackPanel Margin="18,0,18,0" Height="382">
-                    <userControl:FileSelector LabelName="TestLabel" LabelWidth="70" SelectFolder="True"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="217*"/>
+                        <ColumnDefinition Width="261*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Load exported data" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Width="150" Height="25"/>
+                    <TextBox x:Name="loadExportFile" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="146,15,0,0" Text="&lt;Not-Selected&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="245" IsEnabled="False"/>
+                    <Button Content="Load..." Grid.Column="1" HorizontalAlignment="Left" Margin="187,14,0,0" VerticalAlignment="Top" Height="20" Width="50" Click="LoadExportFile"/>
+                    <CheckBox Content="Enable team photo" HorizontalAlignment="Left" Margin="147,87,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                    <Label Content="Team photo folder" HorizontalAlignment="Left" Margin="10,55,0,0" VerticalAlignment="Top" Width="150" Height="25"/>
+                    <TextBox x:Name="loadExportFile_Copy" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="147,59,0,0" Text="&lt;Disabled&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="302" IsEnabled="False"/>
+                    <Button Content="Select" Grid.Column="1" HorizontalAlignment="Left" Margin="187,85,0,0" VerticalAlignment="Top" Height="20" Width="50" Click="SelectPhotoFolder" IsEnabled="False"/>
+                    <CheckBox Content="Enable school icon" HorizontalAlignment="Left" Margin="147,145,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                    <Label Content="School icon folder" HorizontalAlignment="Left" Margin="10,113,0,0" VerticalAlignment="Top" Width="150" Height="25"/>
+                    <TextBox x:Name="loadExportFile_Copy1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="149,117,0,0" Text="&lt;Disabled&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" IsEnabled="False"/>
+                    <Button Content="Select" Grid.Column="1" HorizontalAlignment="Left" Margin="187,143,0,0" VerticalAlignment="Top" Height="20" Width="50" Click="SelectSchoolFolder" IsEnabled="False"/>
+                    <CheckBox Content="Fallback" HorizontalAlignment="Left" Margin="89,87,0,0" VerticalAlignment="Top" Grid.Column="1" IsEnabled="False"/>
+                    <CheckBox Content="Fallback" HorizontalAlignment="Left" Margin="89,146,0,0" VerticalAlignment="Top" Grid.Column="1" IsEnabled="False"/>
+                    <TextBlock x:Name="teamCount" HorizontalAlignment="Left" Margin="131,0,0,0" Text="&lt;Not-Loaded&gt;" TextWrapping="Wrap" VerticalAlignment="Center" Width="90" Grid.ColumnSpan="2"/>
+                    <TextBlock x:Name="problemCount" HorizontalAlignment="Left" Margin="131,227,0,0" Text="&lt;Not-Loaded&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="90" Grid.ColumnSpan="2"/>
+                    <TextBlock x:Name="submissionCount" HorizontalAlignment="Left" Margin="131,261,0,0" Text="&lt;Not-Loaded&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="90" Grid.ColumnSpan="2"/>
+                    <Label Content="Team count:" HorizontalAlignment="Left" Margin="9,0,0,0" VerticalAlignment="Center"/>
+                    <Label Content="Problem count:" HorizontalAlignment="Left" Margin="9,222,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Submission count:" HorizontalAlignment="Left" Margin="9,256,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Contest length:" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0" Grid.Column="1"/>
+                    <TextBox x:Name="contestLength" Grid.Column="1" HorizontalAlignment="Left" Margin="126,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="111" Text="&lt;hh:mm:ss.ms&gt;"/>
+                    <Label Content="Freeze time:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,222,0,0" Grid.Column="1"/>
+                    <TextBox x:Name="freezeTime" Grid.Column="1" HorizontalAlignment="Left" Margin="126,226,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="111" Text="&lt;hh:mm:ss.ms&gt;"/>
+                    <Label Content="Penalty(minute):" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,257,0,0" Grid.Column="1"/>
+                    <TextBox x:Name="penaltyTime" Grid.Column="1" HorizontalAlignment="Left" Margin="126,262,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="111" Text="&lt;mm&gt;"/>
+                    <Label Content="Group count:" HorizontalAlignment="Left" Margin="9,292,0,0" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="groupCount" HorizontalAlignment="Left" Margin="131,297,0,0" Text="&lt;Not-Loaded&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="90" Grid.ColumnSpan="2"/>
+                    <Label Content="Contest name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,293,0,0" Grid.Column="1"/>
+                    <TextBox x:Name="contestName" Grid.Column="1" HorizontalAlignment="Left" Margin="126,297,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="111" Text="&lt;contest-name&gt;"/>
+                </Grid>
             </TabItem>
             <TabItem Header="Animation Config">
-                <Grid/>
             </TabItem>
             <TabItem Header="Contest Data Acquire">
                 <Grid>
-                    <Button x:Name="LoadRestApi" Content="Load" HorizontalAlignment="Left" Margin="288,13,0,0" VerticalAlignment="Top" Click="OpenCredWindow" Width="40"/>
-                    <Button Content="Help" HorizontalAlignment="Left" Margin="374,13,0,0" VerticalAlignment="Top" Width="40"/>
-                    <Label Content="Already have event feed?" HorizontalAlignment="Left" Margin="52,49,0,0" VerticalAlignment="Top"/>
-                    <Label Content="Load data from Domjudge RestAPI?" HorizontalAlignment="Left" Margin="21,10,0,0" VerticalAlignment="Top"/>
-                    <Button Content="Open file..." HorizontalAlignment="Left" Margin="320,52,0,0" VerticalAlignment="Top" Click="OpenLoadEventFileWindow"/>
-                    <TextBox x:Name="EventFeedFilePath" HorizontalAlignment="Left" Margin="101,103,0,0" Text="&lt;Not-Selected&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="354" Height="20" IsEnabled="False"/>
-                    <TextBlock HorizontalAlignment="Left" Margin="21,105,0,0" Text="Path:" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                    <Button x:Name="ValidateFile" Content="Validate EventFeed" HorizontalAlignment="Center" Margin="0,143,0,0" VerticalAlignment="Top" IsEnabled="False"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="28*"/>
+                        <ColumnDefinition Width="5*"/>
+                        <ColumnDefinition Width="206*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="LoadRestApi" Content="Load" HorizontalAlignment="Left" Margin="329,15,0,0" VerticalAlignment="Top" Click="OpenCredWindow" Width="65" Height="20" Grid.Column="2"/>
+                    <Label Content="Load data from Domjudge RestAPI?" HorizontalAlignment="Left" Margin="12,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+                    <Button Content="Open file..." HorizontalAlignment="Left" Margin="329,54,0,0" VerticalAlignment="Top" Click="OpenLoadEventFileWindow" Width="65" Height="20" Grid.Column="2"/>
+                    <TextBox x:Name="EventFeedFilePath" HorizontalAlignment="Left" Margin="1,54,0,0" Text="&lt;Not-Selected&gt;" TextWrapping="Wrap" VerticalAlignment="Top" Width="314" Height="20" IsEnabled="False" Grid.Column="2"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="17,56,0,0" Text="Path:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                    <Button x:Name="ValidateFile" Content="Validate EventFeed" HorizontalAlignment="Left" Margin="129,185,0,0" VerticalAlignment="Top" IsEnabled="False" Click="ValidateData" Height="20" Grid.Column="2"/>
+                    <Grid HorizontalAlignment="Left" Height="88" Margin="15,92,0,0" VerticalAlignment="Top" Width="454" Grid.ColumnSpan="3">
+                        <Label Content="Loading data......" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                        <Label Content="Checking team info" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" Width="174"/>
+                        <CheckBox x:Name="loadCheck" Content="" HorizontalAlignment="Left" Margin="198,17,0,0" VerticalAlignment="Top" Width="16" IsEnabled="False"/>
+                        <CheckBox x:Name="teamInfoCheck" Content="" HorizontalAlignment="Left" Margin="198,56,0,0" VerticalAlignment="Top" Width="16" IsEnabled="False"/>
+                        <Label Content="Checking submission info" HorizontalAlignment="Left" Margin="239,10,0,0" VerticalAlignment="Top" Width="157"/>
+                        <Label Content="Scanning unjudged run" HorizontalAlignment="Left" Margin="239,51,0,0" VerticalAlignment="Top" Width="157"/>
+                        <CheckBox x:Name="submissionCheck" Content="" HorizontalAlignment="Left" Margin="406,17,0,0" VerticalAlignment="Top" Width="16" IsEnabled="False"/>
+                        <CheckBox x:Name="unjudgedCheck" Content="" HorizontalAlignment="Left" Margin="406,56,0,0" VerticalAlignment="Top" Width="16" IsEnabled="False"/>
+                    </Grid>
+                    <Button x:Name="autoFixButton" Content="Auto fix" HorizontalAlignment="Left" Margin="254,185,0,0" VerticalAlignment="Top" IsEnabled="False" Click="AutoFix"  Height="20" Width="65" Grid.Column="2"/>
+                    <Button x:Name="saveAsButton" Content="Save as..." HorizontalAlignment="Left" Margin="329,185,0,0" VerticalAlignment="Top" IsEnabled="False" Click="SaveAs" Width="65" Height="20" Grid.Column="2"/>
                 </Grid>
             </TabItem>
         </TabControl>
-
-        <Button Grid.Row="1"
-                Content="OK"
-                Margin="400,10,0,0"
-                VerticalAlignment="Top"
-                Height="20"
-                Width="60"/>
+        <Button Content="OK" HorizontalAlignment="Left" Margin="412,21,0,0" Grid.Row="2" VerticalAlignment="Top" Click="Button_Click" Width="50"/>
     </Grid>
 </Window>
