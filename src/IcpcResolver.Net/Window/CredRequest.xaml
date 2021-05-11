@@ -17,7 +17,7 @@
         </Grid>
         <Button x:Name="VerifyButton" Content="Verify" HorizontalAlignment="Left" Margin="73,169,0,0" VerticalAlignment="Top" Width="50" Click="VerifyInfo"/>
         <Button x:Name="GetButton" Content="Get" HorizontalAlignment="Center" Margin="0,169,0,0" VerticalAlignment="Top" Width="50" Click="GetButton_Click"/>
-        <Button x:Name="CancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="290,169,0,0" VerticalAlignment="Top" Width="50" Click="CancelButton_Click"/>
+        <Button x:Name="CancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="288,169,0,0" VerticalAlignment="Top" Width="50" Click="CancelButton_Click"/>
 
     </Grid>
 </Window>
