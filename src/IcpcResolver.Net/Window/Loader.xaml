@@ -48,7 +48,7 @@
                             <RowDefinition Height="40"/>
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        
+
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="3*"/>
@@ -164,6 +164,44 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="Animation Config">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" Content="Team Grid Height"/>
+                    <Label Grid.Column="0" Grid.Row="1" Content="Max Display Count"/>
+                    <Label Grid.Column="0" Grid.Row="2" Content="Max Render Count"/>
+                    <Label Grid.Column="0" Grid.Row="3" Content="Scroll Down Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="4" Content="Scroll Down Interval (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="5" Content="Cursor Up Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="6" Content="Update Team Rank Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="7" Content="Animation Frame Rate"/>
+                    <Label Grid.Column="0" Grid.Row="8" Content="Update Problem Status Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="9" Content="Update Team Rank Automatically Until Rank"/>
+                    <TextBox Grid.Column="1" Grid.Row="0" x:Name="TeamGridHeight" Text="100"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" x:Name="MaxDisplayCount" Text="11"/>
+                    <TextBox Grid.Column="1" Grid.Row="2" x:Name="MaxRenderCount" Text="13"/>
+                    <TextBox Grid.Column="1" Grid.Row="3" x:Name="ScrollDownDuration" Text="200"/>
+                    <TextBox Grid.Column="1" Grid.Row="4" x:Name="ScrollDownInterval" Text="0"/>
+                    <TextBox Grid.Column="1" Grid.Row="5" x:Name="CursorUpDuration" Text="500"/>
+                    <TextBox Grid.Column="1" Grid.Row="6" x:Name="UpdateTeamRankDuration" Text="1000"/>
+                    <TextBox Grid.Column="1" Grid.Row="7" x:Name="AnimationFrameRate" Text="120"/>
+                    <TextBox Grid.Column="1" Grid.Row="8" x:Name="UpdateProblemStatusDuration" Text="400,600"/>
+                    <TextBox Grid.Column="1" Grid.Row="9" x:Name="AutoUpdateTeamRankUntilRank" Text="114514"/>
+                </Grid>
             </TabItem>
             <TabItem Header="Contest Data Acquire">
                 <Grid Margin="15 15 15 15">
@@ -195,7 +233,7 @@
                         &lt;Not-Selected&gt;
                     </TextBox>
                     <Button Grid.Row="1" Grid.Column="2" Content="Open" Click="OpenLoadEventFileWindow"/>
-                    
+
                     <!-- 3 -->
                     <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                         <StackPanel.Resources>
@@ -231,16 +269,16 @@
                             </StackPanel.Resources>
 
                             <StackPanel Orientation="Horizontal">
-                                <Label> Loading data </Label>
+                                <Label>Loading data</Label>
                                 <CheckBox x:Name="LoadCheck"/>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal">
-                                <Label> Checking team info </Label>
+                                <Label>Checking team info</Label>
                                 <CheckBox x:Name="TeamInfoCheck"/>
                             </StackPanel>
                         </StackPanel>
-                        
+
                         <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
                             <StackPanel.Resources>
                                 <Style TargetType="Label">
@@ -261,7 +299,6 @@
                 </Grid>
             </TabItem>
         </TabControl>
-
-        <Button Content="OK" HorizontalAlignment="Right" Margin="0 0 15 0" Grid.Row="1" Click="Button_Click"/>
+        <Button Content="Run!" HorizontalAlignment="Right" Margin="0 0 17 11" Grid.Row="1" Click="Run_OnClick"/>
     </Grid>
 </Window>

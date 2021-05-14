@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using IcpcResolver.Net.UserControl;
+using IcpcResolver.Net.Utils;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
@@ -231,9 +234,71 @@ namespace IcpcResolver.Net.Window
 
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Run_OnClick(object sender, RoutedEventArgs e)
         {
+            // Get Animation Config
+            ResolverConfig aniConfig;
 
+            try
+            {
+                var updateProblemStatusDuration = UpdateProblemStatusDuration.Text.Split(',');
+                Assertion.Assert(updateProblemStatusDuration.Length == 2,
+                    "the format of `Update Problem Status Duration` should be `number,number`");
+
+                aniConfig = new ResolverConfig
+                {
+                    TeamGridHeight = int.Parse(TeamGridHeight.Text),
+                    MaxDisplayCount = int.Parse(MaxDisplayCount.Text),
+                    MaxRenderCount = int.Parse(MaxRenderCount.Text),
+                    ScrollDownDuration = int.Parse(ScrollDownDuration.Text),
+                    ScrollDownInterval = int.Parse(ScrollDownInterval.Text),
+                    CursorUpDuration = int.Parse(CursorUpDuration.Text),
+                    UpdateTeamRankDuration = int.Parse(UpdateTeamRankDuration.Text),
+                    AnimationFrameRate = int.Parse(AnimationFrameRate.Text),
+                    UpdateProblemStatusDuration = new Tuple<int, int>(int.Parse(updateProblemStatusDuration[0]),
+                        int.Parse(updateProblemStatusDuration[1])),
+                    AutoUpdateTeamStatusUntilRank = int.Parse(AutoUpdateTeamRankUntilRank.Text)
+                };
+
+                // checker
+                Assertion.Assert(aniConfig.AnimationFrameRate > 0, "aniConfig.AnimationFrameRate > 0");
+                Assertion.Assert(aniConfig.MaxRenderCount >= aniConfig.MaxDisplayCount,
+                    "aniConfig.MaxRenderCount >= aniConfig.MaxDisplayCount");
+                Assertion.Assert(aniConfig.MaxDisplayCount > 0, "aniConfig.MaxDisplayCount > 0");
+                Assertion.Assert(aniConfig.ScrollDownDuration > 0, "aniConfig.ScrollDownDuration > 0");
+                Assertion.Assert(aniConfig.CursorUpDuration > 0, "aniConfig.CursorUpDuration > 0");
+                Assertion.Assert(aniConfig.UpdateTeamRankDuration > 0, "aniConfig.UpdateTeamRankDuration > 0");
+                Assertion.Assert(aniConfig.UpdateProblemStatusDuration.Item1 > 0,
+                    "aniConfig.UpdateProblemStatusDuration.Item1 > 0");
+                Assertion.Assert(aniConfig.UpdateProblemStatusDuration.Item2 > 0,
+                    "aniConfig.UpdateProblemStatusDuration.Item2 > 0");
+                Assertion.Assert(aniConfig.AutoUpdateTeamStatusUntilRank > 0,
+                    "aniConfig.AutoUpdateTeamStatusUntilRank > 0");
+                Assertion.Assert(aniConfig.TeamGridHeight > 0, "aniConfig.TeamGridHeight > 0");
+            }
+            catch (FormatException)
+            {
+                MessageBox.Show("Can not parse value to int in Animation Config", "Loader", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+            catch (AssertionErrorException)
+            {
+                return;
+            }
+
+            // Show Resolver
+            var resolver = new Resolver(new ResolverDto
+            {
+                ResolverConfig = aniConfig,
+                // Fake team info
+                Teams = ResolverDto.DataGenerator(12, 30).Select(t => new Team(t)
+                {
+                    Height = aniConfig.TeamGridHeight,
+                }).ToList(),
+            });
+            resolver.Show();
+            Close();
         }
     }
 }
