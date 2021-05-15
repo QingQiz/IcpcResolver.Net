@@ -18,8 +18,8 @@ namespace IcpcResolver.Net.Window
     /// </summary>
     public partial class Loader
     {
-        private Validator _validator;
-        private bool _processing = false;
+        private Validator _validator, _demo;
+        private bool _processing = false, _loaded = false;
         public Loader()
         {
             InitializeComponent();
@@ -200,6 +200,7 @@ namespace IcpcResolver.Net.Window
             {
                 LoadExportFile.Text = openFileDialog.FileName;
                 LoadExportFromJsonFile(openFileDialog.FileName);
+                this._loaded = true;
             }
         }
 
@@ -222,6 +223,8 @@ namespace IcpcResolver.Net.Window
             if (contestInfoObj != null) FreezeTime.Text = contestInfoObj.scoreboard_freeze_duration;
             if (contestInfoObj != null) PenaltyTime.Text = contestInfoObj.penalty_time;
             if (contestInfoObj != null) ContestName.Text = contestInfoObj.formal_name;
+            this._demo = new Validator(schoolsList, groupsList, teamsList, problemsList, submissionWithResultsList,
+                contestInfoObj);
         }
 
         private void SelectPhotoFolder_OnClick(object sender, RoutedEventArgs e)
@@ -300,5 +303,108 @@ namespace IcpcResolver.Net.Window
             resolver.Show();
             Close();
         }
+
+        private void CalculateAwards(object sender, RoutedEventArgs e)
+        {
+            int goldCount, silverCount, bronzeCount, penaltyTime, teamCount;
+            string firstStanding;
+            // Try parse medal count and penaltytime
+            if (!this._loaded)
+            {
+                MessageBox.Show("Please load contest info from Contest Data Config tab first.",
+                    "Award Utilities", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            try
+            {
+                goldCount = int.Parse(this.goldNumber.Text);
+                silverCount = int.Parse(this.silverNumber.Text);
+                bronzeCount = int.Parse(this.bronzeNumber.Text);
+                penaltyTime = int.Parse(this.PenaltyTime.Text);
+                teamCount = int.Parse(this.TeamCount.Text);
+                firstStanding = this.firstStandingTitle.Text;
+            }
+            catch
+            {
+                MessageBox.Show("Only number allowed in Gold/Silver/Bronze/Penalty number.",
+                    "Award Utilities", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            // Update contest info from user input
+            this.AwardView.Items.Clear();
+            this._demo.ContestInfo.penalty_time = this.PenaltyTime.Text;
+            this._demo.ContestInfo.duration = this.ContestLength.Text;
+            this._demo.ContestInfo.formal_name = this.ContestName.Text;
+            this._demo.ContestInfo.scoreboard_freeze_duration = this.FreezeTime.Text;
+            AwardUtilities awardInfo = new AwardUtilities(this._demo, penaltyTime);
+
+            if (goldCount + silverCount + bronzeCount > teamCount)
+            {
+                MessageBox.Show($"Too many medal: have {teamCount} teams, but total {goldCount + silverCount + bronzeCount} medals given.",
+                    "Award Utilities", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            awardInfo.CalculateTeamResolverInfo(this._demo);
+            awardInfo.CalculateTeamRank();
+            // Make medal award from user input
+            for (int i = 0; i < awardInfo.TeamRankInfos.Count(); i++)
+            {
+                if (goldCount != 0)
+                {
+                    awardInfo.TeamRankInfos[i].AwardName.Add("Gold Medal");
+                    goldCount--;
+                } else if (silverCount != 0)
+                {
+                    awardInfo.TeamRankInfos[i].AwardName.Add("Silver Medal");
+                    silverCount--;
+                } else if (bronzeCount != 0)
+                {
+                    awardInfo.TeamRankInfos[i].AwardName.Add("Bronze Medal");
+                    bronzeCount--;
+                }
+                else
+                    break;
+            }
+            // Give first standing title
+            awardInfo.TeamRankInfos[0].AwardName.Add(this.firstStandingTitle.Text);
+            // Give first blood award
+            var isChecked = this.firstBlood.IsChecked;
+            if (isChecked != null && (bool) isChecked)
+            {
+                foreach (var firstSolveInfo in awardInfo.FirstSolveInfos)
+                {
+                    if (firstSolveInfo.Solved)
+                    {
+                        string problemName = this._demo.ProblemsList.Find(x => x.id == firstSolveInfo.ProblemId)?.short_name;
+                        awardInfo.TeamRankInfos.First(x=>x.id == firstSolveInfo.TeamId).AwardName.Add($"First solve {problemName}");
+                    }
+                }
+            }
+            // Give last solve award
+            var lastAcceptIsChecked = this.lastAccept.IsChecked;
+            if (lastAcceptIsChecked != null && (bool) lastAcceptIsChecked)
+                awardInfo.TeamRankInfos.First(x => x.id == awardInfo.LastSolveTeamId).AwardName.Add("Last Accept submission");
+
+            foreach (var team in awardInfo.TeamRankInfos)
+            {
+                this.AwardView.Items.Add(new ListViewItem
+                {
+                    Id = team.id, Name = team.name, 
+                    Solved = team.AcceptCount, Time = team.Penalty,
+                    Awards = String.Join(", ", team.AwardName)
+                });
+                // Trace.WriteLine($"TeamName: {team.name}, Accept Number: {team.AcceptCount}, Penalty: {team.Penalty}");   
+            }
+
+        }
+    }
+
+    class ListViewItem
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public int Solved { get; set; }
+        public int Time { get; set; }
+        public string Awards { get; set; }
     }
 }
