@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"
-        ResizeMode="CanMinimize"
-        Title="Loader" Height="500" Width="472">
+        ResizeMode="CanResize"
+        Title="Loader" Height="550" Width="490">
     <Window.Resources>
         <Style TargetType="Label">
             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -296,6 +296,58 @@
                             </StackPanel>
                         </StackPanel>
                     </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Award Utilities">
+                <Grid Margin="15 10 15 50">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="10*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Content="Gold Medal" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="1" Content="Silver Medal" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="2" Content="Bronze Medal" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="3" Content="First Standing" HorizontalAlignment="Center"/>
+                    <Label Grid.Column="2" Content="First Blood" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="1" Grid.Column="2" Content="Last Accept" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="2" Grid.Column="2" Content="Group Top" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="goldNumber" Grid.Column="1" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="silverNumber" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="bronzeNumber" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="firstStandingTitle" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" Width="125"/>
+                    <CheckBox x:Name="firstBlood" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="lastAccept" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="groupTop" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <ListView x:Name="AwardView" Grid.Row="4" Grid.ColumnSpan="3" Margin="0,22,0,0" Grid.RowSpan="7">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Id" Width="30" DisplayMemberBinding="{Binding Id}"/>
+                                <GridViewColumn Header="Team Name" Width="80" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Solved" Width="45" DisplayMemberBinding="{Binding Solved}"/>
+                                <GridViewColumn Header="Time" Width="45" DisplayMemberBinding="{Binding Time}"/>
+                                <GridViewColumn Header="Awards" Width="200" DisplayMemberBinding="{Binding Awards}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Button Content="Add" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Center" Margin="0,0,0,1" VerticalAlignment="Bottom" />
+                    <Button Content="Edit" Grid.Column="3" Grid.Row="6"  HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" Grid.RowSpan="2"/>
+                    <Button Content="Delete" Grid.Column="3" Grid.Row="8" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="Calculate" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="69" Grid.ColumnSpan="2" Click="CalculateAwards"/>
                 </Grid>
             </TabItem>
         </TabControl>

@@ -17,6 +17,9 @@
       <Compile Update="Window\Validator.cs">
         <DependentUpon>Loader.xaml</DependentUpon>
       </Compile>
+      <Compile Update="Window\AwardUtilities.cs">
+        <DependentUpon>Loader.xaml</DependentUpon>
+      </Compile>
       <Compile Update="Window\Resolver.xaml.cs">
         <DependentUpon>Resolver.xaml</DependentUpon>
       </Compile>

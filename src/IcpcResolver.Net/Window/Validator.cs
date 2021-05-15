@@ -7,11 +7,11 @@ namespace IcpcResolver.Net.Window
 {
     public class Validator
     {
-        public readonly List<School> SchoolsList;
-        public readonly List<Group> GroupsList;
-        public readonly List<TeamInfo> TeamsList;
-        public readonly List<Problem> ProblemsList;
-        public readonly List<SubmissionWithResult> SubmissionWithResultsList;
+        public List<School> SchoolsList;
+        public List<Group> GroupsList;
+        public List<TeamInfo> TeamsList;
+        public List<Problem> ProblemsList;
+        public List<SubmissionWithResult> SubmissionWithResultsList;
         public List<ReturnSummary> ReturnSummaryList;
         public ContestInfo ContestInfo;
         public readonly StreamReader JsonFileStream;
@@ -26,6 +26,17 @@ namespace IcpcResolver.Net.Window
             ReturnSummaryList = new List<ReturnSummary>();
             SubmissionWithResultsList = new List<SubmissionWithResult>();
             ContestInfo = new ContestInfo();
+        }
+
+        public Validator(List<School> sl, List<Group> gl, List<TeamInfo> ti, List<Problem> p,
+            List<SubmissionWithResult> swr, ContestInfo ci)
+        {
+            this.SchoolsList = sl;
+            this.GroupsList = gl;
+            this.TeamsList = ti;
+            this.ProblemsList = p;
+            this.SubmissionWithResultsList = swr;
+            this.ContestInfo = ci;
         }
 
         public void LoadAllEventData()
