@@ -1,0 +1,30 @@
+﻿<Window x:Class="IcpcResolver.Net.Window.AddEditAward"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IcpcResolver.Net.Window"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Title="AddEditAward" Height="172" Width="350">
+    <Grid HorizontalAlignment="Center" Height="120" VerticalAlignment="Center"  Margin="0,0,0,0" Width="330">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="102*"/>
+            <ColumnDefinition Width="63*"/>
+            <ColumnDefinition Width="83*"/>
+            <ColumnDefinition Width="83*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Label Content="Teamname:" HorizontalAlignment="Center" VerticalAlignment="Center" Height="26" Width="77"/>
+        <Label Content="Award(s):" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Height="26" Width="63" Grid.RowSpan="2"/>
+        <TextBox x:Name="awardTeamName" Grid.Column="1" HorizontalAlignment="Left" VerticalContentAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="177" IsEnabled="False" Grid.ColumnSpan="3" TextAlignment="Center" Height="18" Margin="34,0,0,0"/>
+        <TextBox x:Name="awardNames" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalContentAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="177"  Grid.ColumnSpan="3" TextChanged="awardNames_TextChanged" Height="45" Margin="34,0,0,0" Grid.RowSpan="2"/>
+        <Button Grid.Column="0" Content="OK" Grid.ColumnSpan="2" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Width="50" Click="Button_Click_1" Height="20" />
+        <Button Grid.Column="2" Content="Cancel" Grid.ColumnSpan="2" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Center" Width="50" Click="Button_Click" Height="20" Margin="57,0,0,0" />
+    </Grid>
+</Window>

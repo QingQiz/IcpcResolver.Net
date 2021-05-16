@@ -20,6 +20,7 @@ namespace IcpcResolver.Net.Window
     {
         private Validator _validator, _demo;
         private bool _processing = false, _loaded = false;
+        private AwardUtilities awardInfo;
         public Loader()
         {
             InitializeComponent();
@@ -304,11 +305,73 @@ namespace IcpcResolver.Net.Window
             Close();
         }
 
+        private void AwardView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            this.editAward.IsEnabled = true;
+            this.deleteAward.IsEnabled = true;
+        }
+
+        private void deleteAward_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure to delete selected award?",
+                "Award Utilities", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                var selectedItem = this.AwardView.SelectedItem as ListViewItem;
+                this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName.Clear();
+                this.RefreshAwardView();
+                this.AwardView.UnselectAll();
+                this.deleteAward.IsEnabled = false;
+                this.editAward.IsEnabled = false;
+            }
+        }
+
+        private void editAward_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.AwardView.SelectedItem is ListViewItem selectedItem)
+            {
+                var awardWindow = new AddEditAward(selectedItem.Name, this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName)
+                {
+                    Owner = this,
+                    ShowInTaskbar = false
+                };
+                awardWindow.ShowDialog();
+                if (awardWindow.AwardInfoChanged)
+                {
+                    var changedTeamAward = this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName;
+                    changedTeamAward.Clear();
+                    foreach (var award in awardWindow.ReturnedAward)
+                        changedTeamAward.Add(award);
+                }
+            }
+            this.AwardView.UnselectAll();
+            this.deleteAward.IsEnabled = false;
+            this.editAward.IsEnabled = false;
+            this.RefreshAwardView();
+        }
+        
+
+        private void RefreshAwardView()
+        {
+            this.AwardView.Items.Clear();
+            foreach (var team in this.awardInfo.TeamRankInfos)
+            {
+                this.AwardView.Items.Add(new ListViewItem
+                {
+                    Id = team.id,
+                    Name = team.name,
+                    Solved = team.AcceptCount,
+                    Time = team.Penalty,
+                    Awards = String.Join(", ", team.AwardName)
+                });
+                // Trace.WriteLine($"TeamName: {team.name}, Accept Number: {team.AcceptCount}, Penalty: {team.Penalty}");   
+            }
+        }
+
         private void CalculateAwards(object sender, RoutedEventArgs e)
         {
             int goldCount, silverCount, bronzeCount, penaltyTime, teamCount;
             string firstStanding;
-            // Try parse medal count and penaltytime
+            // Try parse medal count and penalty time
             if (!this._loaded)
             {
                 MessageBox.Show("Please load contest info from Contest Data Config tab first.",
@@ -331,12 +394,11 @@ namespace IcpcResolver.Net.Window
                 return;
             }
             // Update contest info from user input
-            this.AwardView.Items.Clear();
             this._demo.ContestInfo.penalty_time = this.PenaltyTime.Text;
             this._demo.ContestInfo.duration = this.ContestLength.Text;
             this._demo.ContestInfo.formal_name = this.ContestName.Text;
             this._demo.ContestInfo.scoreboard_freeze_duration = this.FreezeTime.Text;
-            AwardUtilities awardInfo = new AwardUtilities(this._demo, penaltyTime);
+            this.awardInfo = new AwardUtilities(this._demo, penaltyTime);
 
             if (goldCount + silverCount + bronzeCount > teamCount)
             {
@@ -385,17 +447,8 @@ namespace IcpcResolver.Net.Window
             if (lastAcceptIsChecked != null && (bool) lastAcceptIsChecked)
                 awardInfo.TeamRankInfos.First(x => x.id == awardInfo.LastSolveTeamId).AwardName.Add("Last Accept submission");
 
-            foreach (var team in awardInfo.TeamRankInfos)
-            {
-                this.AwardView.Items.Add(new ListViewItem
-                {
-                    Id = team.id, Name = team.name, 
-                    Solved = team.AcceptCount, Time = team.Penalty,
-                    Awards = String.Join(", ", team.AwardName)
-                });
-                // Trace.WriteLine($"TeamName: {team.name}, Accept Number: {team.AcceptCount}, Penalty: {team.Penalty}");   
-            }
-
+            // Draw award items in item view
+            this.RefreshAwardView();
         }
     }
 
