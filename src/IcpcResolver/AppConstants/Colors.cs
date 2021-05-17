@@ -29,5 +29,10 @@ namespace IcpcResolver.AppConstants
 
             return (Color)res;
         }
+
+        public static SolidColorBrush ToColorBrush(string color)
+        {
+            return new(FromString(color));
+        }
     }
 }

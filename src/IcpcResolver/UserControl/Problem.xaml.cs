@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using Colors = IcpcResolver.AppConstants.Colors;
 
 namespace IcpcResolver.UserControl
@@ -35,55 +36,58 @@ namespace IcpcResolver.UserControl
 
         private int _try;
         private int _time;
-        private string _label;
+        private readonly string _label;
 
         private ProblemStatus _status;
-        public ProblemStatus Status
+
+        private ProblemStatus Status
         {
             get => _status;
             set
             {
                 _status = value;
-                BgColor = GetStatusColor(_status);
-                FontColor = _status == ProblemStatus.NotTried ? Colors.Gray : Colors.White;
-                BorderColor = _status == ProblemStatus.FirstBlood ? GetStatusColor(ProblemStatus.Accept) : BgColor;
+                BgColor = Colors.ToColorBrush(GetStatusColor(_status));
+                FontColor = Colors.ToColorBrush(_status == ProblemStatus.NotTried ? Colors.Gray : Colors.White);
+                BorderColor = _status == ProblemStatus.FirstBlood
+                    ? Colors.ToColorBrush(GetStatusColor(ProblemStatus.Accept))
+                    : BgColor;
                 LabelOrContent = _status == ProblemStatus.NotTried ? _label : $"{_try} - {_time}";
             }
         }
 
-        public string BorderColor
+        public SolidColorBrush BorderColor
         {
-            get => (string) GetValue(BorderColorProperty);
-            set => SetValue(BorderColorProperty, value);
+            get => (SolidColorBrush) GetValue(BorderColorProperty);
+            private set => SetValue(BorderColorProperty, value);
         }
 
         private static readonly DependencyProperty BorderColorProperty =
-            DependencyProperty.Register("BorderColor", typeof(string), typeof(Problem));
+            DependencyProperty.Register("BorderColor", typeof(SolidColorBrush), typeof(Problem));
 
 
-        public string FontColor
+        public SolidColorBrush FontColor
         {
-            get => (string) GetValue(FontColorProperty);
-            set => SetValue(FontColorProperty, value);
+            get => (SolidColorBrush) GetValue(FontColorProperty);
+            private set => SetValue(FontColorProperty, value);
         }
 
         private static readonly DependencyProperty FontColorProperty =
-            DependencyProperty.Register("FontColor", typeof(string), typeof(Problem));
+            DependencyProperty.Register("FontColor", typeof(SolidColorBrush), typeof(Problem));
 
 
-        public string BgColor
+        public SolidColorBrush BgColor
         {
-            get => (string) GetValue(BgColorProperty);
-            set => SetValue(BgColorProperty, value);
+            get => (SolidColorBrush) GetValue(BgColorProperty);
+            private set => SetValue(BgColorProperty, value);
         }
 
         private static readonly DependencyProperty BgColorProperty =
-            DependencyProperty.Register("BgColor", typeof(string), typeof(Problem));
+            DependencyProperty.Register("BgColor", typeof(SolidColorBrush), typeof(Problem));
 
         public string LabelOrContent
         {
             get => (string) GetValue(LabelOrContentProperty);
-            set => SetValue(LabelOrContentProperty, value);
+            private set => SetValue(LabelOrContentProperty, value);
         }
 
         private static readonly DependencyProperty LabelOrContentProperty =
@@ -94,7 +98,7 @@ namespace IcpcResolver.UserControl
             if (Status != ProblemStatus.Pending || to.Status == ProblemStatus.Pending) return;
 
             await Task.Delay(durationBeforeHighlight);
-            BorderColor = Colors.LightYellow;
+            BorderColor = Colors.ToColorBrush(Colors.LightYellow);
 
             await Task.Delay(durationBeforeUpdate);
             Status = to.Status;
