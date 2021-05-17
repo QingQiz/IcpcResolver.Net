@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="IcpcResolver.UserControl.Problem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             HorizontalAlignment="Stretch"
+             Margin="0 0 10 0"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <!-- background color -->
+    <Border Background="{Binding BgColor}"
+            CornerRadius="9"
+            Height="30">
+        <Grid>
+            <!-- border brush color -->
+            <!-- NOTE: use Background and BorderBrush in one Border tag will cause a white thin border inside Border -->
+            <!-- NOTE: can not put Label in Border, Height is not enough for FontSize=16 -->
+            <Border BorderBrush="{Binding BorderColor}"
+                    BorderThickness="2 3"
+                    VerticalAlignment="Center"
+                    Height="30"
+                    CornerRadius="8">
+            </Border>
+            <!-- submission info -->
+            <Label Content="{Binding Path=LabelOrContent}"
+                   Foreground="{Binding Path=FontColor}"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"/>
+        </Grid>
+    </Border>
+</UserControl>

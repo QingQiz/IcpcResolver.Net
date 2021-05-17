@@ -1,4 +1,6 @@
-﻿src/IcpcResolver.Net/bin
-src/IcpcResolver.Net/obj
+﻿src/IcpcResolver/bin
+src/IcpcResolver/obj
+src/IcpcResolver.Test/obj
+src/IcpcResolver.Test/bin
 .idea
 .vs
