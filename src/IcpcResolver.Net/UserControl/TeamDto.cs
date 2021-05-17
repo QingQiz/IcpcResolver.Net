@@ -42,7 +42,7 @@ namespace IcpcResolver.Net.UserControl
             for (var i = 0; i < ProblemsTo.Count; i++)
             {
                 switch (ProblemsFrom[i].IsAccepted)
-                {
+                { 
                     case true when !ProblemsTo[i].IsAccepted:
                         ProblemsTo[i] = ProblemsFrom[i];
                         break;

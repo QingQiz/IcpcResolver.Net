@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -238,6 +239,21 @@ namespace IcpcResolver.Net.Window
 
         }
 
+        private ProblemStatus ConvertStatus(string inStatus)
+        {
+            switch (inStatus)
+            {
+                case null:
+                    return ProblemStatus.NotTried;
+                case "FB":
+                    return ProblemStatus.FirstBlood;
+                case "AC":
+                    return ProblemStatus.Accept;
+                default:
+                    return ProblemStatus.UnAccept;
+            }
+        }
+
         private void Run_OnClick(object sender, RoutedEventArgs e)
         {
             // Get Animation Config
@@ -290,16 +306,64 @@ namespace IcpcResolver.Net.Window
             {
                 return;
             }
+            
+            // Convert awardInfo tp ResolverDto
+            List<TeamDto> teamDtoList = new List<TeamDto>();
+            foreach (var teamAward in this.awardInfo.TeamRankInfos)
+            {
+                List<ProblemDto> problemDtoFrom = new List<ProblemDto>();
+                foreach (var submissionInfo in teamAward.SubmissionInfosBefore)
+                {
+                    problemDtoFrom.Add(new ProblemDto()
+                    {
+                        Label = submissionInfo.ProblemLabel,
+                        Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                        Time = submissionInfo.SubmissionTime is null? 0 : submissionInfo.GetIntSubmissionTime(),
+                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept ? submissionInfo.TryTime + 1 : submissionInfo.TryTime
+                    });
+                }
+                List<ProblemDto> problemDtoTo = new List<ProblemDto>();
+                foreach (var submissionInfo in teamAward.SubmissionInfosAfter)
+                {
+                    problemDtoTo.Add(new ProblemDto()
+                    {
+                        Label = submissionInfo.ProblemLabel,
+                        Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                        Time = submissionInfo.SubmissionTime is null? 0 : submissionInfo.GetIntSubmissionTime(),
+                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept ? submissionInfo.TryTime + 1 : submissionInfo.TryTime
+                    });
+                }
+                TeamDto teamDto = new TeamDto()
+                {
+                    TeamId = int.Parse(teamAward.id),
+                    TeamName = teamAward.name,
+                    SchoolName = _demo.SchoolsList.First(x => x.id == teamAward.organization_id).formal_name,
+                    Awards = teamAward.AwardName,
+                    DisplayName =
+                        $"{teamAward.name} -- {_demo.SchoolsList.First(x => x.id == teamAward.organization_id).formal_name}",
+                    PenaltyTime = int.Parse(this.PenaltyTime.Text),
+                    ProblemsFrom = problemDtoFrom,
+                    ProblemsTo = problemDtoTo
+                };
+                teamDto.PostInit();
+                teamDtoList.Add(teamDto);
+            }
 
             // Show Resolver
             var resolver = new Resolver(new ResolverDto
             {
                 ResolverConfig = aniConfig,
-                // Fake team info
+                /* Fake team info
                 Teams = ResolverDto.DataGenerator(12, 30).Select(t => new Team(t)
                 {
                     Height = aniConfig.TeamGridHeight,
-                }).ToList(),
+                }).ToList(), */
+
+                // Real team info
+                Teams = teamDtoList.Select(t => new Team(t)
+                {
+                    Height = aniConfig.TeamGridHeight,
+                }).ToList(), 
             });
             resolver.Show();
             Close();
@@ -349,7 +413,6 @@ namespace IcpcResolver.Net.Window
             this.RefreshAwardView();
         }
         
-
         private void RefreshAwardView()
         {
             this.AwardView.Items.Clear();

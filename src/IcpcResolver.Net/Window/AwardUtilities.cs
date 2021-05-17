@@ -13,7 +13,7 @@ namespace IcpcResolver.Net.Window
         public string LastSolveTeamId;
         private int _penaltyTime;
         // A list of no penalty status collection, may changed later
-        private static readonly List<string> Accept = new List<string> {"AC"};
+        private static readonly List<string> Accept = new List<string> {"AC", "FB"};
         private static readonly List<string> Reject = new List<string> {"WA", "TLE", "MLE", "NO", "RE", "OLE", "RTE"};
 
         public AwardUtilities(Validator info, int penaltyTime)
@@ -59,6 +59,7 @@ namespace IcpcResolver.Net.Window
             {
                 // Get current submission information: time, teamId, problemId, result, etc.
                 int currentTime = TimeInMinute(submission.contest_time);
+                Trace.WriteLine($"Current Time: {currentTime}, Before Freeze Time: {contestBeforeFreezeLength}");
                 string currentTeamId = submission.team_id;
                 string currentProblemId = submission.problem_id;
                 string currentJudgeResult = submission.judgeResult;
@@ -78,6 +79,10 @@ namespace IcpcResolver.Net.Window
                 {
                     this.FirstSolveInfos.First(x => x.ProblemId == currentProblemId).Solved = true;
                     this.FirstSolveInfos.First(x => x.ProblemId == currentProblemId).TeamId = currentTeamId;
+                    currentSubmissionInfoBefore.SubmissionStatus = "FB";
+                    currentSubmissionInfoAfter.SubmissionStatus = currentSubmissionInfoBefore.SubmissionStatus;
+                    currentSubmissionInfoBefore.SubmissionTime = submission.contest_time;
+                    currentSubmissionInfoAfter.SubmissionTime = currentSubmissionInfoBefore.SubmissionTime;
                 }
 
                 // Process last accept: current result is accept and last result if reject
@@ -173,11 +178,20 @@ namespace IcpcResolver.Net.Window
         public string SubmissionTime { get; set; }
         public string SubmissionStatus { get; set; }
 
+        public int GetIntSubmissionTime()
+        {
+            string hour = SubmissionTime.Split(":")[0],
+                minute = SubmissionTime.Split(":")[1];
+            return int.Parse(hour) * 60 + int.Parse(minute);
+        }
+
         public SubmissionInfo(string id, string label, int tries)
         {
             this.ProblemId = id;
             this.ProblemLabel = label;
             this.TryTime = tries;
+            this.SubmissionStatus = null;
+            this.SubmissionTime = null;
         }
     }
 
