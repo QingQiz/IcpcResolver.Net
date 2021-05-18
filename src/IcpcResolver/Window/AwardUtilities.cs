@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 
 namespace IcpcResolver.Window
 {
@@ -30,8 +31,9 @@ namespace IcpcResolver.Window
                 foreach (var problem in info.ProblemsList)
                 {
                     SubmissionInfo submissionInfo = new SubmissionInfo(problem.id, problem.short_name, 0);
+                    SubmissionInfo submissionInfo1 = new SubmissionInfo(problem.id, problem.short_name, 0);
                     teamInfoItem.SubmissionInfosBefore.Add(submissionInfo);
-                    teamInfoItem.SubmissionInfosAfter.Add(submissionInfo);
+                    teamInfoItem.SubmissionInfosAfter.Add(submissionInfo1);
                 }
                 teamInfoItem.AcceptCount = 0;
                 teamInfoItem.Penalty = 0;
@@ -77,10 +79,18 @@ namespace IcpcResolver.Window
                 {
                     this.FirstSolveInfos.First(x => x.ProblemId == currentProblemId).Solved = true;
                     this.FirstSolveInfos.First(x => x.ProblemId == currentProblemId).TeamId = currentTeamId;
-                    currentSubmissionInfoBefore.SubmissionStatus = "FB";
-                    currentSubmissionInfoAfter.SubmissionStatus = currentSubmissionInfoBefore.SubmissionStatus;
-                    currentSubmissionInfoBefore.SubmissionTime = submission.contest_time;
-                    currentSubmissionInfoAfter.SubmissionTime = currentSubmissionInfoBefore.SubmissionTime;
+                    if (currentTime < contestBeforeFreezeLength)
+                    {
+                        currentSubmissionInfoBefore.SubmissionStatus = "FB";
+                        currentSubmissionInfoBefore.SubmissionTime = submission.contest_time;
+                        currentSubmissionInfoAfter.SubmissionStatus = currentSubmissionInfoBefore.SubmissionStatus;
+                        currentSubmissionInfoAfter.SubmissionTime = currentSubmissionInfoBefore.SubmissionTime;
+                    }
+                    else
+                    {
+                        currentSubmissionInfoAfter.SubmissionStatus = "FB";
+                        currentSubmissionInfoAfter.SubmissionTime = submission.contest_time;
+                    }
                 }
 
                 // Process last accept: current result is accept and last result if reject
