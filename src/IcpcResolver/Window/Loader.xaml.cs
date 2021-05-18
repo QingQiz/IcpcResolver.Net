@@ -349,10 +349,14 @@ namespace IcpcResolver.Window
             // Show Resolver
             var resolver = new Resolver(new ResolverDto
             {
-                Teams = teamDtoList.Select(t => new Team(t)
-                {
-                    Height = aniConfig.TeamGridHeight,
-                }).ToList(),
+                Teams = teamDtoList
+                    .OrderByDescending(t => t.Solved)
+                    .ThenBy(t => t.TimeAll)
+                    .ThenBy(t => t.DisplayName)
+                    .Select(t => new Team(t)
+                    {
+                        Height = aniConfig.TeamGridHeight,
+                    }).ToList(),
                 ResolverConfig = aniConfig
             });
             resolver.Show();
