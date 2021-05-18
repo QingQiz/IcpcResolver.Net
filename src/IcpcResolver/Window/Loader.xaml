@@ -6,7 +6,7 @@
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"
         ResizeMode="CanResize"
-        Title="Loader" Height="550" Width="490">
+        Title="Loader" Height="600" Width="500">
     <Window.Resources>
         <Style TargetType="Label">
             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -352,6 +352,6 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <Button Content="Run!" HorizontalAlignment="Right" Margin="0 0 17 11" Grid.Row="1" Click="Run_OnClick"/>
+        <Button x:Name="runButton" Content="Run!" HorizontalAlignment="Right" Margin="0 0 17 11" Grid.Row="1" Click="Run_OnClick" IsEnabled="False"/>
     </Grid>
 </Window>

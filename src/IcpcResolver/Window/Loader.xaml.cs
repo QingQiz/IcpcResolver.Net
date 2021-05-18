@@ -225,6 +225,7 @@ namespace IcpcResolver.Window
             _demo = new Validator(schoolsList, groupsList, teamsList, problemsList, submissionWithResultsList,
                 contestInfoObj);
             _loaded = true;
+            this.FirstStandingTitle.Text = $"Champion of {contestInfoObj.formal_name}";
             CalculateAwards(null, null);
         }
 
@@ -502,6 +503,8 @@ namespace IcpcResolver.Window
 
             // Draw award items in item view
             this.RefreshAwardView();
+            // Enable run
+            this.runButton.IsEnabled = true;
         }
     }
 
