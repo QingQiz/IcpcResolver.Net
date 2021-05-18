@@ -118,7 +118,6 @@ namespace IcpcResolver.Window
                     foreach (var teamId in summary.ErrList)
                     {
                         _validator.TeamsList.Remove(_validator.TeamsList.First(x => x.id == teamId));
-                        Trace.WriteLine("Drop team id: " + teamId);
                     }
                 }
             }
@@ -134,7 +133,6 @@ namespace IcpcResolver.Window
                     foreach (var submissionId in summary.ErrList)
                     {
                         _validator.SubmissionWithResultsList.RemoveAll(x => x.id == submissionId);
-                        Trace.WriteLine("Drop submission id: " + submissionId);
                     }
                 }
             }
@@ -227,6 +225,7 @@ namespace IcpcResolver.Window
             _demo = new Validator(schoolsList, groupsList, teamsList, problemsList, submissionWithResultsList,
                 contestInfoObj);
             _loaded = true;
+            this.FirstStandingTitle.Text = $"Champion of {contestInfoObj.formal_name}";
             CalculateAwards(null, null);
         }
 
@@ -307,7 +306,7 @@ namespace IcpcResolver.Window
             {
                 return;
             }
-            
+
             // Convert awardInfo tp ResolverDto
             var teamDtoList = new List<TeamDto>();
             foreach (var teamAward in this._awardInfo.TeamRankInfos)
@@ -330,6 +329,7 @@ namespace IcpcResolver.Window
                         : submissionInfo.TryTime + 1
                 }).ToList();
 
+
                 var teamDto = new TeamDto
                 {
                     TeamId = int.Parse(teamAward.id),
@@ -342,7 +342,6 @@ namespace IcpcResolver.Window
                     ProblemsFrom = problemDtoFrom,
                     ProblemsTo = problemDtoTo
                 };
-
                 teamDto.PostInit();
                 teamDtoList.Add(teamDto);
             }
@@ -417,7 +416,6 @@ namespace IcpcResolver.Window
                     Time = team.Penalty,
                     Awards = String.Join(", ", team.AwardName)
                 });
-                // Trace.WriteLine($"TeamName: {team.name}, Accept Number: {team.AcceptCount}, Penalty: {team.Penalty}");   
             }
         }
 
@@ -451,7 +449,6 @@ namespace IcpcResolver.Window
             this._demo.ContestInfo.formal_name = this.ContestName.Text;
             this._demo.ContestInfo.scoreboard_freeze_duration = this.FreezeTime.Text;
             this._awardInfo = new AwardUtilities(this._demo, penaltyTime);
-
             if (goldCount + silverCount + bronzeCount > teamCount)
             {
                 MessageBox.Show($"Too many medal: have {teamCount} teams, but total {goldCount + silverCount + bronzeCount} medals given.",
@@ -460,6 +457,7 @@ namespace IcpcResolver.Window
             }
             _awardInfo.CalculateTeamResolverInfo(this._demo);
             _awardInfo.CalculateTeamRank();
+
             // Make medal award from user input
             foreach (var t in _awardInfo.TeamRankInfos)
             {
@@ -505,6 +503,8 @@ namespace IcpcResolver.Window
 
             // Draw award items in item view
             this.RefreshAwardView();
+            // Enable run
+            this.runButton.IsEnabled = true;
         }
     }
 

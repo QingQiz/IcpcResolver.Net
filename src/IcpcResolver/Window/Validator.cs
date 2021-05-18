@@ -107,6 +107,9 @@ namespace IcpcResolver.Window
                                     ProblemsList[idx] = problem;
                                 else
                                     ProblemsList.Add(problem);
+                            } else if (opType.ToString() == "delete")
+                            {
+                                ProblemsList.RemoveAt(ProblemsList.FindIndex(x => x.id == opType["id"]?.ToString()));
                             }
                             break;
                         case "submissions":
