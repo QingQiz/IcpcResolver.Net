@@ -1,16 +1,16 @@
 # ICPC Revolver Alternative
 
-ICPC's resolver provides scoreboard rolling function for XCPC contest. However, there're full of *weird* bugs and it is not open-sourced. So we will reimplement its function with C# and WPF.
+ICPC's resolver provides scoreboard rolling function for XCPC contest. However, there're full of *weird* bugs. So we will reimplement its function with C# and WPF.
 
 ## Demo
 
 * Loader UI - Awards
   
-![Awards](./images/Award.png)
+  ![Awards](./images/Award.png)
 
 * Scoreboard
 
-![Scoreboard](./images/Scoreboard.png)
+  ![Scoreboard](./images/Scoreboard.png)
 
 ## Try it out
 
@@ -32,17 +32,18 @@ Try it out with [event-feed.json](./TestFeeds/Event-Feed.json) file extracted fr
   - [x] Import from event feed file
   - [x] Automatically fix invalid items(problems, submissions, teams)
   - [ ] Import from domjudge database
-- [ ] Contest config
-  - [ ] Confirm contest infos
-  - [ ] Edit contest infos(length, freeze length, penalty, name)
+- [x] Contest config
+  - [x] Confirm contest infos
+  - [x] Edit contest infos(length, freeze length, penalty, name)
 - [x] Award utilities
   - [x] Automatically genarate for Medals, First Blood, Last Accept, etc.
   - [x] Mannually delete/edit award infos for team
 - [ ] User mannual
 - [ ] Add images support
 
-## Data schema
+## Configuration
 
+<!--
 ### Status change
 
 Description: Description of the problems status change, listed by teams
@@ -75,6 +76,7 @@ Example:
     }
 ]
 ```
+-->
 
 ### Animation Config
 
