@@ -20,7 +20,7 @@ namespace IcpcResolver.Window
     {
         private Validator _validator, _demo;
         private bool _processing = false, _loaded = false;
-        private AwardUtilities awardInfo;
+        private AwardUtilities _awardInfo;
         public Loader()
         {
             InitializeComponent();
@@ -227,6 +227,7 @@ namespace IcpcResolver.Window
             _demo = new Validator(schoolsList, groupsList, teamsList, problemsList, submissionWithResultsList,
                 contestInfoObj);
             _loaded = true;
+            CalculateAwards(null, null);
         }
 
         private void SelectPhotoFolder_OnClick(object sender, RoutedEventArgs e)
@@ -308,32 +309,28 @@ namespace IcpcResolver.Window
             }
             
             // Convert awardInfo tp ResolverDto
-            List<TeamDto> teamDtoList = new List<TeamDto>();
-            foreach (var teamAward in this.awardInfo.TeamRankInfos)
+            var teamDtoList = new List<TeamDto>();
+            foreach (var teamAward in this._awardInfo.TeamRankInfos)
             {
-                List<ProblemDto> problemDtoFrom = new List<ProblemDto>();
-                foreach (var submissionInfo in teamAward.SubmissionInfosBefore)
+                var problemDtoFrom = teamAward.SubmissionInfosBefore.Select(submissionInfo => new ProblemDto()
                 {
-                    problemDtoFrom.Add(new ProblemDto()
-                    {
-                        Label = submissionInfo.ProblemLabel,
-                        Status = ConvertStatus(submissionInfo.SubmissionStatus),
-                        Time = submissionInfo.SubmissionTime is null? 0 : submissionInfo.GetIntSubmissionTime(),
-                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept ? submissionInfo.TryTime + 1 : submissionInfo.TryTime
-                    });
-                }
-                List<ProblemDto> problemDtoTo = new List<ProblemDto>();
-                foreach (var submissionInfo in teamAward.SubmissionInfosAfter)
+                    Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                    Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
+                    Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
+                        ? submissionInfo.TryTime + 2
+                        : submissionInfo.TryTime + 1
+                }).ToList();
+
+                var problemDtoTo = teamAward.SubmissionInfosAfter.Select(submissionInfo => new ProblemDto
                 {
-                    problemDtoTo.Add(new ProblemDto()
-                    {
-                        Label = submissionInfo.ProblemLabel,
-                        Status = ConvertStatus(submissionInfo.SubmissionStatus),
-                        Time = submissionInfo.SubmissionTime is null? 0 : submissionInfo.GetIntSubmissionTime(),
-                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept ? submissionInfo.TryTime + 1 : submissionInfo.TryTime
-                    });
-                }
-                TeamDto teamDto = new TeamDto()
+                    Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                    Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
+                    Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
+                        ? submissionInfo.TryTime + 2
+                        : submissionInfo.TryTime + 1
+                }).ToList();
+
+                var teamDto = new TeamDto
                 {
                     TeamId = int.Parse(teamAward.id),
                     TeamName = teamAward.name,
@@ -345,6 +342,7 @@ namespace IcpcResolver.Window
                     ProblemsFrom = problemDtoFrom,
                     ProblemsTo = problemDtoTo
                 };
+
                 teamDto.PostInit();
                 teamDtoList.Add(teamDto);
             }
@@ -355,7 +353,8 @@ namespace IcpcResolver.Window
                 Teams = teamDtoList.Select(t => new Team(t)
                 {
                     Height = aniConfig.TeamGridHeight,
-                }).ToList(), 
+                }).ToList(),
+                ResolverConfig = aniConfig
             });
             resolver.Show();
             Close();
@@ -363,8 +362,8 @@ namespace IcpcResolver.Window
 
         private void AwardView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            this.editAward.IsEnabled = true;
-            this.deleteAward.IsEnabled = true;
+            this.EditAward.IsEnabled = true;
+            this.DeleteAward.IsEnabled = true;
         }
 
         private void deleteAward_Click(object sender, RoutedEventArgs e)
@@ -373,11 +372,11 @@ namespace IcpcResolver.Window
                 "Award Utilities", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 var selectedItem = this.AwardView.SelectedItem as ListViewItem;
-                this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName.Clear();
+                this._awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName.Clear();
                 this.RefreshAwardView();
                 this.AwardView.UnselectAll();
-                this.deleteAward.IsEnabled = false;
-                this.editAward.IsEnabled = false;
+                this.DeleteAward.IsEnabled = false;
+                this.EditAward.IsEnabled = false;
             }
         }
 
@@ -385,7 +384,7 @@ namespace IcpcResolver.Window
         {
             if (this.AwardView.SelectedItem is ListViewItem selectedItem)
             {
-                var awardWindow = new AddEditAward(selectedItem.Name, this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName)
+                var awardWindow = new AddEditAward(selectedItem.Name, this._awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName)
                 {
                     Owner = this,
                     ShowInTaskbar = false
@@ -393,22 +392,22 @@ namespace IcpcResolver.Window
                 awardWindow.ShowDialog();
                 if (awardWindow.AwardInfoChanged)
                 {
-                    var changedTeamAward = this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName;
+                    var changedTeamAward = this._awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName;
                     changedTeamAward.Clear();
                     foreach (var award in awardWindow.ReturnedAward)
                         changedTeamAward.Add(award);
                 }
             }
             this.AwardView.UnselectAll();
-            this.deleteAward.IsEnabled = false;
-            this.editAward.IsEnabled = false;
+            this.DeleteAward.IsEnabled = false;
+            this.EditAward.IsEnabled = false;
             this.RefreshAwardView();
         }
         
         private void RefreshAwardView()
         {
             this.AwardView.Items.Clear();
-            foreach (var team in this.awardInfo.TeamRankInfos)
+            foreach (var team in this._awardInfo.TeamRankInfos)
             {
                 this.AwardView.Items.Add(new ListViewItem
                 {
@@ -425,7 +424,6 @@ namespace IcpcResolver.Window
         private void CalculateAwards(object sender, RoutedEventArgs e)
         {
             int goldCount, silverCount, bronzeCount, penaltyTime, teamCount;
-            string firstStanding;
             // Try parse medal count and penalty time
             if (!this._loaded)
             {
@@ -435,12 +433,11 @@ namespace IcpcResolver.Window
             }
             try
             {
-                goldCount = int.Parse(this.goldNumber.Text);
-                silverCount = int.Parse(this.silverNumber.Text);
-                bronzeCount = int.Parse(this.bronzeNumber.Text);
+                goldCount = int.Parse(this.GoldNumber.Text);
+                silverCount = int.Parse(this.SilverNumber.Text);
+                bronzeCount = int.Parse(this.BronzeNumber.Text);
                 penaltyTime = int.Parse(this.PenaltyTime.Text);
                 teamCount = int.Parse(this.TeamCount.Text);
-                firstStanding = this.firstStandingTitle.Text;
             }
             catch
             {
@@ -453,7 +450,7 @@ namespace IcpcResolver.Window
             this._demo.ContestInfo.duration = this.ContestLength.Text;
             this._demo.ContestInfo.formal_name = this.ContestName.Text;
             this._demo.ContestInfo.scoreboard_freeze_duration = this.FreezeTime.Text;
-            this.awardInfo = new AwardUtilities(this._demo, penaltyTime);
+            this._awardInfo = new AwardUtilities(this._demo, penaltyTime);
 
             if (goldCount + silverCount + bronzeCount > teamCount)
             {
@@ -461,46 +458,50 @@ namespace IcpcResolver.Window
                     "Award Utilities", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            awardInfo.CalculateTeamResolverInfo(this._demo);
-            awardInfo.CalculateTeamRank();
+            _awardInfo.CalculateTeamResolverInfo(this._demo);
+            _awardInfo.CalculateTeamRank();
             // Make medal award from user input
-            for (int i = 0; i < awardInfo.TeamRankInfos.Count(); i++)
+            foreach (var t in _awardInfo.TeamRankInfos)
             {
                 if (goldCount != 0)
                 {
-                    awardInfo.TeamRankInfos[i].AwardName.Add("Gold Medal");
+                    t.AwardName.Add("Gold Medal");
                     goldCount--;
-                } else if (silverCount != 0)
+                }
+                else if (silverCount != 0)
                 {
-                    awardInfo.TeamRankInfos[i].AwardName.Add("Silver Medal");
+                    t.AwardName.Add("Silver Medal");
                     silverCount--;
-                } else if (bronzeCount != 0)
+                }
+                else if (bronzeCount != 0)
                 {
-                    awardInfo.TeamRankInfos[i].AwardName.Add("Bronze Medal");
+                    t.AwardName.Add("Bronze Medal");
                     bronzeCount--;
                 }
                 else
+                {
                     break;
+                }
             }
             // Give first standing title
-            awardInfo.TeamRankInfos[0].AwardName.Add(this.firstStandingTitle.Text);
+            _awardInfo.TeamRankInfos[0].AwardName.Add(this.FirstStandingTitle.Text);
             // Give first blood award
-            var isChecked = this.firstBlood.IsChecked;
+            var isChecked = this.FirstBlood.IsChecked;
             if (isChecked != null && (bool) isChecked)
             {
-                foreach (var firstSolveInfo in awardInfo.FirstSolveInfos)
+                foreach (var firstSolveInfo in _awardInfo.FirstSolveInfos)
                 {
                     if (firstSolveInfo.Solved)
                     {
                         string problemName = this._demo.ProblemsList.Find(x => x.id == firstSolveInfo.ProblemId)?.short_name;
-                        awardInfo.TeamRankInfos.First(x=>x.id == firstSolveInfo.TeamId).AwardName.Add($"First solve {problemName}");
+                        _awardInfo.TeamRankInfos.First(x=>x.id == firstSolveInfo.TeamId).AwardName.Add($"First solve {problemName}");
                     }
                 }
             }
             // Give last solve award
-            var lastAcceptIsChecked = this.lastAccept.IsChecked;
+            var lastAcceptIsChecked = this.LastAccept.IsChecked;
             if (lastAcceptIsChecked != null && (bool) lastAcceptIsChecked)
-                awardInfo.TeamRankInfos.First(x => x.id == awardInfo.LastSolveTeamId).AwardName.Add("Last Accept submission");
+                _awardInfo.TeamRankInfos.First(x => x.id == _awardInfo.LastSolveTeamId).AwardName.Add("Last Accept submission");
 
             // Draw award items in item view
             this.RefreshAwardView();

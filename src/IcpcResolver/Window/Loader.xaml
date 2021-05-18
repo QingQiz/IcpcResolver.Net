@@ -287,12 +287,12 @@
                     <Label Grid.Column="2" Content="First Blood" HorizontalAlignment="Center"/>
                     <Label Grid.Row="1" Grid.Column="2" Content="Last Accept" HorizontalAlignment="Center"/>
                     <Label Grid.Row="2" Grid.Column="2" Content="Group Top" HorizontalAlignment="Center" FontStyle="Normal"/>
-                    <TextBox x:Name="goldNumber" Grid.Column="1" HorizontalAlignment="Center" Width="125"/>
-                    <TextBox x:Name="silverNumber" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Width="125"/>
-                    <TextBox x:Name="bronzeNumber" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" Width="125"/>
-                    <TextBox x:Name="firstStandingTitle" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" Width="125"/>
-                    <CheckBox x:Name="firstBlood" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <CheckBox x:Name="lastAccept" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox x:Name="GoldNumber" Text="0" Grid.Column="1" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="SilverNumber" Text="0" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="BronzeNumber" Text="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="FirstStandingTitle" Text="" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" Width="125"/>
+                    <CheckBox x:Name="FirstBlood" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="LastAccept" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <CheckBox x:Name="groupTop" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <ListView x:Name="AwardView" Grid.Row="5" Grid.ColumnSpan="4" Margin="0,22,0,0" Grid.RowSpan="7" SelectionChanged="AwardView_SelectionChanged">
                         <ListView.View>
@@ -305,8 +305,8 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <Button x:Name="editAward" Content="Edit" Grid.Column="2" Grid.Row="5"  HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" Click="editAward_Click"/>
-                    <Button x:Name="deleteAward" Content="Delete" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right" IsEnabled="False" Click="deleteAward_Click"/>
+                    <Button x:Name="EditAward" Content="Edit" Grid.Column="2" Grid.Row="5"  HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" Click="editAward_Click"/>
+                    <Button x:Name="DeleteAward" Content="Delete" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right" IsEnabled="False" Click="deleteAward_Click"/>
                     <Button Content="Calculate" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="69" Grid.ColumnSpan="2" Click="CalculateAwards"/>
                     <GridSplitter Grid.ColumnSpan="4" HorizontalAlignment="Center" Height="5" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Center" Width="454"/>
                 </Grid>

@@ -56,11 +56,9 @@
       </Page>
       <Page Update="Window\CredRequest.xaml">
         <Generator>MSBuild:Compile</Generator>
-        <DependentUpon>Loader.xaml</DependentUpon>
       </Page>
       <Page Update="Window\AddEditAward.xaml">
         <Generator>MSBuild:Compile</Generator>
-        <DependentUpon>Loader.xaml</DependentUpon>
       </Page>
     </ItemGroup>
 </Project>
