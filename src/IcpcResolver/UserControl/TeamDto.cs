@@ -43,40 +43,43 @@ namespace IcpcResolver.UserControl
         {
             for (var i = 0; i < ProblemsTo.Count; i++)
             {
-                if (ProblemsFrom[i].Status == ProblemStatus.Pending || ProblemsTo[i].Status == ProblemStatus.Pending)
+                var f = ProblemsFrom[i];
+                var t = ProblemsTo[i];
+                if (f.Status == ProblemStatus.Pending || t.Status == ProblemStatus.Pending)
                 {
                     throw new ArgumentException("Status should not be `Pending` on Invoking `PostInit`");
                 }
 
-                if (ProblemsFrom[i].Try > ProblemsTo[i].Try)
+                if (f.Try > t.Try)
                 {
                     throw new ArgumentException(
-                        $"Try in ProblemFrom ({ProblemsFrom[i].Try}) > Try in ProblemTo ({ProblemsTo[i].Try})");
+                        $"Try in ProblemFrom ({f.Try}) > Try in ProblemTo ({t.Try})");
                 }
 
-                if (ProblemsFrom[i].Time > ProblemsTo[i].Time)
+                if (f.Time > t.Time)
                 {
                     throw new ArgumentException(
-                        $"Time in ProblemFrom ({ProblemsFrom[i].Time}) > Time in ProblemTo ({ProblemsTo[i].Time})");
+                        $"Time in ProblemFrom ({f.Time}) > Time in ProblemTo ({t.Time})");
                 }
 
                 // all same, continue
-                if (ProblemsTo[i].Equals(ProblemsFrom[i])) continue;
+                if (t.Equals(f)) continue;
 
                 // ReSharper disable once InvertIf
-                if (!ProblemsFrom[i].IsAccepted)
+                if (!f.IsAccepted)
                 {
                     // ReSharper disable once InvertIf
-                    if (ProblemsTo[i].Try != ProblemsFrom[i].Try || ProblemsTo[i].Time != ProblemsFrom[i].Time)
+                    if (t.Try != f.Try || t.Time != f.Time)
                     {
-                        ProblemsFrom[i].Status = ProblemStatus.Pending;
-                        ProblemsFrom[i].Time = ProblemsTo[i].Time;
-                        ProblemsFrom[i].Try = ProblemsTo[i].Try;
+                        f.Status = ProblemStatus.Pending;
+                        f.Time = t.Time;
+                        f.Try = t.Try;
                         continue;
                     }
                 }
+
                 throw new ArgumentException(
-                    $"Invalid status change: {ProblemsFrom[i].Status.ToString()} -> {ProblemsTo[i].Status.ToString()}");
+                    $"Invalid status change: {f.Status.ToString()} ({f.Try}, {f.Time}) -> {t.Status.ToString()} ({t.Try}, {t.Time})");
             }
             return this;
         }
