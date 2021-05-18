@@ -197,11 +197,11 @@ namespace IcpcResolver.Window
                 FileName = "export.json"
             };
 
+            // ReSharper disable once InvertIf
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 LoadExportFile.Text = openFileDialog.FileName;
                 LoadExportFromJsonFile(openFileDialog.FileName);
-                this._loaded = true;
             }
         }
 
@@ -224,8 +224,9 @@ namespace IcpcResolver.Window
             if (contestInfoObj != null) FreezeTime.Text = contestInfoObj.scoreboard_freeze_duration;
             if (contestInfoObj != null) PenaltyTime.Text = contestInfoObj.penalty_time;
             if (contestInfoObj != null) ContestName.Text = contestInfoObj.formal_name;
-            this._demo = new Validator(schoolsList, groupsList, teamsList, problemsList, submissionWithResultsList,
+            _demo = new Validator(schoolsList, groupsList, teamsList, problemsList, submissionWithResultsList,
                 contestInfoObj);
+            _loaded = true;
         }
 
         private void SelectPhotoFolder_OnClick(object sender, RoutedEventArgs e)

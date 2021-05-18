@@ -48,4 +48,19 @@
       <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
       <PackageReference Include="Ookii.Dialogs.Wpf" Version="3.1.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Window\Award.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <DependentUpon>Resolver.xaml</DependentUpon>
+      </Page>
+      <Page Update="Window\CredRequest.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <DependentUpon>Loader.xaml</DependentUpon>
+      </Page>
+      <Page Update="Window\AddEditAward.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <DependentUpon>Loader.xaml</DependentUpon>
+      </Page>
+    </ItemGroup>
 </Project>

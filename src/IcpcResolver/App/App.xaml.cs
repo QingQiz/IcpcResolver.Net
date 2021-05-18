@@ -11,8 +11,7 @@ namespace IcpcResolver.App
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             // Global exception handling  
-            Application.Current.DispatcherUnhandledException +=
-                new DispatcherUnhandledExceptionEventHandler(AppDispatcherUnhandledException);
+            Current.DispatcherUnhandledException += AppDispatcherUnhandledException;
         }
 
         void AppDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
