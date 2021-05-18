@@ -2,11 +2,17 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
+    <Compile Update="Window\AddEditAward.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Window\Loader.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Window\AddEditAward.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Window\Loader.xaml">
       <SubType>Designer</SubType>
     </Page>

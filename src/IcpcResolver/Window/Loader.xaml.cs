@@ -20,6 +20,7 @@ namespace IcpcResolver.Window
     {
         private Validator _validator, _demo;
         private bool _processing = false, _loaded = false;
+        private AwardUtilities awardInfo;
         public Loader()
         {
             InitializeComponent();
@@ -237,6 +238,21 @@ namespace IcpcResolver.Window
 
         }
 
+        private ProblemStatus ConvertStatus(string inStatus)
+        {
+            switch (inStatus)
+            {
+                case null:
+                    return ProblemStatus.NotTried;
+                case "FB":
+                    return ProblemStatus.FirstBlood;
+                case "AC":
+                    return ProblemStatus.Accept;
+                default:
+                    return ProblemStatus.UnAccept;
+            }
+        }
+
         private void Run_OnClick(object sender, RoutedEventArgs e)
         {
             // Get Animation Config
@@ -289,26 +305,127 @@ namespace IcpcResolver.Window
             {
                 return;
             }
+            
+            // Convert awardInfo tp ResolverDto
+            List<TeamDto> teamDtoList = new List<TeamDto>();
+            foreach (var teamAward in this.awardInfo.TeamRankInfos)
+            {
+                List<ProblemDto> problemDtoFrom = new List<ProblemDto>();
+                foreach (var submissionInfo in teamAward.SubmissionInfosBefore)
+                {
+                    problemDtoFrom.Add(new ProblemDto()
+                    {
+                        Label = submissionInfo.ProblemLabel,
+                        Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                        Time = submissionInfo.SubmissionTime is null? 0 : submissionInfo.GetIntSubmissionTime(),
+                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept ? submissionInfo.TryTime + 1 : submissionInfo.TryTime
+                    });
+                }
+                List<ProblemDto> problemDtoTo = new List<ProblemDto>();
+                foreach (var submissionInfo in teamAward.SubmissionInfosAfter)
+                {
+                    problemDtoTo.Add(new ProblemDto()
+                    {
+                        Label = submissionInfo.ProblemLabel,
+                        Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                        Time = submissionInfo.SubmissionTime is null? 0 : submissionInfo.GetIntSubmissionTime(),
+                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept ? submissionInfo.TryTime + 1 : submissionInfo.TryTime
+                    });
+                }
+                TeamDto teamDto = new TeamDto()
+                {
+                    TeamId = int.Parse(teamAward.id),
+                    TeamName = teamAward.name,
+                    SchoolName = _demo.SchoolsList.First(x => x.id == teamAward.organization_id).formal_name,
+                    Awards = teamAward.AwardName,
+                    DisplayName =
+                        $"{teamAward.name} -- {_demo.SchoolsList.First(x => x.id == teamAward.organization_id).formal_name}",
+                    PenaltyTime = int.Parse(this.PenaltyTime.Text),
+                    ProblemsFrom = problemDtoFrom,
+                    ProblemsTo = problemDtoTo
+                };
+                teamDto.PostInit();
+                teamDtoList.Add(teamDto);
+            }
 
             // Show Resolver
             var resolver = new Resolver(new ResolverDto
             {
-                ResolverConfig = aniConfig,
-                // Fake team info
-                Teams = ResolverDto.DataGenerator(12, 30).Select(t => new Team(t)
+                Teams = teamDtoList.Select(t => new Team(t)
                 {
                     Height = aniConfig.TeamGridHeight,
-                }).ToList(),
+                }).ToList(), 
             });
             resolver.Show();
             Close();
+        }
+
+        private void AwardView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            this.editAward.IsEnabled = true;
+            this.deleteAward.IsEnabled = true;
+        }
+
+        private void deleteAward_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure to delete selected award?",
+                "Award Utilities", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                var selectedItem = this.AwardView.SelectedItem as ListViewItem;
+                this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName.Clear();
+                this.RefreshAwardView();
+                this.AwardView.UnselectAll();
+                this.deleteAward.IsEnabled = false;
+                this.editAward.IsEnabled = false;
+            }
+        }
+
+        private void editAward_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.AwardView.SelectedItem is ListViewItem selectedItem)
+            {
+                var awardWindow = new AddEditAward(selectedItem.Name, this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName)
+                {
+                    Owner = this,
+                    ShowInTaskbar = false
+                };
+                awardWindow.ShowDialog();
+                if (awardWindow.AwardInfoChanged)
+                {
+                    var changedTeamAward = this.awardInfo.TeamRankInfos.First(x => x.id == selectedItem.Id).AwardName;
+                    changedTeamAward.Clear();
+                    foreach (var award in awardWindow.ReturnedAward)
+                        changedTeamAward.Add(award);
+                }
+            }
+            this.AwardView.UnselectAll();
+            this.deleteAward.IsEnabled = false;
+            this.editAward.IsEnabled = false;
+            this.RefreshAwardView();
+        }
+        
+        private void RefreshAwardView()
+        {
+            this.AwardView.Items.Clear();
+            foreach (var team in this.awardInfo.TeamRankInfos)
+            {
+                this.AwardView.Items.Add(new ListViewItem
+                {
+                    Id = team.id,
+                    Name = team.name,
+                    Solved = team.AcceptCount,
+                    Time = team.Penalty,
+                    Awards = String.Join(", ", team.AwardName)
+                });
+                // Trace.WriteLine($"TeamName: {team.name}, Accept Number: {team.AcceptCount}, Penalty: {team.Penalty}");   
+            }
         }
 
         private void CalculateAwards(object sender, RoutedEventArgs e)
         {
             int goldCount, silverCount, bronzeCount, penaltyTime, teamCount;
             string firstStanding;
-            // Try parse medal count and penaltytime
+            // Try parse medal count and penalty time
             if (!this._loaded)
             {
                 MessageBox.Show("Please load contest info from Contest Data Config tab first.",
@@ -331,12 +448,11 @@ namespace IcpcResolver.Window
                 return;
             }
             // Update contest info from user input
-            this.AwardView.Items.Clear();
             this._demo.ContestInfo.penalty_time = this.PenaltyTime.Text;
             this._demo.ContestInfo.duration = this.ContestLength.Text;
             this._demo.ContestInfo.formal_name = this.ContestName.Text;
             this._demo.ContestInfo.scoreboard_freeze_duration = this.FreezeTime.Text;
-            AwardUtilities awardInfo = new AwardUtilities(this._demo, penaltyTime);
+            this.awardInfo = new AwardUtilities(this._demo, penaltyTime);
 
             if (goldCount + silverCount + bronzeCount > teamCount)
             {
@@ -385,17 +501,8 @@ namespace IcpcResolver.Window
             if (lastAcceptIsChecked != null && (bool) lastAcceptIsChecked)
                 awardInfo.TeamRankInfos.First(x => x.id == awardInfo.LastSolveTeamId).AwardName.Add("Last Accept submission");
 
-            foreach (var team in awardInfo.TeamRankInfos)
-            {
-                this.AwardView.Items.Add(new ListViewItem
-                {
-                    Id = team.id, Name = team.name, 
-                    Solved = team.AcceptCount, Time = team.Penalty,
-                    Awards = String.Join(", ", team.AwardName)
-                });
-                // Trace.WriteLine($"TeamName: {team.name}, Accept Number: {team.AcceptCount}, Penalty: {team.Penalty}");   
-            }
-
+            // Draw award items in item view
+            this.RefreshAwardView();
         }
     }
 

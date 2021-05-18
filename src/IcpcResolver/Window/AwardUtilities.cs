@@ -12,7 +12,7 @@ namespace IcpcResolver.Window
         public string LastSolveTeamId;
         private int _penaltyTime;
         // A list of no penalty status collection, may changed later
-        private static readonly List<string> Accept = new List<string> {"AC"};
+        private static readonly List<string> Accept = new List<string> {"AC", "FB"};
         private static readonly List<string> Reject = new List<string> {"WA", "TLE", "MLE", "NO", "RE", "OLE", "RTE"};
 
         public AwardUtilities(Validator info, int penaltyTime)
@@ -77,6 +77,10 @@ namespace IcpcResolver.Window
                 {
                     this.FirstSolveInfos.First(x => x.ProblemId == currentProblemId).Solved = true;
                     this.FirstSolveInfos.First(x => x.ProblemId == currentProblemId).TeamId = currentTeamId;
+                    currentSubmissionInfoBefore.SubmissionStatus = "FB";
+                    currentSubmissionInfoAfter.SubmissionStatus = currentSubmissionInfoBefore.SubmissionStatus;
+                    currentSubmissionInfoBefore.SubmissionTime = submission.contest_time;
+                    currentSubmissionInfoAfter.SubmissionTime = currentSubmissionInfoBefore.SubmissionTime;
                 }
 
                 // Process last accept: current result is accept and last result if reject
@@ -172,11 +176,20 @@ namespace IcpcResolver.Window
         public string SubmissionTime { get; set; }
         public string SubmissionStatus { get; set; }
 
+        public int GetIntSubmissionTime()
+        {
+            string hour = SubmissionTime.Split(":")[0],
+                minute = SubmissionTime.Split(":")[1];
+            return int.Parse(hour) * 60 + int.Parse(minute);
+        }
+
         public SubmissionInfo(string id, string label, int tries)
         {
             this.ProblemId = id;
             this.ProblemLabel = label;
             this.TryTime = tries;
+            this.SubmissionStatus = null;
+            this.SubmissionTime = null;
         }
     }
 
