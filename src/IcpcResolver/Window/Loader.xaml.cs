@@ -335,7 +335,16 @@ namespace IcpcResolver.Window
                     TeamId = int.Parse(teamAward.id),
                     TeamName = teamAward.name,
                     SchoolName = _demo.SchoolsList.First(x => x.id == teamAward.organization_id).formal_name,
-                    Awards = teamAward.AwardName,
+                    Awards = teamAward.AwardName.Select(a =>
+                    {
+                        return a switch
+                        {
+                            "Gold Medal" => "Gold Medal|medalist",
+                            "Silver Medal" => "Silver Medal|medalist",
+                            "Bronze Medal" => "Bronze Medal|medalist",
+                            _ => a + "|normal"
+                        };
+                    }).ToList(),
                     DisplayName =
                         $"{teamAward.name} -- {_demo.SchoolsList.First(x => x.id == teamAward.organization_id).formal_name}",
                     PenaltyTime = int.Parse(this.PenaltyTime.Text),
