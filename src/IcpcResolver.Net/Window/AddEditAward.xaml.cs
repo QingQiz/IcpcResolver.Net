@@ -4,9 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 namespace IcpcResolver.Net.Window
 {
-    /// <summary>
-    /// AddEditAward.xaml 的交互逻辑
-    /// </summary>
     public partial class AddEditAward
     {
         public bool AwardInfoChanged;

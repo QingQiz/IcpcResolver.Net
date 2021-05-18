@@ -352,14 +352,6 @@ namespace IcpcResolver.Net.Window
             // Show Resolver
             var resolver = new Resolver(new ResolverDto
             {
-                ResolverConfig = aniConfig,
-                /* Fake team info
-                Teams = ResolverDto.DataGenerator(12, 30).Select(t => new Team(t)
-                {
-                    Height = aniConfig.TeamGridHeight,
-                }).ToList(), */
-
-                // Real team info
                 Teams = teamDtoList.Select(t => new Team(t)
                 {
                     Height = aniConfig.TeamGridHeight,

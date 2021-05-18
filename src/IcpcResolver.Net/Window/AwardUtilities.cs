@@ -59,7 +59,6 @@ namespace IcpcResolver.Net.Window
             {
                 // Get current submission information: time, teamId, problemId, result, etc.
                 int currentTime = TimeInMinute(submission.contest_time);
-                Trace.WriteLine($"Current Time: {currentTime}, Before Freeze Time: {contestBeforeFreezeLength}");
                 string currentTeamId = submission.team_id;
                 string currentProblemId = submission.problem_id;
                 string currentJudgeResult = submission.judgeResult;
