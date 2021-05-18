@@ -78,4 +78,4 @@ Example:
 
 ### Animation Config
 
-see [ResolverConfig.cs](./src/IcpcResolver.Net/Window/ResolverConfig.cs)
+see [ResolverConfig.cs](./src/IcpcResolver/Window/ResolverConfig.cs)
