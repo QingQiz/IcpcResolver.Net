@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using IcpcResolver.Utils.EventFeed;
 
 namespace IcpcResolver.Window
 {
@@ -13,13 +13,14 @@ namespace IcpcResolver.Window
     /// </summary>
     public partial class CredRequest
     {
-        private HttpWebResponse _response;
-        private bool _processing = false;
+        private EventFeedRequest _eventFeedRequest;
+        private bool _processing;
         public string ReturnedPath { get; private set; } = "";
         public CredRequest()
         {
             InitializeComponent();
             GetButton.IsEnabled = false;
+            // default uri
             AddressBox.Text = "http://192.168.0.102/domjudge/api/v4/contests/8/event-feed";
         }
 
@@ -52,48 +53,26 @@ namespace IcpcResolver.Window
             var username = UsernameBox.Text;
             var password = PasswordBox.Password;
 
-            if (apiAddress.Length * username.Length * password.Length == 0)
-            {
-                MessageBox.Show("Please input all given items.", "Event Loader", MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-            }
-            else
-            {
-                apiAddress += "?stream=false";
-                var request = (HttpWebRequest) WebRequest.Create(apiAddress);
-                var encodedId = System.Convert
-                    .ToBase64String(Encoding.GetEncoding("ISO-8859-1")
-                        .GetBytes(username + ":" + password));
-                request.Headers.Add("Authorization", "Basic " + encodedId);
-                request.Accept = "application/x-ndjson";
+            _eventFeedRequest = new EventFeedRequest(apiAddress, username, password);
+            var res = await _eventFeedRequest.Validate();
 
-                try
-                {
-                    _response = (HttpWebResponse) await request.GetResponseAsync();
+            switch (res)
+            {
+                case HttpStatusCode.NotFound:
+                    MessageBox.Show("The requested url not found", "Event Loader", MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    break;
+                case HttpStatusCode.Unauthorized:
+                    MessageBox.Show("Invalid authentication", "Event Loader", MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    break;
+                case HttpStatusCode.OK:
                     MessageBox.Show("Authenticate successfully", "Event Loader", MessageBoxButton.OK,
                         MessageBoxImage.Information);
                     GetButton.IsEnabled = true;
-                }
-                catch (WebException exception)
-                {
-                    var exceptionResponse = (HttpWebResponse) exception.Response;
-                    if (exceptionResponse != null)
-                    {
-                        switch (exceptionResponse.StatusCode)
-                        {
-                            case HttpStatusCode.NotFound:
-                                MessageBox.Show("The requested url not found", "Event Loader", MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
-                                break;
-                            case HttpStatusCode.Unauthorized:
-                                MessageBox.Show("Invalid authentication", "Event Loader", MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
-                                break;
-                            default:
-                                throw;
-                        }
-                    }
-                }
+                    break;
+                default:
+                    throw new Exception("invalid response code: " + res);
             }
         }
 
@@ -109,10 +88,7 @@ namespace IcpcResolver.Window
 
         private async Task DownloadEventFeed(object sender, RoutedEventArgs e)
         {
-            await using var eventStream = _response.GetResponseStream();
-
-            var reader = new StreamReader(eventStream);
-            var responseFromServer = await reader.ReadToEndAsync();
+            var response = await _eventFeedRequest.Download();
 
             var saveFileDialog = new System.Windows.Forms.SaveFileDialog
             {
@@ -122,7 +98,7 @@ namespace IcpcResolver.Window
 
             if (saveFileDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
 
-            await File.WriteAllTextAsync(saveFileDialog.FileName, responseFromServer);
+            await File.WriteAllTextAsync(saveFileDialog.FileName, response);
 
             MessageBox.Show("Event feed saved.", "Event Loader", MessageBoxButton.OK, MessageBoxImage.Information);
             ReturnedPath = saveFileDialog.FileName;
