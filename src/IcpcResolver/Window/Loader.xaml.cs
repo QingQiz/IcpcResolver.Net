@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using IcpcResolver.UserControl;
 using IcpcResolver.Utils;
+using IcpcResolver.Utils.EventFeed;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
@@ -24,9 +25,18 @@ namespace IcpcResolver.Window
         public Loader()
         {
             InitializeComponent();
+            XXX();
         }
 
-        private void OpenCredWindow(object sender, System.Windows.RoutedEventArgs e)
+        public async void XXX()
+        {
+            var parser = new EventFeedParser(@"C:\Users\angel\Desktop\Event-Feed.json");
+
+            parser.Parse();
+            Environment.Exit(0);
+        }
+
+        private void OpenCredWindow(object sender, RoutedEventArgs e)
         {
             var reqWindow = new CredRequest
             {
@@ -42,7 +52,7 @@ namespace IcpcResolver.Window
             ValidateFile.IsEnabled = true;
         }
 
-        private void OpenLoadEventFileWindow(object sender, System.Windows.RoutedEventArgs e)
+        private void OpenEventFeed_OnClick(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -54,7 +64,7 @@ namespace IcpcResolver.Window
             ValidateFile.IsEnabled = true;
         }
 
-        private async void ValidateData(object sender, RoutedEventArgs e)
+        private async void ValidateEventFeed_OnClick(object sender, RoutedEventArgs e)
         {
             if (_processing) return;
 
@@ -106,7 +116,7 @@ namespace IcpcResolver.Window
             }
         }
 
-        private void AutoFix(object sender, System.Windows.RoutedEventArgs e)
+        private void AutoFixEventFeed_OnClick(object sender, System.Windows.RoutedEventArgs e)
         {
             // Fix invalid teams
             _validator.ReturnSummaryList = new List<ReturnSummary>();

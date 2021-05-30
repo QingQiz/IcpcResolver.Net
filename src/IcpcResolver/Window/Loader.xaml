@@ -67,7 +67,7 @@
                     <TextBox Grid.Row="1" Grid.Column="1" x:Name="EventFeedFilePath" IsEnabled="False">
                         &lt;Not-Selected&gt;
                     </TextBox>
-                    <Button Grid.Row="1" Grid.Column="2" Content="Open" Click="OpenLoadEventFileWindow"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="Open" Click="OpenEventFeed_OnClick"/>
 
                     <!-- 3 -->
                     <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -77,10 +77,10 @@
                                 <Setter Property="Width" Value="50"/>
                             </Style>
                         </StackPanel.Resources>
-                        <Button x:Name="ValidateFile" IsEnabled="False" Click="ValidateData" Width="115">
+                        <Button x:Name="ValidateFile" IsEnabled="False" Click="ValidateEventFeed_OnClick" Width="115">
                             Validate EventFeed
                         </Button>
-                        <Button x:Name="AutoFixButton" IsEnabled="False" Click="AutoFix">
+                        <Button x:Name="AutoFixButton" IsEnabled="False" Click="AutoFixEventFeed_OnClick">
                             Auto fix
                         </Button>
                         <Button x:Name="SaveAsButton" IsEnabled="False" Click="SaveAs">
