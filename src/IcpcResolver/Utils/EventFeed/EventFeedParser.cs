@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
-using System.Threading;
-using System.Windows.Forms;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Ookii.Dialogs.Wpf;
 
 namespace IcpcResolver.Utils.EventFeed
 {
@@ -18,15 +13,23 @@ namespace IcpcResolver.Utils.EventFeed
         private readonly Dictionary<string, dynamic> _teams = new();
         private readonly Dictionary<string, dynamic> _problems = new();
         private readonly Dictionary<string, dynamic> _submissions = new();
+        private dynamic _contest;
         private readonly string _filePath;
+        private bool _parsed;
 
         public EventFeedParser(string eventFeedFilePath)
         {
             _filePath = eventFeedFilePath;
         }
 
+        /// <summary>
+        /// parse event feed file. it may take a long time to parse event feed.
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public void Parse()
         {
+            if (_parsed) return;
+
             var text = System.IO.File.ReadAllLines(_filePath);
             var events = text
                 .Select(x => JsonConvert.DeserializeObject<ExpandoObject>(x) as dynamic)
@@ -69,6 +72,7 @@ namespace IcpcResolver.Utils.EventFeed
                     // for submissions
                     case "submissions" when op == "create":
                         _submissions[data.id] = data;
+                        _submissions[data.id].judgement_result = null;
                         break;
                     case "submissions" when op == "delete":
                         _submissions.Remove(data.id);
@@ -76,11 +80,13 @@ namespace IcpcResolver.Utils.EventFeed
                     case "judgements":
                         _submissions[data.submission_id].judgement_result = data.judgement_type_id;
                         break;
+                    case "contests":
+                        _contest = data;
+                        break;
                     // ignored types
                     case "runs":
                     case "state":
                     case "awards":
-                    case "contests":
                     case "languages":
                     case "clarifications":
                     case "judgement-types":
@@ -89,6 +95,121 @@ namespace IcpcResolver.Utils.EventFeed
                         throw new Exception($"Unknown op type `{op}` for data type `{type}`");
                 }
             }
+            _parsed = true;
         }
+
+        /// <summary>
+        /// check teams' groups
+        /// </summary>
+        /// <returns>a list of team id which has wrong group ids</returns>
+        public IEnumerable<string> CheckTeamGroups()
+        {
+            foreach (var (tId, team) in _teams)
+            {
+                foreach (var groupId in team.group_ids)
+                {
+                    if (!_groups.ContainsKey(groupId))
+                    {
+                        yield return tId;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check teams' organization
+        /// </summary>
+        /// <returns>a list of team id which has a wrong organization id</returns>
+        public IEnumerable<string> CheckTeamOrganizations()
+        {
+            foreach (var (tId, team) in _teams)
+            {
+                if (string.IsNullOrEmpty(team.organization_id) || !_schools.ContainsKey(team.organization_id))
+                {
+                    yield return tId;
+                }
+            }
+        }
+
+        /// <summary>
+        /// check all submissions
+        /// </summary>
+        /// <returns>a list of submission id which has a wrong team id</returns>
+        public IEnumerable<string> CheckSubmissions()
+        {
+            foreach (var (sId, submission) in _submissions)
+            {
+                if (!_teams.ContainsKey(submission.team_id))
+                {
+                    yield return sId;
+                }
+            }
+        }
+
+        /// <summary>
+        /// check the problem of submission
+        /// </summary>
+        /// <returns>a list of submission id which has a wrong problem id</returns>
+        public IEnumerable<string> CheckProblems()
+        {
+            foreach (var (sId, submission) in _submissions)
+            {
+                if (!_problems.ContainsKey(submission.problem_id))
+                {
+                    yield return sId;
+                }
+            }
+        }
+
+        /// <summary>
+        /// check un-judged runs
+        /// </summary>
+        /// <returns>a list of submission id</returns>
+        public IEnumerable<string> CheckUnJudgedRuns()
+        {
+            foreach (var (sId, submission) in _submissions)
+            {
+                if (string.IsNullOrEmpty(submission.judgement_result))
+                {
+                    yield return sId;
+                }
+            }
+        }
+
+        /// <summary>
+        /// remove teams from team list
+        /// </summary>
+        /// <param name="tIds">the teams to be removed</param>
+        public void RemoveTeams(List<string> tIds)
+        {
+            foreach (var tId in tIds)
+            {
+                _teams.Remove(tId);
+            }
+        }
+
+        /// <summary>
+        /// remove submission from team list
+        /// </summary>
+        /// <param name="sIds">the submissions to be removed</param>
+        public void RemoveSubmissions(List<string> sIds)
+        {
+            foreach (var sId in sIds)
+            {
+                _submissions.Remove(sId);
+            }
+        }
+
+        // public List<dynamic> Export()
+        // {
+        //     var gs = _groups.Values.Select(v => v);
+        //     var os = _schools.Values.Select(v => v);
+        //     var ts = _teams.Values.Select(v => v);
+        //     var ps = _problems.Values.Select(v => v);
+        //     var ss = _submissions.Values.Select(v => v);
+        //     var res = gs.Concat(os).Concat(ts).Concat(ps).Concat(ss).ToList();
+        //     res.Add(_contest);
+        //     return res;
+        // }
     }
 }

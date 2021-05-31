@@ -15,10 +15,10 @@
 
     <ItemGroup>
       <Compile Update="Window\Validator.cs">
-        <DependentUpon>Loader.xaml</DependentUpon>
+        <DependentUpon>ResolverConfigWindow.xaml</DependentUpon>
       </Compile>
       <Compile Update="Window\AwardUtilities.cs">
-        <DependentUpon>Loader.xaml</DependentUpon>
+        <DependentUpon>ResolverConfigWindow.xaml</DependentUpon>
       </Compile>
       <Compile Update="Window\Resolver.xaml.cs">
         <DependentUpon>Resolver.xaml</DependentUpon>
@@ -41,6 +41,9 @@
       <Compile Update="Window\ResolverStatus.cs">
         <DependentUpon>Resolver.xaml</DependentUpon>
       </Compile>
+      <Compile Update="Window\CredRequest.xaml.cs">
+        <DependentUpon>CredRequest.xaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
@@ -54,11 +57,17 @@
         <Generator>MSBuild:Compile</Generator>
         <DependentUpon>Resolver.xaml</DependentUpon>
       </Page>
-      <Page Update="Window\CredRequest.xaml">
+      <Page Update="Window\ResolverCredRequest.xaml">
         <Generator>MSBuild:Compile</Generator>
+        <DependentUpon>ResolverConfigWindow.xaml</DependentUpon>
       </Page>
       <Page Update="Window\AddEditAward.xaml">
         <Generator>MSBuild:Compile</Generator>
+        <DependentUpon>ResolverConfigWindow.xaml</DependentUpon>
+      </Page>
+      <Page Update="Window\CredRequest.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <DependentUpon>ResolverConfigWindow.xaml</DependentUpon>
       </Page>
     </ItemGroup>
 </Project>

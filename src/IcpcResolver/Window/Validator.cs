@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json.Linq;
+using IcpcResolver.Utils.EventFeed;
 
 namespace IcpcResolver.Window
 {
@@ -12,20 +12,23 @@ namespace IcpcResolver.Window
         public List<TeamInfo> TeamsList;
         public List<Problem> ProblemsList;
         public List<SubmissionWithResult> SubmissionWithResultsList;
-        public List<ReturnSummary> ReturnSummaryList;
+        public List<ReturnSummary> ReturnSummaryList = new();
         public ContestInfo ContestInfo;
         public readonly StreamReader JsonFileStream;
+        private readonly EventFeedParser _parser;
         
         public Validator(string pathToJson)
         {
-            JsonFileStream = new StreamReader(pathToJson);
-            SchoolsList = new List<School>();
-            GroupsList = new List<Group>();
-            TeamsList = new List<TeamInfo>();
-            ProblemsList = new List<Problem>();
-            ReturnSummaryList = new List<ReturnSummary>();
-            SubmissionWithResultsList = new List<SubmissionWithResult>();
-            ContestInfo = new ContestInfo();
+            _parser = new EventFeedParser(pathToJson);
+
+            // JsonFileStream = new StreamReader(pathToJson);
+            // SchoolsList = new List<School>();
+            // GroupsList = new List<Group>();
+            // TeamsList = new List<TeamInfo>();
+            // ProblemsList = new List<Problem>();
+            // ReturnSummaryList = new List<ReturnSummary>();
+            // SubmissionWithResultsList = new List<SubmissionWithResult>();
+            // ContestInfo = new ContestInfo();
         }
 
         public Validator(List<School> sl, List<Group> gl, List<TeamInfo> ti, List<Problem> p,
@@ -41,192 +44,104 @@ namespace IcpcResolver.Window
 
         public void LoadAllEventData()
         {
-            string jsonLine;
-            while ((jsonLine = JsonFileStream.ReadLine()) != null)
-            {
-                var jsonLoader = JObject.Parse(jsonLine);
-                JToken dataType = jsonLoader["type"], opType = jsonLoader["op"], opData = jsonLoader["data"];
-                if (dataType != null)
-                    switch (dataType.ToString())
-                    {
-                        case "organizations":
-                            var school = opData.ToObject<School>();
-                            if (opType.ToString() == "create")
-                            {
-                                SchoolsList.Add(school);
-                            }
-                            else if (opType.ToString() == "update")
-                            {
-                                var idx = SchoolsList.FindIndex(x => x.id == school.id);
-                                if (idx != -1)
-                                    SchoolsList[idx] = school;
-                                else
-                                    SchoolsList.Add(school);
-                            }
-                            break;
-                        case "groups":
-                            var group = opData.ToObject<Group>();
-                            if (opType.ToString() == "create")
-                            {
-                                GroupsList.Add(group);
-                            }
-                            else if (opType.ToString() == "update")
-                            {
-                                var idx = GroupsList.FindIndex(x => x.id == group.id);
-                                if (idx != -1)
-                                    GroupsList[idx] = group;
-                                else
-                                    GroupsList.Add(group);
-                            }
-                            break;
-                        case "teams":
-                            var team = opData.ToObject<TeamInfo>();
-                            if (opType.ToString() == "create")
-                            {
-                                TeamsList.Add(team);
-                            }
-                            else if (opType.ToString() == "update")
-                            {
-                                var idx = TeamsList.FindIndex(x => x.id == team.id);
-                                if (idx != -1)
-                                    TeamsList[idx] = team;
-                                else
-                                    TeamsList.Add(team);
-                            }
-                            break;
-                        case "problems":
-                            var problem = opData.ToObject<Problem>();
-                            if (opType.ToString() == "create")
-                            {
-                                ProblemsList.Add(problem);
-                            }
-                            else if (opType.ToString() == "update")
-                            {
-                                var idx = ProblemsList.FindIndex(x => x.id == problem.id);
-                                if (idx != -1)
-                                    ProblemsList[idx] = problem;
-                                else
-                                    ProblemsList.Add(problem);
-                            } else if (opType.ToString() == "delete")
-                            {
-                                ProblemsList.RemoveAt(ProblemsList.FindIndex(x => x.id == opData["id"]?.ToString()));
-                            }
-                            break;
-                        case "submissions":
-                            var submission = opData.ToObject<Submission>();
-                            if (opType.ToString() == "delete")
-                            {
-                                SubmissionWithResultsList.RemoveAt(
-                                    SubmissionWithResultsList.FindIndex(x => x.id == opData["id"]?.ToString()));
-                            }
-                            else
-                            {
-                                var submissionWithResult = new SubmissionWithResult(submission);
-                                SubmissionWithResultsList.Add(submissionWithResult);
-                            }
-
-                            break;
-                        case "judgements":
-                            string submissionId = opData["submission_id"].ToString(),
-                                judgeResult = opData["judgement_type_id"].ToString();
-                            SubmissionWithResultsList.First(x => x.id == submissionId).judgeResult = judgeResult;
-                            break;
-                        case "contests":
-                            ContestInfo = opData.ToObject<ContestInfo>();
-                            break;
-                        default:
-                            break;
-                    }
-            }
+            _parser.Parse();
         }
+
         public bool CheckTeamInfo()
         {
             // Check if all group id in GroupList
-            var r = new ReturnSummary("No group ID found in group definition.\nTeam ID with error: ");
-            foreach (var team in TeamsList)
+            var r = new ReturnSummary
             {
-                foreach (var gid in team.group_ids)
-                {
-                    if (GroupsList.Exists(x => x.id == gid) == false)
-                    {
-                        r.RetStatus = false;
-                        r.ErrList.Add(team.id);
-                    }
-                }
-            }
+                ErrType = "No group ID found in group definition.\nTeam ID with error: ",
+                ErrList = _parser.CheckTeamGroups().ToList()
+            };
             ReturnSummaryList.Add(r);
+
             // Check if all school id in SchoolList
-            var r1 = new ReturnSummary("No organization ID found in organization definition.\nTeam ID with error: ");
-            foreach (var team in TeamsList)
+            var r1 = new ReturnSummary
             {
-                if (SchoolsList.Exists(x => x.id == team.organization_id) == false)
-                {
-                    r1.RetStatus = false;
-                    r1.ErrList.Add(team.id);
-                }
-            }
+                ErrType = "No organization ID found in organization definition.\nTeam ID with error: ",
+                ErrList = _parser.CheckTeamOrganizations().ToList()
+            };
             ReturnSummaryList.Add(r1);
+
             // Return team info check result
-            return r.RetStatus && r1.RetStatus;
+            return !r.HasError && !r1.HasError;
         }
 
         public bool CheckSubmissionInfo()
         {
             // Check if all teams in TeamList;
-            var r = new ReturnSummary("No team found in team definition.\nSubmission ID with error: ");
-            foreach (var submission in SubmissionWithResultsList)
+            var r = new ReturnSummary
             {
-                if (TeamsList.Exists(x => x.id == submission.team_id) == false)
-                {
-                    r.RetStatus = false;
-                    r.ErrList.Add(submission.id);
-                }
-            }
+                ErrType = "No team found in team definition.\nSubmission ID with error: ",
+                ErrList = _parser.CheckSubmissions().ToList(),
+            };
             ReturnSummaryList.Add(r);
+
             // Check if all problems in ProblemList;
-            var r1 = new ReturnSummary("No problem found in problem definition.\nSubmission ID with error: ");
-            foreach (var submission in SubmissionWithResultsList)
+            var r1 = new ReturnSummary
             {
-                if (ProblemsList.Exists(x => x.id == submission.problem_id) == false)
-                {
-                    r1.RetStatus = false;
-                    r1.ErrList.Add(submission.id);
-                }
-            }
+                ErrType = "No problem found in problem definition.\nSubmission ID with error: ",
+                ErrList = _parser.CheckProblems().ToList(),
+            };
             ReturnSummaryList.Add(r1);
+
             // Return submission info check result
-            return r.RetStatus && r1.RetStatus;
+            return !r.HasError && !r1.HasError;
         }
 
         public bool CheckUnjudgedRuns()
         {
             // Check if all submissions have judge result;
-            var r = new ReturnSummary("No judge result found in these submissions.\nSubmission ID without judge result: ");
-            foreach (var submission in SubmissionWithResultsList)
+            var r = new ReturnSummary
             {
-                if (submission.judgeResult is null or "")
-                {
-                    r.RetStatus = false;
-                    r.ErrList.Add(submission.id);
-                }
-            }
+                ErrType = "No judge result found in these submissions.\nSubmission ID without judge result: ",
+                ErrList = _parser.CheckUnJudgedRuns().ToList()
+            };
             ReturnSummaryList.Add(r);
+
             // Return submission info check result
-            return r.RetStatus;
+            return !r.HasError;
         }
+
+        public void RemoveInvalidTeams()
+        {
+            ReturnSummaryList = new List<ReturnSummary>();
+            CheckTeamInfo();
+
+            ReturnSummaryList
+                .Where(s => s.HasError)
+                .Select(s => s.ErrList)
+                .ToList().ForEach(el => _parser.RemoveTeams(el));
+        }
+
+        public void RemoveInvalidSubmissions()
+        {
+            ReturnSummaryList = new List<ReturnSummary>();
+            CheckSubmissionInfo();
+            CheckUnjudgedRuns();
+
+            ReturnSummaryList
+                .Where(s => s.HasError)
+                .Select(s => s.ErrList)
+                .ToList().ForEach(el => _parser.RemoveSubmissions(el));
+        }
+
+        // public string Export()
+        // {
+        //     // Serialize json data and save as file
+        //     // Export separated by lines, groups, school, team, problem, submission respectively.
+        //     var res = _parser.Export().Select(e => JsonConvert.SerializeObject(e) as string);
+        //     return string.Join('\n', res);
+        // }
     }
 
     public class ReturnSummary
     {
-        public ReturnSummary(string errInfo)
-        {
-            RetStatus = true;
-            ErrType = errInfo;
-            ErrList = new List<string>();
-        }
-        public bool RetStatus;
+        public bool HasError => ErrList.Any();
         public string ErrType;
-        public List<string> ErrList;
+        public List<string> ErrList = new();
     }
 
     // ReSharper disable InconsistentNaming
