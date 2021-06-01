@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using IcpcResolver.Utils.EventFeed;
 
@@ -7,39 +6,19 @@ namespace IcpcResolver.Window
 {
     public class Validator
     {
-        public List<School> SchoolsList;
-        public List<Group> GroupsList;
-        public List<TeamInfo> TeamsList;
-        public List<Problem> ProblemsList;
-        public List<SubmissionWithResult> SubmissionWithResultsList;
+        public IEnumerable<dynamic> SchoolsList => _parser.Schools;
+        public IEnumerable<dynamic> GroupsList => _parser.Groups;
+        public IEnumerable<dynamic> TeamsList => _parser.Teams;
+        public IEnumerable<dynamic> ProblemsList => _parser.Problems;
+        public IEnumerable<dynamic> Submissions => _parser.Submissions; 
+
         public List<ReturnSummary> ReturnSummaryList = new();
-        public ContestInfo ContestInfo;
-        public readonly StreamReader JsonFileStream;
+        public dynamic ContestInfo => _parser.Contest;
         private readonly EventFeedParser _parser;
         
         public Validator(string pathToJson)
         {
             _parser = new EventFeedParser(pathToJson);
-
-            // JsonFileStream = new StreamReader(pathToJson);
-            // SchoolsList = new List<School>();
-            // GroupsList = new List<Group>();
-            // TeamsList = new List<TeamInfo>();
-            // ProblemsList = new List<Problem>();
-            // ReturnSummaryList = new List<ReturnSummary>();
-            // SubmissionWithResultsList = new List<SubmissionWithResult>();
-            // ContestInfo = new ContestInfo();
-        }
-
-        public Validator(List<School> sl, List<Group> gl, List<TeamInfo> ti, List<Problem> p,
-            List<SubmissionWithResult> swr, ContestInfo ci)
-        {
-            this.SchoolsList = sl;
-            this.GroupsList = gl;
-            this.TeamsList = ti;
-            this.ProblemsList = p;
-            this.SubmissionWithResultsList = swr;
-            this.ContestInfo = ci;
         }
 
         public void LoadAllEventData()
@@ -128,13 +107,20 @@ namespace IcpcResolver.Window
                 .ToList().ForEach(el => _parser.RemoveSubmissions(el));
         }
 
-        // public string Export()
-        // {
-        //     // Serialize json data and save as file
-        //     // Export separated by lines, groups, school, team, problem, submission respectively.
-        //     var res = _parser.Export().Select(e => JsonConvert.SerializeObject(e) as string);
-        //     return string.Join('\n', res);
-        // }
+        public ContestSummary GetContestSummary()
+        {
+            return new ContestSummary
+            {
+                ContestLength = _parser.Contest.duration,
+                FreezeTime = _parser.Contest.scoreboard_freeze_duration,
+                PenaltyTime = _parser.Contest.penalty_time,
+                ContestName = _parser.Contest.formal_name,
+                TeamCount = _parser.Teams.Count(),
+                ProblemCount = _parser.Problems.Count(),
+                SubmissionCount = _parser.Submissions.Count(),
+                GroupCount = _parser.Groups.Count()
+            };
+        }
     }
 
     public class ReturnSummary
@@ -144,66 +130,15 @@ namespace IcpcResolver.Window
         public List<string> ErrList = new();
     }
 
-    // ReSharper disable InconsistentNaming
-    public class School
+    public class ContestSummary
     {
-        public string id { get; set; }
-        public string shortname { get; set; }
-        public string formal_name { get; set; }
+        public string ContestLength;
+        public string FreezeTime;
+        public long PenaltyTime;
+        public string ContestName;
+        public int TeamCount;
+        public int ProblemCount;
+        public int SubmissionCount;
+        public int GroupCount;
     }
-
-    public class Group
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-        public bool hidden { get; set; }
-    }
-
-    public class TeamInfo
-    {
-        public string id { get; set; }
-        public string organization_id { get; set; }
-        public string name { get; set; }
-        public List<string> group_ids { get; set; }
-    }
-
-    public class Problem
-    {
-        public string id { get; set; }
-        public string short_name { get; set; }
-    }
-
-    public class Submission
-    {
-        public string id { get; set; }
-        public string team_id { get; set; }
-        public string problem_id { get; set; }
-        public string contest_time { get; set; }
-    }
-
-    public class SubmissionWithResult: Submission
-    {
-        // Construct full submission from deserialize object
-        public SubmissionWithResult(Submission submission)
-        {
-            this.id = submission.id;
-            this.problem_id = submission.problem_id;
-            this.team_id = submission.team_id;
-            this.contest_time = submission.contest_time;
-        }
-        // Leave this empty constructor for Json deserialize
-        public SubmissionWithResult()
-        {
-        }
-        public string judgeResult { get; set; }
-    }
-
-    public class ContestInfo
-    {
-        public string formal_name { get; set; }
-        public string penalty_time { get; set; }
-        public string duration { get; set; }
-        public string scoreboard_freeze_duration { get; set; }
-    }
-    // ReSharper restore InconsistentNaming
 }

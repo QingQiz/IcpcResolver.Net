@@ -13,9 +13,15 @@ namespace IcpcResolver.Utils.EventFeed
         private readonly Dictionary<string, dynamic> _teams = new();
         private readonly Dictionary<string, dynamic> _problems = new();
         private readonly Dictionary<string, dynamic> _submissions = new();
-        private dynamic _contest;
         private readonly string _filePath;
         private bool _parsed;
+
+        public dynamic Contest;
+        public IEnumerable<dynamic> Schools => _schools.Values.Select(x => x);
+        public IEnumerable<dynamic> Groups => _groups.Values.Select(x => x);
+        public IEnumerable<dynamic> Teams => _teams.Values.Select(x => x);
+        public IEnumerable<dynamic> Problems => _problems.Values.Select(x => x);
+        public IEnumerable<dynamic> Submissions => _submissions.Values.Select(x => x);
 
         public EventFeedParser(string eventFeedFilePath)
         {
@@ -81,7 +87,7 @@ namespace IcpcResolver.Utils.EventFeed
                         _submissions[data.submission_id].judgement_result = data.judgement_type_id;
                         break;
                     case "contests":
-                        _contest = data;
+                        Contest = data;
                         break;
                     // ignored types
                     case "runs":
@@ -199,17 +205,5 @@ namespace IcpcResolver.Utils.EventFeed
                 _submissions.Remove(sId);
             }
         }
-
-        // public List<dynamic> Export()
-        // {
-        //     var gs = _groups.Values.Select(v => v);
-        //     var os = _schools.Values.Select(v => v);
-        //     var ts = _teams.Values.Select(v => v);
-        //     var ps = _problems.Values.Select(v => v);
-        //     var ss = _submissions.Values.Select(v => v);
-        //     var res = gs.Concat(os).Concat(ts).Concat(ps).Concat(ss).ToList();
-        //     res.Add(_contest);
-        //     return res;
-        // }
     }
 }

@@ -8,6 +8,9 @@
         ResizeMode="CanResize"
         Title="Resolver Config" Height="600" Width="500">
     <Window.Resources>
+        <Style x:Key="HeaderLeft" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        </Style>
         <Style TargetType="Label">
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -38,106 +41,96 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <TabControl Grid.RowSpan="2">
-            <TabItem Header="Contest Data Acquire">
-                <Grid Margin="15,0,15,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="4*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- 1 -->
-                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left">
-                        Load data from Domjudge RestAPI?
-                    </Label>
-                    <Button Grid.Row="0" Grid.Column="2" Click="OpenCredWindow">
-                        Load
-                    </Button>
-
-                    <!-- 2 -->
-                    <TextBlock Grid.Row="1" Grid.Column="0">
-                        EventFeed File Path:
-                    </TextBlock>
-                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="EventFeedFilePath" IsEnabled="False">
-                        &lt;Not-Selected&gt;
-                    </TextBox>
-                    <Button Grid.Row="1" Grid.Column="2" Content="Open" Click="OpenEventFeed_OnClick"/>
-
-                    <!-- 3 -->
-                    <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <StackPanel.Resources>
-                            <Style TargetType="Button">
-                                <Setter Property="Margin" Value="11 10 0 10"/>
-                                <Setter Property="Width" Value="50"/>
-                            </Style>
-                        </StackPanel.Resources>
-                        <Button x:Name="ValidateFile" IsEnabled="False" Click="ValidateEventFeed_OnClick" Width="115">
-                            Validate EventFeed
-                        </Button>
-                        <Button x:Name="AutoFixButton" IsEnabled="False" Click="AutoFixEventFeed_OnClick">
-                            Auto fix
-                        </Button>
-                        <Button x:Name="SaveAsButton" IsEnabled="False" Click="SaveAs_OnClick">
-                            Save as
-                        </Button>
-                    </StackPanel>
-
-                    <!-- 4 -->
-                    <DockPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 30 0 0">
-                        <DockPanel.Resources>
-                            <Style TargetType="CheckBox">
-                                <Setter Property="IsEnabled" Value="False"></Setter>
-                                <Setter Property="VerticalAlignment" Value="Center"></Setter>
-                            </Style>
-                        </DockPanel.Resources>
-                        <StackPanel DockPanel.Dock="Left">
-                            <StackPanel.Resources>
-                                <Style TargetType="Label">
-                                    <Setter Property="Width" Value="130"></Setter>
-                                </Style>
-                            </StackPanel.Resources>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Label>Loading data</Label>
-                                <CheckBox x:Name="LoadCheck"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Label>Checking team info</Label>
-                                <CheckBox x:Name="TeamInfoCheck"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
-                            <StackPanel.Resources>
-                                <Style TargetType="Label">
-                                    <Setter Property="Width" Value="160"></Setter>
-                                </Style>
-                            </StackPanel.Resources>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="Checking submission info"/>
-                                <CheckBox x:Name="SubmissionCheck"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="Scanning unjudged run"/>
-                                <CheckBox x:Name="UnjudgedCheck"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </DockPanel>
-                </Grid>
-            </TabItem>
             <TabItem Header="Contest Data Config">
-                <StackPanel Margin="15 0 15 15">
+                <StackPanel Margin="15 15 15 15">
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- 1 -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left">
+                            Get EventFeed from Domjudge RestAPI?
+                        </TextBlock>
+                        <Button Grid.Row="0" Grid.Column="2" Click="OpenCredWindow_OnClick">
+                            Load
+                        </Button>
+
+                        <!-- 2 -->
+                        <TextBlock Grid.Row="1" Grid.Column="0">
+                            EventFeed File Path:
+                        </TextBlock>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="EventFeedFilePath" IsEnabled="False">
+                            &lt;Not-Selected&gt;
+                        </TextBox>
+                        <Button Grid.Row="1" Grid.Column="2" Content="Open" Click="OpenEventFeed_OnClick"/>
+
+                        <!-- 3 -->
+                        <Button Grid.Row="2" Grid.Column="1" x:Name="ValidateFile" IsEnabled="False" Click="ValidateEventFeed_OnClick" Width="115">
+                            Validate EventFeed
+                        </Button>
+                        <Button Grid.Row="2" Grid.Column="2" x:Name="AutoFixButton" IsEnabled="False" Click="AutoFixEventFeed_OnClick">
+                            Auto fix
+                        </Button>
+
+                        <!-- 4 -->
+                        <DockPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 10 0 0">
+                            <DockPanel.Resources>
+                                <Style TargetType="CheckBox">
+                                    <Setter Property="IsEnabled" Value="False"></Setter>
+                                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                                </Style>
+                            </DockPanel.Resources>
+                            <StackPanel DockPanel.Dock="Left">
+                                <StackPanel.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Width" Value="130"></Setter>
+                                    </Style>
+                                </StackPanel.Resources>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Label>Loading data</Label>
+                                    <CheckBox x:Name="LoadCheck"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Label>Checking team info</Label>
+                                    <CheckBox x:Name="TeamInfoCheck"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                <StackPanel.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Width" Value="160"></Setter>
+                                    </Style>
+                                </StackPanel.Resources>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Checking submission info"/>
+                                    <CheckBox x:Name="SubmissionCheck"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Scanning unjudged run"/>
+                                    <CheckBox x:Name="UnjudgedCheck"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DockPanel>
+                    </Grid>
+
+                    <Separator Margin="0 10 0 5"/>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0"/>
                             <RowDefinition Height="40"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="40"/>
@@ -146,20 +139,9 @@
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="4*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-
-                        <!-- label 1 -->
-                        <Label Grid.Row="0" Grid.Column="0">
-                            Load exported data
-                        </Label>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="LoadExportFile" IsEnabled="False">
-                            &lt;Not-Selected&gt;
-                        </TextBox>
-                        <Button Grid.Row="0" Grid.Column="2" Click="LoadExportFile_OnClick">
-                            Load
-                        </Button>
 
                         <!-- label 2 -->
                         <Label Grid.Row="1" Grid.Column="0">
@@ -293,21 +275,21 @@
                     <TextBox x:Name="FirstStandingTitle" Text="" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" Width="125"/>
                     <CheckBox x:Name="FirstBlood" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <CheckBox x:Name="LastAccept" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <CheckBox x:Name="groupTop" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="GroupTop" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <ListView x:Name="AwardView" Grid.Row="5" Grid.ColumnSpan="4" Margin="0,22,0,0" Grid.RowSpan="7" SelectionChanged="AwardView_SelectionChanged">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Id" Width="35" DisplayMemberBinding="{Binding Id}"/>
-                                <GridViewColumn Header="Name" Width="45" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Id" Width="40" DisplayMemberBinding="{Binding Id}"/>
+                                <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Name}"/>
                                 <GridViewColumn Header="Solved" Width="45" DisplayMemberBinding="{Binding Solved}"/>
                                 <GridViewColumn Header="Time" Width="45" DisplayMemberBinding="{Binding Time}"/>
-                                <GridViewColumn Header="Awards" Width="250" DisplayMemberBinding="{Binding Awards}"/>
+                                <GridViewColumn Header="Awards"  HeaderContainerStyle="{StaticResource HeaderLeft}" Width="2000" DisplayMemberBinding="{Binding Awards}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <Button x:Name="EditAward" Content="Edit" Grid.Column="2" Grid.Row="5"  HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" Click="editAward_Click"/>
-                    <Button x:Name="DeleteAward" Content="Delete" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right" IsEnabled="False" Click="deleteAward_Click"/>
-                    <Button Content="Calculate" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="69" Grid.ColumnSpan="2" Click="CalculateAwards"/>
+                    <Button x:Name="EditAward" Content="Edit" Grid.Column="2" Grid.Row="5"  HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" Click="EditAward_OnClick"/>
+                    <Button x:Name="DeleteAward" Content="Delete" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right" IsEnabled="False" Click="DeleteAward_OnClick"/>
+                    <Button Content="Calculate" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="69" Grid.ColumnSpan="2" Click="CalculateAwards_OnClick"/>
                     <GridSplitter Grid.ColumnSpan="4" HorizontalAlignment="Center" Height="5" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Center" Width="454"/>
                 </Grid>
             </TabItem>
@@ -353,7 +335,7 @@
             </TabItem>
         </TabControl>
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
-            <Button Content="Save Config" HorizontalAlignment="Left" Margin="0 0 17 11" IsEnabled="False" Width="100"/>
+            <Button x:Name="SaveButton" Content="Save Config" HorizontalAlignment="Left" Margin="0 0 17 11" IsEnabled="False" Width="100"/>
             <Button x:Name="RunButton" Content="Run!" Margin="0 0 17 11" Click="Run_OnClick" IsEnabled="False"/>
         </StackPanel>
     </Grid>
