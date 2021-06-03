@@ -32,9 +32,6 @@
       <Compile Update="UserControl\TeamDto.cs">
         <DependentUpon>Team.xaml</DependentUpon>
       </Compile>
-      <Compile Update="Window\ResolverConfig.cs">
-        <DependentUpon>Resolver.xaml</DependentUpon>
-      </Compile>
       <Compile Update="Window\ResolverDto.cs">
         <DependentUpon>Resolver.xaml</DependentUpon>
       </Compile>
@@ -43,6 +40,9 @@
       </Compile>
       <Compile Update="Window\CredRequest.xaml.cs">
         <DependentUpon>CredRequest.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Window\ResolverAnimationConfig.cs">
+        <DependentUpon>Resolver.xaml</DependentUpon>
       </Compile>
     </ItemGroup>
 

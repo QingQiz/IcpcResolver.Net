@@ -8,7 +8,7 @@ namespace IcpcResolver.Window
 {
     public class ResolverDto
     {
-        public ResolverConfig ResolverConfig;
+        public ResolverAnimationConfig ResolverAnimationConfig;
 
         public List<Team> Teams;
 

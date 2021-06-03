@@ -3,7 +3,7 @@ using IcpcResolver.AppConstants;
 
 namespace IcpcResolver.Window
 {
-    public class ResolverConfig
+    public class ResolverAnimationConfig
     {
         public int TeamGridHeight = AppConst.TeamGridHeight;
         public int MaxDisplayCount = AppConst.MaxDisplayCount;

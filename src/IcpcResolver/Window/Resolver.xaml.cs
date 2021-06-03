@@ -23,7 +23,7 @@ namespace IcpcResolver.Window
         {
             InitializeComponent();
 
-            _config = resolverDto.ResolverConfig;
+            _config = resolverDto.ResolverAnimationConfig;
             _teams = resolverDto.Teams;
             _status = new ResolverStatus();
 
@@ -95,7 +95,7 @@ namespace IcpcResolver.Window
         private readonly List<Team> _teams;
         private Border _cursor;
 
-        private readonly ResolverConfig _config;
+        private readonly ResolverAnimationConfig _config;
         private readonly ResolverStatus _status;
 
         private void ReCalcTeamRank()

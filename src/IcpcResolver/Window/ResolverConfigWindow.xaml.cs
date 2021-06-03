@@ -169,7 +169,7 @@ namespace IcpcResolver.Window
         private void Run_OnClick(object sender, RoutedEventArgs e)
         {
             // Get Animation Config
-            ResolverConfig aniConfig;
+            ResolverAnimationConfig aniConfig;
 
             try
             {
@@ -177,7 +177,7 @@ namespace IcpcResolver.Window
                 Assertion.Assert(updateProblemStatusDuration.Length == 2,
                     "the format of `Update Problem Status Duration` should be `number,number`");
 
-                aniConfig = new ResolverConfig
+                aniConfig = new ResolverAnimationConfig
                 {
                     TeamGridHeight = int.Parse(TeamGridHeight.Text),
                     MaxDisplayCount = int.Parse(MaxDisplayCount.Text),
@@ -278,7 +278,7 @@ namespace IcpcResolver.Window
                     {
                         Height = aniConfig.TeamGridHeight,
                     }).ToList(),
-                ResolverConfig = aniConfig
+                ResolverAnimationConfig = aniConfig
             });
             resolver.Show();
             Close();
