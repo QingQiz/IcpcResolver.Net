@@ -109,7 +109,7 @@ namespace IcpcResolver.Window
 
         public ContestSummary GetContestSummary()
         {
-            return new ContestSummary
+            return new()
             {
                 ContestLength = _parser.Contest.duration,
                 FreezeTime = _parser.Contest.scoreboard_freeze_duration,

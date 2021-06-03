@@ -335,7 +335,7 @@
             </TabItem>
         </TabControl>
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
-            <Button x:Name="SaveButton" Content="Save Config" HorizontalAlignment="Left" Margin="0 0 17 11" IsEnabled="False" Width="100"/>
+            <Button x:Name="SaveButton" Content="Save Config" HorizontalAlignment="Left" Margin="0 0 17 11" IsEnabled="False" Width="100" Click="SaveButton_OnClick"/>
             <Button x:Name="RunButton" Content="Run!" Margin="0 0 17 11" Click="Run_OnClick" IsEnabled="False"/>
         </StackPanel>
     </Grid>

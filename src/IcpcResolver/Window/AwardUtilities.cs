@@ -7,18 +7,19 @@ namespace IcpcResolver.Window
 {
     class AwardUtilities
     {
-        public List<TeamRankInfo> TeamRankInfos;
-        public List<FirstSolveInfo> FirstSolveInfos;
+        public readonly List<TeamRankInfo> TeamRankInfos;
+        public readonly List<FirstSolveInfo> FirstSolveInfos;
         public string LastSolveTeamId;
-        private int _penaltyTime;
+        // ReSharper disable once MemberCanBePrivate.Global
+        public readonly int PenaltyTime;
         // A list of no penalty status collection, may changed later
-        private static readonly List<string> Accept = new List<string> {"AC", "FB"};
-        private static readonly List<string> Reject = new List<string> {"WA", "TLE", "MLE", "NO", "RE", "OLE", "RTE"};
+        private static readonly List<string> Accept = new() {"AC", "FB"};
+        private static readonly List<string> Reject = new() {"WA", "TLE", "MLE", "NO", "RE", "OLE", "RTE"};
 
         public AwardUtilities(Validator info, int penaltyTime)
         // Construct AwardUtilities with info from Validator
         {
-            _penaltyTime = penaltyTime;
+            PenaltyTime = penaltyTime;
             TeamRankInfos = new List<TeamRankInfo>();
             FirstSolveInfos = new List<FirstSolveInfo>();
             // Initialize teams and problems, make it empty
@@ -150,7 +151,7 @@ namespace IcpcResolver.Window
         }
         public int CalculatePenalty(int tryTimes, string acTime)
         {
-            return tryTimes * _penaltyTime + TimeInMinute(acTime);
+            return tryTimes * PenaltyTime + TimeInMinute(acTime);
         }
 
         public int TimeInMinute(string timeString)
