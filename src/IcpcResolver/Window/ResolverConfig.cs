@@ -1,9 +1,18 @@
-﻿namespace IcpcResolver.Window
+﻿using System.Collections.Generic;
+
+namespace IcpcResolver.Window
 {
-    class ResolverConfig
+    public class ResolverConfig
     {
         public AwardUtilities Awards;
-        public readonly ResolverAnimationConfig AnimationConfig = new();
+        public ResolverAnimationConfig AnimationConfig = new();
         public ContestSummary Contest;
+        public List<Organization> Organizations;
+    }
+
+    public class Organization
+    {
+        public string Id;
+        public string Name;
     }
 }

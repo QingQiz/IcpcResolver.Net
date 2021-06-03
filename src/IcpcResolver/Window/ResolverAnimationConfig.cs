@@ -41,7 +41,7 @@ namespace IcpcResolver.Window
         /// <summary>
         /// (duration before highlight problem, duration before update problem status)
         /// </summary>
-        public Tuple<int, int> UpdateProblemStatusDuration = new(400, 600);
+        public int[] UpdateProblemStatusDuration = {400, 600};
 
         /// <summary>
         /// auto update team status until rank le this

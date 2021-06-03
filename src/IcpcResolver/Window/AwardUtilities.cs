@@ -2,19 +2,33 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace IcpcResolver.Window
 {
-    class AwardUtilities
+    public class AwardUtilities
     {
-        public readonly List<TeamRankInfo> TeamRankInfos;
-        public readonly List<FirstSolveInfo> FirstSolveInfos;
+        // ReSharper disable FieldCanBeMadeReadOnly.Global
+        public List<TeamRankInfo> TeamRankInfos;
+        public List<FirstSolveInfo> FirstSolveInfos;
         public string LastSolveTeamId;
+        // award count
+        public int GoldNumber, SilverNumber, BronzeNumber;
+        // award type
+        public bool FirstBlood, LastAccept, GroupTop;
+        public string FirstStanding;
         // ReSharper disable once MemberCanBePrivate.Global
-        public readonly int PenaltyTime;
+        public int PenaltyTime;
         // A list of no penalty status collection, may changed later
         private static readonly List<string> Accept = new() {"AC", "FB"};
         private static readonly List<string> Reject = new() {"WA", "TLE", "MLE", "NO", "RE", "OLE", "RTE"};
+        // ReSharper restore FieldCanBeMadeReadOnly.Global
+
+        [JsonConstructor]
+        public AwardUtilities()
+        {
+            
+        }
 
         public AwardUtilities(Validator info, int penaltyTime)
         // Construct AwardUtilities with info from Validator
@@ -44,11 +58,13 @@ namespace IcpcResolver.Window
             // Initialize first blood info
             foreach (var problem in info.ProblemsList)
             {
-                FirstSolveInfo firstSolve = new FirstSolveInfo();
-                firstSolve.ProblemId = problem.id;
-                firstSolve.Solved = false;
-                firstSolve.TeamId = "";
-                this.FirstSolveInfos.Add(firstSolve);
+                FirstSolveInfos.Add(new FirstSolveInfo
+                {
+                    ShortName = problem.short_name,
+                    ProblemId = problem.id,
+                    Solved = false,
+                    TeamId = ""
+                });
             }
         }
 
@@ -163,8 +179,14 @@ namespace IcpcResolver.Window
         }
     }
 
-    class TeamRankInfo
+    public class TeamRankInfo
     {
+        [JsonConstructor]
+        public TeamRankInfo()
+        {
+            
+        }
+
         public TeamRankInfo(dynamic baseInfo)
         {
             GroupIds = (baseInfo.group_ids as List<object>)?.Select(x => x as string).ToList();
@@ -173,9 +195,9 @@ namespace IcpcResolver.Window
             OrganizationId = baseInfo.organization_id;
         }
         public List<string> GroupIds;
-        public readonly string Id;
-        public readonly string Name;
-        public readonly string OrganizationId;
+        public string Id;
+        public string Name;
+        public string OrganizationId;
         public int AcceptCount;
         public int Penalty;
         public List<SubmissionInfo> SubmissionInfosBefore;
@@ -184,7 +206,7 @@ namespace IcpcResolver.Window
     }
 
 
-    class SubmissionInfo
+    public class SubmissionInfo
     {
         public string ProblemId { get; set; }
         public string ProblemLabel { get; set; }
@@ -199,18 +221,24 @@ namespace IcpcResolver.Window
             return int.Parse(hour) * 60 + int.Parse(minute);
         }
 
+        [JsonConstructor]
+        public SubmissionInfo()
+        {
+        }
+
         public SubmissionInfo(string id, string label, int tries)
         {
-            this.ProblemId = id;
-            this.ProblemLabel = label;
-            this.TryTime = tries;
-            this.SubmissionStatus = null;
-            this.SubmissionTime = null;
+            ProblemId = id;
+            ProblemLabel = label;
+            TryTime = tries;
+            SubmissionStatus = null;
+            SubmissionTime = null;
         }
     }
 
-    class FirstSolveInfo
+    public class FirstSolveInfo
     {
+        public string ShortName { get; set; }
         public string ProblemId { get; set; }
         public string TeamId { get; set; }
         public bool Solved { get; set; }

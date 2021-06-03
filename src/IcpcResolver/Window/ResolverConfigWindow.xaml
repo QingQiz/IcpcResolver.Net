@@ -42,7 +42,7 @@
         </Grid.RowDefinitions>
         <TabControl Grid.RowSpan="2">
             <TabItem Header="Contest Data Config">
-                <StackPanel Margin="15 15 15 15">
+                <StackPanel Margin="15 15 15 15" x:Name="ContestDataConfig">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -226,16 +226,16 @@
                             </Grid.Resources>
                             <!-- 1 -->
                             <Label Grid.Row="0" Grid.Column="0" Content="Contest length:"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="ContestLength" Text="&lt;hh:mm:ss.ms&gt;"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="ContestLength" Text="&lt;hh:mm:ss.ms&gt;" IsEnabled="False"/>
                             <!-- 1 -->
                             <Label Grid.Row="1" Grid.Column="0" Content="Freeze time:"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="FreezeTime" Text="&lt;hh:mm:ss.ms&gt;"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="FreezeTime" Text="&lt;hh:mm:ss.ms&gt;" IsEnabled="False"/>
                             <!-- 1 -->
                             <Label Grid.Row="2" Grid.Column="0" Content="Penalty(minute):"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="PenaltyTime" Text="&lt;mm&gt;"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="PenaltyTime" Text="&lt;mm&gt;" IsEnabled="False"/>
                             <!-- 1 -->
                             <Label Grid.Row="3" Grid.Column="0" Content="Contest name:"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="ContestName" Text="&lt;contest-name&gt;" TextWrapping="Wrap"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="ContestName" Text="&lt;contest-name&gt;" TextWrapping="Wrap" IsEnabled="False"/>
                         </Grid>
                     </DockPanel>
                 </StackPanel>
@@ -289,7 +289,7 @@
                     </ListView>
                     <Button x:Name="EditAward" Content="Edit" Grid.Column="2" Grid.Row="5"  HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" Click="EditAward_OnClick"/>
                     <Button x:Name="DeleteAward" Content="Delete" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right" IsEnabled="False" Click="DeleteAward_OnClick"/>
-                    <Button Content="Calculate" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="69" Grid.ColumnSpan="2" Click="CalculateAwards_OnClick"/>
+                    <Button Content="Calculate" x:Name="CalculateAwardsBtn" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="69" Grid.ColumnSpan="2" Click="CalculateAwards_OnClick" IsEnabled="False"/>
                     <GridSplitter Grid.ColumnSpan="4" HorizontalAlignment="Center" Height="5" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Center" Width="454"/>
                 </Grid>
             </TabItem>

@@ -1,6 +1,7 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using System.Windows.Input;
-using MessageBox = System.Windows.Forms.MessageBox;
+using Newtonsoft.Json;
 
 namespace IcpcResolver.Window
 {
@@ -20,7 +21,22 @@ namespace IcpcResolver.Window
 
         private void LoadConfig_OnClick(object sender, RoutedEventArgs args)
         {
-            MessageBox.Show("NotImplemented");
+            var openFileDialog = new System.Windows.Forms.OpenFileDialog
+            {
+                Filter = "JSON file (*.json)|*.json",
+                FileName = "ResolverConfig.json"
+            };
+
+            // ReSharper disable once InvertIf
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var configFn = openFileDialog.FileName;
+                var config = JsonConvert.DeserializeObject<ResolverConfig>(File.ReadAllText(configFn));
+
+                var configWindow = new ResolverConfigWindow(config);
+                configWindow.Show();
+                Close();
+            }
         }
 
         protected override void OnKeyDown(KeyEventArgs e)

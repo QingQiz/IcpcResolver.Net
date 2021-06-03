@@ -268,8 +268,8 @@ namespace IcpcResolver.Window
             _status.AniStart();
 
             var updated = await _teams[_status.CurrentTeamIdx]
-                .UpdateTeamStatusAnimation(_config.UpdateProblemStatusDuration.Item1,
-                    _config.UpdateProblemStatusDuration.Item2);
+                .UpdateTeamStatusAnimation(_config.UpdateProblemStatusDuration[0],
+                    _config.UpdateProblemStatusDuration[1]);
 
             if (!updated)
             {

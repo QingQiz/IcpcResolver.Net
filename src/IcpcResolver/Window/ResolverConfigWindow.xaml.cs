@@ -18,12 +18,27 @@ namespace IcpcResolver.Window
     public partial class ResolverConfigWindow
     {
         private Validator _validator;
-        private bool _processing, _loaded;
+        private bool _processing;
         private readonly ResolverConfig _config = new();
 
         public ResolverConfigWindow()
         {
             InitializeComponent();
+        }
+
+        public ResolverConfigWindow(ResolverConfig config) : this()
+        {
+            // remove event feed part and split line
+            ContestDataConfig.Children.RemoveAt(0);
+            ContestDataConfig.Children.RemoveAt(0);
+            // init and refresh config
+            _config = config;
+            RefreshContestInfo();
+            RefreshAwardView();
+            RefreshAnimationConfig();
+            CalculateAwardsBtn.IsEnabled = true;
+            SaveButton.IsEnabled = true;
+            RunButton.IsEnabled = true;
         }
 
         #region EventHandler
@@ -50,7 +65,8 @@ namespace IcpcResolver.Window
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Event Feed JSON file (*.json)|*.json"
+                Filter = "Event Feed JSON file (*.json)|*.json",
+                FileName = "Event-Feed.json"
             };
 
             if (openFileDialog.ShowDialog() != true) return;
@@ -106,8 +122,8 @@ namespace IcpcResolver.Window
                 {
                     MessageBox.Show("All info validate successfully.", "Event validator", MessageBoxButton.OK,
                         MessageBoxImage.Information);
-                    _loaded = true;
                     LoadContestInfo();
+                    CalculateAwardsBtn.IsEnabled = true;
                     CalculateAwards_OnClick(null, null);
                     SaveButton.IsEnabled = true;
                 }
@@ -149,8 +165,8 @@ namespace IcpcResolver.Window
                 MessageBox.Show("All info fixed and validated successfully.", "Event validator", MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 AutoFixButton.IsEnabled = false;
-                _loaded = true;
                 LoadContestInfo();
+                CalculateAwardsBtn.IsEnabled = true;
                 CalculateAwards_OnClick(null, null);
                 SaveButton.IsEnabled = true;
             }
@@ -175,6 +191,7 @@ namespace IcpcResolver.Window
 
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)
         {
+            UpdateResolverConfig();
             var res = JsonConvert.SerializeObject(_config);
             var saveFileDialog = new System.Windows.Forms.SaveFileDialog
             {
@@ -185,6 +202,9 @@ namespace IcpcResolver.Window
             if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 File.WriteAllText(saveFileDialog.FileName, res);
+                MessageBox.Show("Resolver config saved successfully.", "Resolver Config",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
         }
 
@@ -198,7 +218,7 @@ namespace IcpcResolver.Window
                 // ensure async
                 await Task.Run(() => { });
 
-                RefreshConfig();
+                UpdateResolverConfig();
 
                 var teams = new List<TeamDto>();
                 // Refresh Teams
@@ -222,11 +242,12 @@ namespace IcpcResolver.Window
                             : submissionInfo.TryTime + 1
                     }).ToList();
 
+                    var sName = _config.Organizations.First(o => o.Id == teamAward.OrganizationId).Name;
                     var teamDto = new TeamDto
                     {
                         TeamId = int.Parse(teamAward.Id),
                         TeamName = teamAward.Name,
-                        SchoolName = _validator.SchoolsList.First(x => x.id == teamAward.OrganizationId).formal_name,
+                        SchoolName = sName,
                         Awards = teamAward.AwardName.Select(a =>
                         {
                             return a switch
@@ -238,7 +259,7 @@ namespace IcpcResolver.Window
                             };
                         }).ToList(),
                         DisplayName =
-                            $"{teamAward.Name} -- {_validator.SchoolsList.First(x => x.id == teamAward.OrganizationId).formal_name}",
+                            $"{teamAward.Name} -- {sName}",
                         PenaltyTime = int.Parse(PenaltyTime.Text),
                         ProblemsFrom = problemDtoFrom.OrderBy(p => p.Label).ToList(),
                         ProblemsTo = problemDtoTo.OrderBy(p => p.Label).ToList()
@@ -314,14 +335,6 @@ namespace IcpcResolver.Window
 
         private void CalculateAwards_OnClick(object sender, RoutedEventArgs e)
         {
-            // Try parse medal count and penalty time
-            if (!_loaded)
-            {
-                MessageBox.Show("Please load contest info from Contest Data Config tab first.",
-                    "Award Utilities", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-
             try
             {
                 CalculateAwards();
@@ -386,6 +399,17 @@ namespace IcpcResolver.Window
                 });
             }
 
+            _config.Awards.GoldNumber = goldCount;
+            _config.Awards.SilverNumber = silverCount;
+            _config.Awards.BronzeNumber = bronzeCount;
+
+            _config.Awards.FirstBlood = FirstBlood.IsChecked ?? false;
+            _config.Awards.LastAccept = LastAccept.IsChecked ?? false;
+            _config.Awards.GroupTop = GroupTop.IsChecked ?? false;
+
+            _config.Awards.FirstStanding = FirstStandingTitle.Text;
+
+
             // Make medal award from user input
             foreach (var t in _config.Awards.TeamRankInfos)
             {
@@ -416,13 +440,10 @@ namespace IcpcResolver.Window
             var isChecked = FirstBlood.IsChecked;
             if (isChecked != null && (bool) isChecked)
             {
-                foreach (var firstSolveInfo in _config.Awards.FirstSolveInfos)
+                foreach (var firstSolveInfo in _config.Awards.FirstSolveInfos.Where(firstSolveInfo => firstSolveInfo.Solved))
                 {
-                    if (!firstSolveInfo.Solved) continue;
-
-                    var problemName = _validator.ProblemsList.First(x => x.id == firstSolveInfo.ProblemId).short_name;
                     _config.Awards.TeamRankInfos.First(x => x.Id == firstSolveInfo.TeamId).AwardName
-                        .Add($"First solve {problemName}");
+                        .Add($"First solve {firstSolveInfo.ShortName}");
                 }
             }
 
@@ -433,7 +454,22 @@ namespace IcpcResolver.Window
                     .Add("Last Accept submission");
         }
 
-        private void RefreshConfig()
+        private void RefreshAnimationConfig()
+        {
+            TeamGridHeight.Text = _config.AnimationConfig.TeamGridHeight.ToString();
+            MaxDisplayCount.Text = _config.AnimationConfig.MaxDisplayCount.ToString();
+            MaxRenderCount.Text = _config.AnimationConfig.MaxRenderCount.ToString();
+            ScrollDownDuration.Text = _config.AnimationConfig.ScrollDownDuration.ToString();
+            ScrollDownInterval.Text = _config.AnimationConfig.ScrollDownInterval.ToString();
+            CursorUpDuration.Text = _config.AnimationConfig.CursorUpDuration.ToString();
+            UpdateTeamRankDuration.Text = _config.AnimationConfig.UpdateTeamRankDuration.ToString();
+            AnimationFrameRate.Text = _config.AnimationConfig.AnimationFrameRate.ToString();
+            UpdateProblemStatusDuration.Text =
+                $"{_config.AnimationConfig.UpdateProblemStatusDuration[0]},{_config.AnimationConfig.UpdateProblemStatusDuration[1]}";
+            AutoUpdateTeamRankUntilRank.Text = _config.AnimationConfig.AutoUpdateTeamStatusUntilRank.ToString();
+        }
+
+        private void UpdateResolverConfig()
         {
             // refresh AnimationConfig
             try
@@ -450,9 +486,9 @@ namespace IcpcResolver.Window
                 _config.AnimationConfig.CursorUpDuration = int.Parse(CursorUpDuration.Text);
                 _config.AnimationConfig.UpdateTeamRankDuration = int.Parse(UpdateTeamRankDuration.Text);
                 _config.AnimationConfig.AnimationFrameRate = int.Parse(AnimationFrameRate.Text);
-                _config.AnimationConfig.UpdateProblemStatusDuration = new Tuple<int, int>(
+                _config.AnimationConfig.UpdateProblemStatusDuration = new int[]{
                     int.Parse(updateProblemStatusDuration[0]),
-                    int.Parse(updateProblemStatusDuration[1]));
+                    int.Parse(updateProblemStatusDuration[1])};
                 _config.AnimationConfig.AutoUpdateTeamStatusUntilRank = int.Parse(AutoUpdateTeamRankUntilRank.Text);
 
                 // checker
@@ -468,9 +504,9 @@ namespace IcpcResolver.Window
                     "_config.AnimationConfig.CursorUpDuration > 0");
                 Assertion.Assert(_config.AnimationConfig.UpdateTeamRankDuration > 0,
                     "_config.AnimationConfig.UpdateTeamRankDuration > 0");
-                Assertion.Assert(_config.AnimationConfig.UpdateProblemStatusDuration.Item1 > 0,
+                Assertion.Assert(_config.AnimationConfig.UpdateProblemStatusDuration[0] > 0,
                     "_config.AnimationConfig.UpdateProblemStatusDuration.Item1 > 0");
-                Assertion.Assert(_config.AnimationConfig.UpdateProblemStatusDuration.Item2 > 0,
+                Assertion.Assert(_config.AnimationConfig.UpdateProblemStatusDuration[1] > 0,
                     "_config.AnimationConfig.UpdateProblemStatusDuration.Item2 > 0");
                 Assertion.Assert(_config.AnimationConfig.AutoUpdateTeamStatusUntilRank > 0,
                     "_config.AnimationConfig.AutoUpdateTeamStatusUntilRank > 0");
@@ -516,6 +552,11 @@ namespace IcpcResolver.Window
         private void LoadContestInfo()
         {
             var summary = _validator.GetContestSummary();
+            _config.Organizations = _validator.SchoolsList.Select(s => new Organization
+            {
+                Id = s.id,
+                Name = s.formal_name
+            }).ToList();
             _config.Contest = summary;
             RefreshContestInfo();
         }
@@ -546,6 +587,16 @@ namespace IcpcResolver.Window
                     Awards = string.Join(", ", team.AwardName)
                 });
             }
+
+            GoldNumber.Text = _config.Awards.GoldNumber.ToString();
+            SilverNumber.Text = _config.Awards.SilverNumber.ToString();
+            BronzeNumber.Text = _config.Awards.BronzeNumber.ToString();
+
+            GroupTop.IsChecked = _config.Awards.GroupTop;
+            FirstBlood.IsChecked = _config.Awards.FirstBlood;
+            LastAccept.IsChecked = _config.Awards.LastAccept;
+
+            FirstStandingTitle.Text = _config.Awards.FirstStanding;
         }
         
         #endregion
