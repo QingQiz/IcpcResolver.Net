@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
+using System.Windows.Forms;
 using IcpcResolver.UserControl;
 using IcpcResolver.Utils;
-using Microsoft.Win32;
 using Newtonsoft.Json;
+using Cursors = System.Windows.Input.Cursors;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace IcpcResolver.Window
 {
@@ -39,6 +41,11 @@ namespace IcpcResolver.Window
             CalculateAwardsBtn.IsEnabled = true;
             SaveButton.IsEnabled = true;
             RunButton.IsEnabled = true;
+
+            // restore school icon config
+            SchoolIconFolderPath.Text = _config.OrganizationIconPath;
+            EnableSchoolIcon.IsChecked = _config.EnableOrganizationIcon;
+            EnableSchoolIconFallback.IsChecked = _config.EnableOrganizationIconFallback;
         }
 
         #region EventHandler
@@ -179,15 +186,43 @@ namespace IcpcResolver.Window
 
         #endregion
 
+        #region Photo
+
         private void SelectPhotoFolder_OnClick(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Not Implemented");
         }
 
-        private void SelectSchoolFolder_OnClick(object sender, RoutedEventArgs e)
+        private void SelectSchoolIconFolder_OnClick(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Not Implemented");
+            var selectFolderDialog = new FolderBrowserDialog();
+
+            // ReSharper disable once InvertIf
+            if (selectFolderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                SchoolIconFolderPath.Text = selectFolderDialog.SelectedPath;
+                EnableSchoolIcon.IsEnabled = true;
+                EnableSchoolIcon.IsChecked = true;
+                EnableSchoolIconFallback.IsEnabled = true;
+                EnableSchoolIconFallback.IsChecked = true;
+
+                _config.OrganizationIconPath = selectFolderDialog.SelectedPath;
+                _config.EnableOrganizationIcon = true;
+                _config.EnableOrganizationIconFallback = true;
+            }
         }
+
+        private void EnableSchoolIcon_OnChange(object sender, RoutedEventArgs e)
+        {
+            _config.EnableOrganizationIcon = EnableSchoolIcon.IsChecked ?? false;
+        }
+
+        private void EnableSchoolIconFallback_OnChange(object sender, RoutedEventArgs e)
+        {
+            _config.EnableOrganizationIconFallback = EnableSchoolIconFallback.IsChecked ?? false;
+        }
+
+        #endregion
 
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -215,72 +250,74 @@ namespace IcpcResolver.Window
             _processing = true;
             Cursor = Cursors.Wait;
 
-                // ensure async
-                await Task.Run(() => { });
+            // ensure async
+            await Task.Run(() => { });
 
-                UpdateResolverConfig();
+            UpdateResolverConfig();
 
-                var teams = new List<TeamDto>();
-                // Refresh Teams
-                foreach (var teamAward in _config.Awards.TeamRankInfos)
+            var teams = new List<TeamDto>();
+            // Refresh Teams
+            foreach (var teamAward in _config.Awards.TeamRankInfos)
+            {
+                var problemDtoFrom = teamAward.SubmissionInfosBefore.Select(submissionInfo => new ProblemDto
                 {
-                    var problemDtoFrom = teamAward.SubmissionInfosBefore.Select(submissionInfo => new ProblemDto
-                    {
-                        Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
-                        Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
-                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
-                            ? submissionInfo.TryTime + 2
-                            : submissionInfo.TryTime + 1
-                    }).ToList();
+                    Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                    Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
+                    Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
+                        ? submissionInfo.TryTime + 2
+                        : submissionInfo.TryTime + 1
+                }).ToList();
 
-                    var problemDtoTo = teamAward.SubmissionInfosAfter.Select(submissionInfo => new ProblemDto
-                    {
-                        Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
-                        Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
-                        Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
-                            ? submissionInfo.TryTime + 2
-                            : submissionInfo.TryTime + 1
-                    }).ToList();
-
-                    var sName = _config.Organizations.First(o => o.Id == teamAward.OrganizationId).Name;
-                    var teamDto = new TeamDto
-                    {
-                        TeamId = int.Parse(teamAward.Id),
-                        TeamName = teamAward.Name,
-                        SchoolName = sName,
-                        Awards = teamAward.AwardName.Select(a =>
-                        {
-                            return a switch
-                            {
-                                "Gold Medal" => "Gold Medal|medalist",
-                                "Silver Medal" => "Silver Medal|medalist",
-                                "Bronze Medal" => "Bronze Medal|medalist",
-                                _ => a + "|normal"
-                            };
-                        }).ToList(),
-                        DisplayName =
-                            $"{teamAward.Name} -- {sName}",
-                        PenaltyTime = int.Parse(PenaltyTime.Text),
-                        ProblemsFrom = problemDtoFrom.OrderBy(p => p.Label).ToList(),
-                        ProblemsTo = problemDtoTo.OrderBy(p => p.Label).ToList()
-                    };
-                    teamDto.PostInit();
-                    teams.Add(teamDto);
-                }
-
-                // Show Resolver
-                var resolver = new Resolver(new ResolverDto
+                var problemDtoTo = teamAward.SubmissionInfosAfter.Select(submissionInfo => new ProblemDto
                 {
-                    Teams = teams
-                        .OrderByDescending(t => t.Solved)
-                        .ThenBy(t => t.TimeAll)
-                        .ThenBy(t => t.DisplayName)
-                        .Select(t => new Team(t)
+                    Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
+                    Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
+                    Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
+                        ? submissionInfo.TryTime + 2
+                        : submissionInfo.TryTime + 1
+                }).ToList();
+
+                var sName = _config.Organizations.First(o => o.Id == teamAward.OrganizationId).Name;
+                var teamDto = new TeamDto
+                {
+                    // TODO init IconPath with image in `_config.OrganizationIconPath`
+                    TeamId = int.Parse(teamAward.Id),
+                    TeamName = teamAward.Name,
+                    SchoolName = sName,
+                    Awards = teamAward.AwardName.Select(a =>
+                    {
+                        return a switch
                         {
-                            Height = _config.AnimationConfig.TeamGridHeight,
-                        }).ToList(),
-                    ResolverAnimationConfig = _config.AnimationConfig
-                });
+                            "Gold Medal" => "Gold Medal|medalist",
+                            "Silver Medal" => "Silver Medal|medalist",
+                            "Bronze Medal" => "Bronze Medal|medalist",
+                            _ => a + "|normal"
+                        };
+                    }).ToList(),
+                    DisplayName =
+                        $"{teamAward.Name} -- {sName}",
+                    PenaltyTime = int.Parse(PenaltyTime.Text),
+                    ProblemsFrom = problemDtoFrom.OrderBy(p => p.Label).ToList(),
+                    ProblemsTo = problemDtoTo.OrderBy(p => p.Label).ToList()
+                };
+                teamDto.PostInit();
+                teams.Add(teamDto);
+            }
+            // TODO WARNING for organizations that do not have icon or use a fallback icon
+
+            // Show Resolver
+            var resolver = new Resolver(new ResolverDto
+            {
+                Teams = teams
+                    .OrderByDescending(t => t.Solved)
+                    .ThenBy(t => t.TimeAll)
+                    .ThenBy(t => t.DisplayName)
+                    .Select(t => new Team(t)
+                    {
+                        Height = _config.AnimationConfig.TeamGridHeight,
+                    }).ToList(),
+                ResolverAnimationConfig = _config.AnimationConfig
+            });
 
             Cursor = Cursors.Arrow;
             _processing = false;
@@ -337,7 +374,7 @@ namespace IcpcResolver.Window
         {
             try
             {
-                CalculateAwards();
+                UpdateContestAndAwards();
             }
             catch (FormatException)
             {
@@ -365,7 +402,7 @@ namespace IcpcResolver.Window
 
         #region Utils
 
-        private void CalculateAwards()
+        private void UpdateContestAndAwards()
         {
             var goldCount = int.Parse(GoldNumber.Text);
             var silverCount = int.Parse(SilverNumber.Text);
@@ -525,7 +562,7 @@ namespace IcpcResolver.Window
             }
 
             // refresh contest info and awards
-            CalculateAwards();
+            UpdateContestAndAwards();
 
             // enable save-btn
             SaveButton.IsEnabled = true;

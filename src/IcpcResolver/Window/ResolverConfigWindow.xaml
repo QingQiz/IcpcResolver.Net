@@ -165,20 +165,20 @@
                         <Label Grid.Row="3" Grid.Column="0">
                             School icon folder
                         </Label>
-                        <TextBox Grid.Row="3" Grid.Column="1" IsEnabled="False">
-                            &lt;Disabled&gt;
+                        <TextBox Grid.Row="3" Grid.Column="1" IsEnabled="False" x:Name="SchoolIconFolderPath">
+                            &lt;Not-Selected&gt;
                         </TextBox>
-                        <Button Grid.Row="3" Grid.Column="2" Click="SelectSchoolFolder_OnClick" IsEnabled="False">
+                        <Button Grid.Row="3" Grid.Column="2" Click="SelectSchoolIconFolder_OnClick">
                             Select
                         </Button>
 
                         <DockPanel Grid.Row="4" Grid.Column="1" Margin="0 0 -1 0">
-                            <CheckBox DockPanel.Dock="Left">
+                            <CheckBox DockPanel.Dock="Left" x:Name="EnableSchoolIcon" Checked="EnableSchoolIcon_OnChange" Unchecked="EnableSchoolIcon_OnChange" IsEnabled="False">
                                 <TextBlock Margin="3 0 0 0">
                                     Enable school icon
                                 </TextBlock>
                             </CheckBox>
-                            <CheckBox Content="Fallback" IsEnabled="False"/>
+                            <CheckBox Content="Fallback" IsChecked="True" x:Name="EnableSchoolIconFallback" Checked="EnableSchoolIconFallback_OnChange" Unchecked="EnableSchoolIconFallback_OnChange" IsEnabled="False"/>
                         </DockPanel>
                     </Grid>
 

@@ -8,7 +8,12 @@ namespace IcpcResolver.UserControl
     public class TeamDto
     {
         public int TeamId;
-        
+
+        /// <summary>
+        /// team's organization icon
+        /// </summary>
+        public string IconPath;
+
         /// <summary>
         /// display name
         /// </summary>
