@@ -14,6 +14,7 @@ using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace IcpcResolver.Window
 {
+    // TODO use binding to update config
     /// <summary>
     /// Interaction logic for ResolverConfig.xaml
     /// </summary>
@@ -243,6 +244,8 @@ namespace IcpcResolver.Window
             }
         }
 
+        #region Run Resolver
+
         private async void Run_OnClick(object sender, RoutedEventArgs e)
         {
             if (_processing) return;
@@ -255,10 +258,22 @@ namespace IcpcResolver.Window
 
             UpdateResolverConfig();
 
+            // organization icon list (only support png/jpg)
+            var iconList = _config.EnableOrganizationIcon
+                ? Directory.GetFiles(_config.OrganizationIconPath, "*", SearchOption.TopDirectoryOnly)
+                    .Where(fn =>
+                        fn.EndsWith("png", StringComparison.OrdinalIgnoreCase) ||
+                        fn.EndsWith("jpg", StringComparison.OrdinalIgnoreCase))
+                    .ToList()
+                : new List<string>();
+
+
             var teams = new List<TeamDto>();
-            // Refresh Teams
+
+            // generate TeamDto for each team
             foreach (var teamAward in _config.Awards.TeamRankInfos)
             {
+                // generate status `from`
                 var problemDtoFrom = teamAward.SubmissionInfosBefore.Select(submissionInfo => new ProblemDto
                 {
                     Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
@@ -268,6 +283,7 @@ namespace IcpcResolver.Window
                         : submissionInfo.TryTime + 1
                 }).ToList();
 
+                // generate status `to`
                 var problemDtoTo = teamAward.SubmissionInfosAfter.Select(submissionInfo => new ProblemDto
                 {
                     Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
@@ -276,11 +292,17 @@ namespace IcpcResolver.Window
                         ? submissionInfo.TryTime + 2
                         : submissionInfo.TryTime + 1
                 }).ToList();
-
+                
+                // generate TeamDto
                 var sName = _config.Organizations.First(o => o.Id == teamAward.OrganizationId).Name;
+
+                // get organization icon
+                var icon = iconList
+                    .FirstOrDefault(fn => Path.GetFileNameWithoutExtension(fn) == teamAward.OrganizationId);
+                
                 var teamDto = new TeamDto
                 {
-                    // TODO init IconPath with image in `_config.OrganizationIconPath`
+                    IconPath = icon,
                     TeamId = int.Parse(teamAward.Id),
                     TeamName = teamAward.Name,
                     SchoolName = sName,
@@ -303,11 +325,51 @@ namespace IcpcResolver.Window
                 teamDto.PostInit();
                 teams.Add(teamDto);
             }
-            // TODO WARNING for organizations that do not have icon or use a fallback icon
+            
+            // error when a team do not have the organization icon
+            if (_config.EnableOrganizationIcon)
+            {
+                var noIcon = teams.Where(t => string.IsNullOrWhiteSpace(t.IconPath)).ToList();
+
+                if (_config.EnableOrganizationIconFallback)
+                {
+                    // fallback organization icon
+                    var fallbackIcon = iconList.FirstOrDefault(fn => string.Equals(
+                        Path.GetFileNameWithoutExtension(fn), "Fallback", StringComparison.OrdinalIgnoreCase));
+
+                    if (string.IsNullOrWhiteSpace(fallbackIcon))
+                    {
+                        MessageBox.Show(
+                            $"There is no fallback icon `Fallback.jpg` or `Fallback.png` in {_config.OrganizationIconPath}",
+                            "Resolver Config", MessageBoxButton.OK, MessageBoxImage.Error);
+                        goto EXIT;
+                    }
+
+                    var message = string.Join(", ", noIcon.Take(5).Select(t => t.TeamName));
+
+                    MessageBox.Show(
+                        $"No organization icon for team {message}...\nUse fallback icon instead.\n",
+                        "Resolver Config", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    
+                    noIcon.ForEach(t => t.IconPath = fallbackIcon);
+                }
+                else
+                {
+                    var message = string.Join('\n',
+                        noIcon.Take(5).Select(t =>
+                            $"{t.TeamName}: {_config.Organizations.First(o => o.Name == t.SchoolName).Id}.jpg/.png"));
+
+                    MessageBox.Show(
+                        $"No organization icon for team:\n{message}\n",
+                        "Resolver Config", MessageBoxButton.OK, MessageBoxImage.Error);
+                    goto EXIT;
+                }
+            }
 
             // Show Resolver
             var resolver = new Resolver(new ResolverDto
             {
+                EnableOrganizationIcon = _config.EnableOrganizationIcon,
                 Teams = teams
                     .OrderByDescending(t => t.Solved)
                     .ThenBy(t => t.TimeAll)
@@ -318,12 +380,14 @@ namespace IcpcResolver.Window
                     }).ToList(),
                 ResolverAnimationConfig = _config.AnimationConfig
             });
-
+            resolver.Show();
+EXIT:
             Cursor = Cursors.Arrow;
             _processing = false;
-            resolver.Show();
-            Close();
         }
+
+        #endregion
+
 
         #region Award
 
