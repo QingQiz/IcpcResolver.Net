@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using IcpcResolver.AppConstants;
 using IcpcResolver.UserControl;
 
@@ -29,6 +31,20 @@ namespace IcpcResolver.Window
                     FontSize = awardType == "normal" ? 35 : 45,
                     FontWeight = awardType == "normal" ? FontWeights.Normal: FontWeights.ExtraBold
                 });
+            }
+            
+            // school icon
+            if (string.IsNullOrWhiteSpace(_teamInfo.IconPath))
+            {
+                LayoutGrid.Children.Remove(SchoolIcon);
+            }
+            else
+            {
+                // crop
+                var icon = new BitmapImage(new Uri(_teamInfo.IconPath));
+                var len = (int) Math.Min(icon.Height, icon.Width);
+
+                SchoolIcon.Source = new CroppedBitmap(icon, new Int32Rect(0, 0, len, len));
             }
         }
 
