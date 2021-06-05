@@ -8,9 +8,5 @@ namespace IcpcResolver.Window
         public ResolverAnimationConfig ResolverAnimationConfig;
 
         public List<Team> Teams;
-
-        public bool EnableOrganizationIcon;
-
-        public bool EnableTeamPhoto;
     }
 }

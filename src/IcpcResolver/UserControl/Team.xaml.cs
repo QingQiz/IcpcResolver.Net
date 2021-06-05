@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace IcpcResolver.UserControl
 {
-    public partial class Team : System.Windows.Controls.UserControl
+    public partial class Team
     {
         private Team()
         {
@@ -31,6 +33,23 @@ namespace IcpcResolver.UserControl
 
                 Grid.SetRow(problem, 0);
                 Grid.SetColumn(problem, cnt++);
+            }
+
+            if (string.IsNullOrWhiteSpace(team.IconPath))
+            {
+                // remove icon
+                LayoutGrid.Children.Remove(SchoolIcon);
+            }
+            else
+            {
+                // add icon
+                // crop icon to square
+                var icon = new BitmapImage(new Uri(team.IconPath));
+                var len = (int) Math.Min(icon.Height, icon.Width);
+
+                SchoolIcon.Source = new CroppedBitmap(icon, new Int32Rect(0, 0, len, len));
+                SchoolIcon.Width = Height - 15;
+                SchoolIcon.Width = Height - 15;
             }
         }
 

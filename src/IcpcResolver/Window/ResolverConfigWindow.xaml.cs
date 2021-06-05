@@ -45,7 +45,9 @@ namespace IcpcResolver.Window
 
             // restore school icon config
             SchoolIconFolderPath.Text = _config.OrganizationIconPath;
+            EnableSchoolIcon.IsEnabled = !string.IsNullOrWhiteSpace(_config.OrganizationIconPath);
             EnableSchoolIcon.IsChecked = _config.EnableOrganizationIcon;
+            EnableSchoolIconFallback.IsEnabled = !string.IsNullOrWhiteSpace(_config.OrganizationIconPath);
             EnableSchoolIconFallback.IsChecked = _config.EnableOrganizationIconFallback;
         }
 
@@ -302,7 +304,7 @@ namespace IcpcResolver.Window
                 
                 var teamDto = new TeamDto
                 {
-                    IconPath = icon,
+                    IconPath = _config.EnableOrganizationIcon ? icon : null,
                     TeamId = int.Parse(teamAward.Id),
                     TeamName = teamAward.Name,
                     SchoolName = sName,
@@ -345,7 +347,7 @@ namespace IcpcResolver.Window
                         goto EXIT;
                     }
 
-                    var message = string.Join(", ", noIcon.Take(5).Select(t => t.TeamName));
+                    var message = string.Join(", ", noIcon.Take(10).Select(t => t.TeamName));
 
                     MessageBox.Show(
                         $"No organization icon for team {message}...\nUse fallback icon instead.\n",
@@ -369,7 +371,6 @@ namespace IcpcResolver.Window
             // Show Resolver
             var resolver = new Resolver(new ResolverDto
             {
-                EnableOrganizationIcon = _config.EnableOrganizationIcon,
                 Teams = teams
                     .OrderByDescending(t => t.Solved)
                     .ThenBy(t => t.TimeAll)
