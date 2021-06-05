@@ -150,7 +150,7 @@
                         <TextBox Grid.Row="1" Grid.Column="1" IsEnabled="False" x:Name="TeamPhotoPath">
                             &lt;Not-Selected&gt;
                         </TextBox>
-                        <Button Grid.Row="1" Grid.Column="2" Click="SelectTeamPhotoFolder_OnClick" IsEnabled="False">
+                        <Button Grid.Row="1" Grid.Column="2" Click="SelectTeamPhotoFolder_OnClick">
                             Select
                         </Button>
 

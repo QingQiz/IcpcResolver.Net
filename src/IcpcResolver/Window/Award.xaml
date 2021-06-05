@@ -13,11 +13,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid.Background>
-            <SolidColorBrush Color="Black"/>
-        </Grid.Background>
-
+    <Grid x:Name="LayoutGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="1*"/>
@@ -25,7 +21,7 @@
 
         <Grid Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.Background>
-                <SolidColorBrush Color="White" Opacity="0.2"/>
+                <SolidColorBrush Color="White" Opacity="0.4"/>
             </Grid.Background>
             
             <Grid.RowDefinitions>
@@ -34,7 +30,7 @@
             </Grid.RowDefinitions>
             
             <!-- team info -->
-            <Grid Grid.Row="0" HorizontalAlignment="Left" Margin="10 10 10 10" x:Name="LayoutGrid">
+            <Grid Grid.Row="0" HorizontalAlignment="Left" Margin="10 10 10 10" x:Name="TeamInfoGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
