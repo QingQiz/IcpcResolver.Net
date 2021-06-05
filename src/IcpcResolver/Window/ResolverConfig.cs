@@ -12,12 +12,9 @@ namespace IcpcResolver.Window
         // school icon
         public string OrganizationIconPath;
         public bool EnableOrganizationIcon, EnableOrganizationIconFallback;
+        // team photo
+        public string TeamPhotoPath;
+        public bool EnableTeamPhoto, EnableTeamPhotoFallback;
         // ReSharper restore FieldCanBeMadeReadOnly.Global
-    }
-
-    public class Organization
-    {
-        public string Id;
-        public string Name;
     }
 }

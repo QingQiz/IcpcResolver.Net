@@ -47,6 +47,24 @@
       <Compile Update="Window\ResolverConfig.cs">
         <DependentUpon>ResolverConfigWindow.xaml</DependentUpon>
       </Compile>
+      <Compile Update="Window\TeamRankInfo.cs">
+        <DependentUpon>AwardUtilities.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Window\SubmissionInfo.cs">
+        <DependentUpon>AwardUtilities.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Window\FirstSolveInfo.cs">
+        <DependentUpon>AwardUtilities.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Window\ContestSummary.cs">
+        <DependentUpon>Validator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Window\ReturnSummary.cs">
+        <DependentUpon>Validator.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Window\Organization.cs">
+        <DependentUpon>ResolverConfig.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

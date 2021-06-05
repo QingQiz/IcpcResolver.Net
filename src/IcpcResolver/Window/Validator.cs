@@ -122,23 +122,4 @@ namespace IcpcResolver.Window
             };
         }
     }
-
-    public class ReturnSummary
-    {
-        public bool HasError => ErrList.Any();
-        public string ErrType;
-        public List<string> ErrList = new();
-    }
-
-    public class ContestSummary
-    {
-        public string ContestLength;
-        public string FreezeTime;
-        public long PenaltyTime;
-        public string ContestName;
-        public int TeamCount;
-        public int ProblemCount;
-        public int SubmissionCount;
-        public int GroupCount;
-    }
 }

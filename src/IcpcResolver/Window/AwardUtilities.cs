@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using IcpcResolver.UserControl;
 using Newtonsoft.Json;
 
 namespace IcpcResolver.Window
@@ -177,70 +178,5 @@ namespace IcpcResolver.Window
                 minute = timeString.Split(":")[1];
             return int.Parse(hour) * 60 + int.Parse(minute);
         }
-    }
-
-    public class TeamRankInfo
-    {
-        [JsonConstructor]
-        public TeamRankInfo()
-        {
-            
-        }
-
-        public TeamRankInfo(dynamic baseInfo)
-        {
-            GroupIds = (baseInfo.group_ids as List<object>)?.Select(x => x as string).ToList();
-            Id = baseInfo.id;
-            Name = baseInfo.name;
-            OrganizationId = baseInfo.organization_id;
-        }
-        public List<string> GroupIds;
-        public string Id;
-        public string Name;
-        public string OrganizationId;
-        public int AcceptCount;
-        public int Penalty;
-        public List<SubmissionInfo> SubmissionInfosBefore;
-        public List<SubmissionInfo> SubmissionInfosAfter;
-        public List<string> AwardName = new();
-    }
-
-
-    public class SubmissionInfo
-    {
-        public string ProblemId { get; set; }
-        public string ProblemLabel { get; set; }
-        public int TryTime { get; set; }
-        public string SubmissionTime { get; set; }
-        public string SubmissionStatus { get; set; }
-
-        public int GetIntSubmissionTime()
-        {
-            string hour = SubmissionTime.Split(":")[0],
-                minute = SubmissionTime.Split(":")[1];
-            return int.Parse(hour) * 60 + int.Parse(minute);
-        }
-
-        [JsonConstructor]
-        public SubmissionInfo()
-        {
-        }
-
-        public SubmissionInfo(string id, string label, int tries)
-        {
-            ProblemId = id;
-            ProblemLabel = label;
-            TryTime = tries;
-            SubmissionStatus = null;
-            SubmissionTime = null;
-        }
-    }
-
-    public class FirstSolveInfo
-    {
-        public string ShortName { get; set; }
-        public string ProblemId { get; set; }
-        public string TeamId { get; set; }
-        public bool Solved { get; set; }
     }
 }

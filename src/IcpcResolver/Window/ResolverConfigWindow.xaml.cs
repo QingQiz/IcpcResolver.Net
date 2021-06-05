@@ -49,6 +49,13 @@ namespace IcpcResolver.Window
             EnableSchoolIcon.IsChecked = _config.EnableOrganizationIcon;
             EnableSchoolIconFallback.IsEnabled = !string.IsNullOrWhiteSpace(_config.OrganizationIconPath);
             EnableSchoolIconFallback.IsChecked = _config.EnableOrganizationIconFallback;
+
+            // restore team photo config
+            TeamPhotoPath.Text = _config.TeamPhotoPath;
+            EnableTeamPhoto.IsEnabled = !string.IsNullOrWhiteSpace(_config.TeamPhotoPath);
+            EnableTeamPhoto.IsChecked = _config.EnableTeamPhoto;
+            EnableTeamPhotoFallback.IsEnabled = !string.IsNullOrWhiteSpace(_config.TeamPhotoPath);
+            EnableTeamPhotoFallback.IsChecked = _config.EnableTeamPhotoFallback;
         }
 
         #region EventHandler
@@ -191,11 +198,6 @@ namespace IcpcResolver.Window
 
         #region Photo
 
-        private void SelectPhotoFolder_OnClick(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Not Implemented");
-        }
-
         private void SelectSchoolIconFolder_OnClick(object sender, RoutedEventArgs e)
         {
             var selectFolderDialog = new FolderBrowserDialog();
@@ -225,13 +227,44 @@ namespace IcpcResolver.Window
             _config.EnableOrganizationIconFallback = EnableSchoolIconFallback.IsChecked ?? false;
         }
 
+        private void SelectTeamPhotoFolder_OnClick(object sender, RoutedEventArgs e)
+        {
+            var selectFolderDialog = new FolderBrowserDialog();
+
+            // ReSharper disable once InvertIf
+            if (selectFolderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                TeamPhotoPath.Text = selectFolderDialog.SelectedPath;
+                EnableTeamPhoto.IsEnabled = true;
+                EnableTeamPhoto.IsChecked = true;
+                EnableTeamPhotoFallback.IsEnabled = true;
+                EnableTeamPhotoFallback.IsChecked = true;
+
+                _config.TeamPhotoPath = selectFolderDialog.SelectedPath;
+                _config.EnableTeamPhoto = true;
+                _config.EnableTeamPhotoFallback = true;
+            }
+        }
+
+        private void EnableTeamPhoto_OnChange(object sender, RoutedEventArgs e)
+        {
+            _config.EnableTeamPhoto = EnableTeamPhoto.IsChecked ?? false;
+        }
+
+        private void EnableTeamPhotoFallback_OnChange(object sender, RoutedEventArgs e)
+        {
+            _config.EnableTeamPhotoFallback = EnableTeamPhotoFallback.IsChecked ?? false;
+        }
+
         #endregion
+
+        #region CONFIG
 
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)
         {
             UpdateResolverConfig();
             var res = JsonConvert.SerializeObject(_config);
-            var saveFileDialog = new System.Windows.Forms.SaveFileDialog
+            var saveFileDialog = new SaveFileDialog
             {
                 Filter = "JSON file (*.json)|*.json",
                 FileName = "ResolverConfig.json"
@@ -245,6 +278,8 @@ namespace IcpcResolver.Window
                     MessageBoxImage.Information);
             }
         }
+
+        #endregion
 
         #region Run Resolver
 
@@ -260,75 +295,45 @@ namespace IcpcResolver.Window
 
             UpdateResolverConfig();
 
-            // organization icon list (only support png/jpg)
+            // organization icon list
             var iconList = _config.EnableOrganizationIcon
                 ? Directory.GetFiles(_config.OrganizationIconPath, "*", SearchOption.TopDirectoryOnly)
-                    .Where(fn =>
-                        fn.EndsWith("png", StringComparison.OrdinalIgnoreCase) ||
-                        fn.EndsWith("jpg", StringComparison.OrdinalIgnoreCase))
+                    .Where(IsImageFile)
                     .ToList()
                 : new List<string>();
 
+            var photoList = _config.EnableTeamPhoto
+                ? Directory.GetFiles(_config.TeamPhotoPath, "*", SearchOption.TopDirectoryOnly)
+                    .Where(IsImageFile)
+                    .ToList()
+                : new List<string>();
 
-            var teams = new List<TeamDto>();
-
-            // generate TeamDto for each team
-            foreach (var teamAward in _config.Awards.TeamRankInfos)
+            // generate TeamDto list
+            var teams = _config.Awards.TeamRankInfos.Select(a => a.ToTeamDto()).ToList();
+            teams.ForEach(d =>
             {
-                // generate status `from`
-                var problemDtoFrom = teamAward.SubmissionInfosBefore.Select(submissionInfo => new ProblemDto
-                {
-                    Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
-                    Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
-                    Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
-                        ? submissionInfo.TryTime + 2
-                        : submissionInfo.TryTime + 1
-                }).ToList();
+                var orgId = d.SchoolName;
 
-                // generate status `to`
-                var problemDtoTo = teamAward.SubmissionInfosAfter.Select(submissionInfo => new ProblemDto
-                {
-                    Label = submissionInfo.ProblemLabel, Status = ConvertStatus(submissionInfo.SubmissionStatus),
-                    Time = submissionInfo.SubmissionTime is null ? 0 : submissionInfo.GetIntSubmissionTime(),
-                    Try = ConvertStatus(submissionInfo.SubmissionStatus) == ProblemStatus.Accept
-                        ? submissionInfo.TryTime + 2
-                        : submissionInfo.TryTime + 1
-                }).ToList();
-                
                 // generate TeamDto
-                var sName = _config.Organizations.First(o => o.Id == teamAward.OrganizationId).Name;
+                var sName = _config.Organizations.First(o => o.Id == orgId).Name;
 
-                // get organization icon
+                // organization icon
                 var icon = iconList
-                    .FirstOrDefault(fn => Path.GetFileNameWithoutExtension(fn) == teamAward.OrganizationId);
-                
-                var teamDto = new TeamDto
-                {
-                    IconPath = _config.EnableOrganizationIcon ? icon : null,
-                    TeamId = int.Parse(teamAward.Id),
-                    TeamName = teamAward.Name,
-                    SchoolName = sName,
-                    Awards = teamAward.AwardName.Select(a =>
-                    {
-                        return a switch
-                        {
-                            "Gold Medal" => "Gold Medal|medalist",
-                            "Silver Medal" => "Silver Medal|medalist",
-                            "Bronze Medal" => "Bronze Medal|medalist",
-                            _ => a + "|normal"
-                        };
-                    }).ToList(),
-                    DisplayName =
-                        $"{teamAward.Name} -- {sName}",
-                    PenaltyTime = int.Parse(PenaltyTime.Text),
-                    ProblemsFrom = problemDtoFrom.OrderBy(p => p.Label).ToList(),
-                    ProblemsTo = problemDtoTo.OrderBy(p => p.Label).ToList()
-                };
-                teamDto.PostInit();
-                teams.Add(teamDto);
-            }
-            
-            // error when a team do not have the organization icon
+                    .FirstOrDefault(fn => Path.GetFileNameWithoutExtension(fn) == orgId);
+
+                // team photo
+                var photo = photoList
+                    .FirstOrDefault(fn => Path.GetFileNameWithoutExtension(fn) == d.TeamId);
+
+                d.IconPath = _config.EnableOrganizationIcon ? icon : null;
+                d.PhotoPath = _config.EnableTeamPhoto ? photo : null;
+                d.SchoolName = sName;
+                d.DisplayName = $"{d.TeamName} -- {sName}";
+                d.PenaltyTime = int.Parse(PenaltyTime.Text);
+                d.PostInit();
+            });
+
+            // error or warning when a team do not have the organization icon
             if (_config.EnableOrganizationIcon)
             {
                 var noIcon = teams.Where(t => string.IsNullOrWhiteSpace(t.IconPath)).ToList();
@@ -363,6 +368,45 @@ namespace IcpcResolver.Window
 
                     MessageBox.Show(
                         $"No organization icon for team:\n{message}\n",
+                        "Resolver Config", MessageBoxButton.OK, MessageBoxImage.Error);
+                    goto EXIT;
+                }
+            }
+
+            // error or warning when a team do not have the photo
+            if (_config.EnableTeamPhoto)
+            {
+                var noPhoto = teams.Where(t => string.IsNullOrWhiteSpace(t.PhotoPath)).ToList();
+
+                if (_config.EnableTeamPhotoFallback)
+                {
+                    // fallback organization icon
+                    var fallbackPhoto = photoList.FirstOrDefault(fn => string.Equals(
+                        Path.GetFileNameWithoutExtension(fn), "Fallback", StringComparison.OrdinalIgnoreCase));
+
+                    if (string.IsNullOrWhiteSpace(fallbackPhoto))
+                    {
+                        MessageBox.Show(
+                            $"There is no fallback photo `Fallback.jpg` or `Fallback.png` in {_config.TeamPhotoPath}",
+                            "Resolver Config", MessageBoxButton.OK, MessageBoxImage.Error);
+                        goto EXIT;
+                    }
+
+                    var message = string.Join(", ", noPhoto.Take(10).Select(t => t.TeamName));
+
+                    MessageBox.Show(
+                        $"No photo for team {message}...\nUse fallback photo instead.\n",
+                        "Resolver Config", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    
+                    noPhoto.ForEach(t => t.PhotoPath = fallbackPhoto);
+                }
+                else
+                {
+                    var message = string.Join('\n',
+                        noPhoto.Take(5).Select(t => $"{t.TeamName}: {t.TeamId}.jpg/.png"));
+
+                    MessageBox.Show(
+                        $"No photo for team:\n{message}\n",
                         "Resolver Config", MessageBoxButton.OK, MessageBoxImage.Error);
                     goto EXIT;
                 }
@@ -663,18 +707,6 @@ EXIT:
             RefreshContestInfo();
         }
 
-        private static ProblemStatus ConvertStatus(string inStatus)
-        {
-            return inStatus switch
-            {
-                null => ProblemStatus.NotTried,
-                "FB" => ProblemStatus.FirstBlood,
-                "AC" => ProblemStatus.Accept,
-                _ => ProblemStatus.UnAccept
-            };
-        }
-
-        
         private void RefreshAwardView()
         {
             AwardView.Items.Clear();
@@ -701,6 +733,16 @@ EXIT:
             FirstStandingTitle.Text = _config.Awards.FirstStanding;
         }
         
+        #endregion
+
+        #region help function
+
+        private static bool IsImageFile(string fn)
+        {
+            var ew = new Func<string, bool>(a => fn.EndsWith(a, StringComparison.OrdinalIgnoreCase));
+            return ew("png") || ew("jpg") || ew("jpeg");
+        }
+
         #endregion
     }
 

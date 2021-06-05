@@ -147,18 +147,18 @@
                         <Label Grid.Row="1" Grid.Column="0">
                             Team photo folder
                         </Label>
-                        <TextBox Grid.Row="1" Grid.Column="1" IsEnabled="False">
-                            &lt;Disabled&gt;
+                        <TextBox Grid.Row="1" Grid.Column="1" IsEnabled="False" x:Name="TeamPhotoPath">
+                            &lt;Not-Selected&gt;
                         </TextBox>
-                        <Button Grid.Row="1" Grid.Column="2" Click="SelectPhotoFolder_OnClick" IsEnabled="False">
+                        <Button Grid.Row="1" Grid.Column="2" Click="SelectTeamPhotoFolder_OnClick" IsEnabled="False">
                             Select
                         </Button>
 
                         <DockPanel Grid.Row="2" Grid.Column="1" Margin="0 0 -1 0">
-                            <CheckBox DockPanel.Dock="Left">
+                            <CheckBox DockPanel.Dock="Left" x:Name="EnableTeamPhoto" IsEnabled="False" Checked="EnableTeamPhoto_OnChange" Unchecked="EnableTeamPhoto_OnChange">
                                 Enable team photo
                             </CheckBox>
-                            <CheckBox Content="Fallback" IsEnabled="False"/>
+                            <CheckBox Content="Fallback" IsEnabled="True" x:Name="EnableTeamPhotoFallback" Checked="EnableTeamPhotoFallback_OnChange" Unchecked="EnableTeamPhotoFallback_OnChange"/>
                         </DockPanel>
 
                         <!-- label 3 -->
