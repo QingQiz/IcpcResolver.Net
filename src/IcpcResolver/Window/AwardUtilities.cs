@@ -2,32 +2,49 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
+using IcpcResolver.UserControl;
+using Newtonsoft.Json;
 
 namespace IcpcResolver.Window
 {
-    class AwardUtilities
+    public class AwardUtilities
     {
+        // ReSharper disable FieldCanBeMadeReadOnly.Global
         public List<TeamRankInfo> TeamRankInfos;
         public List<FirstSolveInfo> FirstSolveInfos;
         public string LastSolveTeamId;
-        private int _penaltyTime;
+        // award count
+        public int GoldNumber, SilverNumber, BronzeNumber;
+        // award type
+        public bool FirstBlood, LastAccept, GroupTop;
+        public string FirstStanding;
+        // ReSharper disable once MemberCanBePrivate.Global
+        public int PenaltyTime;
         // A list of no penalty status collection, may changed later
-        private static readonly List<string> Accept = new List<string> {"AC", "FB"};
-        private static readonly List<string> Reject = new List<string> {"WA", "TLE", "MLE", "NO", "RE", "OLE", "RTE"};
+        private static readonly List<string> Accept = new() {"AC", "FB"};
+        private static readonly List<string> Reject = new() {"WA", "TLE", "MLE", "NO", "RE", "OLE", "RTE"};
+        // ReSharper restore FieldCanBeMadeReadOnly.Global
+
+        [JsonConstructor]
+        public AwardUtilities()
+        {
+            
+        }
 
         public AwardUtilities(Validator info, int penaltyTime)
         // Construct AwardUtilities with info from Validator
         {
-            this._penaltyTime = penaltyTime;
-            this.TeamRankInfos = new List<TeamRankInfo>();
-            this.FirstSolveInfos = new List<FirstSolveInfo>();
+            PenaltyTime = penaltyTime;
+            TeamRankInfos = new List<TeamRankInfo>();
+            FirstSolveInfos = new List<FirstSolveInfo>();
             // Initialize teams and problems, make it empty
             foreach (var team in info.TeamsList)
             {
-                TeamRankInfo teamInfoItem = new TeamRankInfo(team);
-                teamInfoItem.SubmissionInfosBefore = new List<SubmissionInfo>();
-                teamInfoItem.SubmissionInfosAfter = new List<SubmissionInfo>();
+                var teamInfoItem = new TeamRankInfo(team)
+                {
+                    SubmissionInfosBefore = new List<SubmissionInfo>(),
+                    SubmissionInfosAfter = new List<SubmissionInfo>()
+                };
                 foreach (var problem in info.ProblemsList)
                 {
                     SubmissionInfo submissionInfo = new SubmissionInfo(problem.id, problem.short_name, 0);
@@ -42,11 +59,13 @@ namespace IcpcResolver.Window
             // Initialize first blood info
             foreach (var problem in info.ProblemsList)
             {
-                FirstSolveInfo firstSolve = new FirstSolveInfo();
-                firstSolve.ProblemId = problem.id;
-                firstSolve.Solved = false;
-                firstSolve.TeamId = "";
-                this.FirstSolveInfos.Add(firstSolve);
+                FirstSolveInfos.Add(new FirstSolveInfo
+                {
+                    ShortName = problem.short_name,
+                    ProblemId = problem.id,
+                    Solved = false,
+                    TeamId = ""
+                });
             }
         }
 
@@ -56,14 +75,14 @@ namespace IcpcResolver.Window
             int contestLength = TimeInMinute(info.ContestInfo.duration),
                 freezeLength = TimeInMinute(info.ContestInfo.scoreboard_freeze_duration);
             int contestBeforeFreezeLength = contestLength - freezeLength;
-            foreach (var submission in info.SubmissionWithResultsList)
+            foreach (var submission in info.Submissions)
             {
                 // Get current submission information: time, teamId, problemId, result, etc.
                 int currentTime = TimeInMinute(submission.contest_time);
                 string currentTeamId = submission.team_id;
                 string currentProblemId = submission.problem_id;
-                string currentJudgeResult = submission.judgeResult;
-                int currentTeamRankInfoId = TeamRankInfos.FindIndex(x => x.id == currentTeamId);
+                string currentJudgeResult = submission.judgement_result;
+                int currentTeamRankInfoId = TeamRankInfos.FindIndex(x => x.Id == currentTeamId);
                 SubmissionInfo currentSubmissionInfoBefore = TeamRankInfos[currentTeamRankInfoId].SubmissionInfosBefore
                     .Find(x => x.ProblemId == currentProblemId);
                 SubmissionInfo currentSubmissionInfoAfter = TeamRankInfos[currentTeamRankInfoId].SubmissionInfosAfter
@@ -139,16 +158,17 @@ namespace IcpcResolver.Window
                     }
                 }
             }
-            this.TeamRankInfos.Sort(new Comparison<TeamRankInfo>((x, y) =>
+
+            TeamRankInfos.Sort(new Comparison<TeamRankInfo>((x, y) =>
                 {
                     int ret = y.AcceptCount.CompareTo(x.AcceptCount);
                     return (ret != 0) ? ret : x.Penalty.CompareTo(y.Penalty);
                 }
-                ));
+            ));
         }
         public int CalculatePenalty(int tryTimes, string acTime)
         {
-            return tryTimes * _penaltyTime + TimeInMinute(acTime);
+            return tryTimes * PenaltyTime + TimeInMinute(acTime);
         }
 
         public int TimeInMinute(string timeString)
@@ -159,55 +179,4 @@ namespace IcpcResolver.Window
             return int.Parse(hour) * 60 + int.Parse(minute);
         }
     }
-
-    class TeamRankInfo : TeamInfo
-    {
-        public TeamRankInfo(TeamInfo baseInfo)
-        {
-            this.group_ids = baseInfo.group_ids;
-            this.id = baseInfo.id;
-            this.name = baseInfo.name;
-            this.organization_id = baseInfo.organization_id;
-            this.AwardName = new List<string>();
-        }
-        public int AcceptCount;
-        public int Penalty;
-        public List<SubmissionInfo> SubmissionInfosBefore;
-        public List<SubmissionInfo> SubmissionInfosAfter;
-        public List<string> AwardName;
-    }
-
-
-    class SubmissionInfo
-    {
-        public string ProblemId { get; set; }
-        public string ProblemLabel { get; set; }
-        public int TryTime { get; set; }
-        public string SubmissionTime { get; set; }
-        public string SubmissionStatus { get; set; }
-
-        public int GetIntSubmissionTime()
-        {
-            string hour = SubmissionTime.Split(":")[0],
-                minute = SubmissionTime.Split(":")[1];
-            return int.Parse(hour) * 60 + int.Parse(minute);
-        }
-
-        public SubmissionInfo(string id, string label, int tries)
-        {
-            this.ProblemId = id;
-            this.ProblemLabel = label;
-            this.TryTime = tries;
-            this.SubmissionStatus = null;
-            this.SubmissionTime = null;
-        }
-    }
-
-    class FirstSolveInfo
-    {
-        public string ProblemId { get; set; }
-        public string TeamId { get; set; }
-        public bool Solved { get; set; }
-    }
-    
 }

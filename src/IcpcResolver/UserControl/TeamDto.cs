@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace IcpcResolver.UserControl
 {
     public class TeamDto
     {
-        public int TeamId;
-        
+        public string TeamId;
+
+        /// <summary>
+        /// team photo path
+        /// </summary>
+        public string PhotoPath;
+
+        /// <summary>
+        /// team's organization icon
+        /// </summary>
+        public string IconPath;
+
         /// <summary>
         /// display name
         /// </summary>

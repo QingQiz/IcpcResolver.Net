@@ -1,0 +1,342 @@
+﻿<Window x:Class="IcpcResolver.Window.ResolverConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d"
+        ResizeMode="CanResize"
+        Title="Resolver Config" Height="600" Width="500">
+    <Window.Resources>
+        <Style x:Key="HeaderLeft" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="50"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="FlowDirection" Value="RightToLeft"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <TabControl Grid.RowSpan="2">
+            <TabItem Header="Contest Data Config">
+                <StackPanel Margin="15 15 15 15" x:Name="ContestDataConfig">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- 1 -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left">
+                            Get EventFeed from Domjudge RestAPI?
+                        </TextBlock>
+                        <Button Grid.Row="0" Grid.Column="2" Click="OpenCredWindow_OnClick">
+                            Load
+                        </Button>
+
+                        <!-- 2 -->
+                        <TextBlock Grid.Row="1" Grid.Column="0">
+                            EventFeed File Path:
+                        </TextBlock>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="EventFeedFilePath" IsEnabled="False">
+                            &lt;Not-Selected&gt;
+                        </TextBox>
+                        <Button Grid.Row="1" Grid.Column="2" Content="Open" Click="OpenEventFeed_OnClick"/>
+
+                        <!-- 3 -->
+                        <Button Grid.Row="2" Grid.Column="1" x:Name="ValidateFile" IsEnabled="False" Click="ValidateEventFeed_OnClick" Width="115">
+                            Validate EventFeed
+                        </Button>
+                        <Button Grid.Row="2" Grid.Column="2" x:Name="AutoFixButton" IsEnabled="False" Click="AutoFixEventFeed_OnClick">
+                            Auto fix
+                        </Button>
+
+                        <!-- 4 -->
+                        <DockPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 10 0 0">
+                            <DockPanel.Resources>
+                                <Style TargetType="CheckBox">
+                                    <Setter Property="IsEnabled" Value="False"></Setter>
+                                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                                </Style>
+                            </DockPanel.Resources>
+                            <StackPanel DockPanel.Dock="Left">
+                                <StackPanel.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Width" Value="130"></Setter>
+                                    </Style>
+                                </StackPanel.Resources>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Label>Loading data</Label>
+                                    <CheckBox x:Name="LoadCheck"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Label>Checking team info</Label>
+                                    <CheckBox x:Name="TeamInfoCheck"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                <StackPanel.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Width" Value="160"></Setter>
+                                    </Style>
+                                </StackPanel.Resources>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Checking submission info"/>
+                                    <CheckBox x:Name="SubmissionCheck"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Scanning unjudged run"/>
+                                    <CheckBox x:Name="UnjudgedCheck"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DockPanel>
+                    </Grid>
+
+                    <Separator Margin="0 10 0 5"/>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- label 2 -->
+                        <Label Grid.Row="1" Grid.Column="0">
+                            Team photo folder
+                        </Label>
+                        <TextBox Grid.Row="1" Grid.Column="1" IsEnabled="False" x:Name="TeamPhotoPath">
+                            &lt;Not-Selected&gt;
+                        </TextBox>
+                        <Button Grid.Row="1" Grid.Column="2" Click="SelectTeamPhotoFolder_OnClick">
+                            Select
+                        </Button>
+
+                        <DockPanel Grid.Row="2" Grid.Column="1" Margin="0 0 -1 0">
+                            <CheckBox DockPanel.Dock="Left" x:Name="EnableTeamPhoto" IsEnabled="False" Checked="EnableTeamPhoto_OnChange" Unchecked="EnableTeamPhoto_OnChange">
+                                Enable team photo
+                            </CheckBox>
+                            <CheckBox Content="Fallback" IsEnabled="True" x:Name="EnableTeamPhotoFallback" Checked="EnableTeamPhotoFallback_OnChange" Unchecked="EnableTeamPhotoFallback_OnChange"/>
+                        </DockPanel>
+
+                        <!-- label 3 -->
+                        <Label Grid.Row="3" Grid.Column="0">
+                            School icon folder
+                        </Label>
+                        <TextBox Grid.Row="3" Grid.Column="1" IsEnabled="False" x:Name="SchoolIconFolderPath">
+                            &lt;Not-Selected&gt;
+                        </TextBox>
+                        <Button Grid.Row="3" Grid.Column="2" Click="SelectSchoolIconFolder_OnClick">
+                            Select
+                        </Button>
+
+                        <DockPanel Grid.Row="4" Grid.Column="1" Margin="0 0 -1 0">
+                            <CheckBox DockPanel.Dock="Left" x:Name="EnableSchoolIcon" Checked="EnableSchoolIcon_OnChange" Unchecked="EnableSchoolIcon_OnChange" IsEnabled="False">
+                                <TextBlock Margin="3 0 0 0">
+                                    Enable school icon
+                                </TextBlock>
+                            </CheckBox>
+                            <CheckBox Content="Fallback" IsChecked="True" x:Name="EnableSchoolIconFallback" Checked="EnableSchoolIconFallback_OnChange" Unchecked="EnableSchoolIconFallback_OnChange" IsEnabled="False"/>
+                        </DockPanel>
+                    </Grid>
+
+                    <DockPanel Margin="0 30 0 0">
+                        <Grid DockPanel.Dock="Left">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- 1 -->
+                            <Label Grid.Row="0" Grid.Column="0" Content="Team count:"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="TeamCount" Text="&lt;Not-Loaded&gt;"/>
+                            <!-- 1 -->
+                            <Label Grid.Row="1" Grid.Column="0" Content="Problem count:"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="ProblemCount" Text="&lt;Not-Loaded&gt;"/>
+                            <!-- 1 -->
+                            <Label Grid.Row="2" Grid.Column="0" Content="Submission count:"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="SubmissionCount" Text="&lt;Not-Loaded&gt;"/>
+                            <!-- 1 -->
+                            <Label Grid.Row="3" Grid.Column="0" Content="Group count:"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="GroupCount" Text="&lt;Not-Loaded&gt;"/>
+                        </Grid>
+                        <Grid DockPanel.Dock="Right" HorizontalAlignment="Right">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Margin" Value="0 0 20 0"></Setter>
+                                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                                </Style>
+                            </Grid.Resources>
+                            <!-- 1 -->
+                            <Label Grid.Row="0" Grid.Column="0" Content="Contest length:"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="ContestLength" Text="&lt;hh:mm:ss.ms&gt;" IsEnabled="False"/>
+                            <!-- 1 -->
+                            <Label Grid.Row="1" Grid.Column="0" Content="Freeze time:"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="FreezeTime" Text="&lt;hh:mm:ss.ms&gt;" IsEnabled="False"/>
+                            <!-- 1 -->
+                            <Label Grid.Row="2" Grid.Column="0" Content="Penalty(minute):"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="PenaltyTime" Text="&lt;mm&gt;" IsEnabled="False"/>
+                            <!-- 1 -->
+                            <Label Grid.Row="3" Grid.Column="0" Content="Contest name:"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="ContestName" Text="&lt;contest-name&gt;" TextWrapping="Wrap" IsEnabled="False"/>
+                        </Grid>
+                    </DockPanel>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Award Utilities">
+                <Grid Margin="15 10 15 50">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.2*"/>
+                        <RowDefinition Height="1.2*"/>
+                        <RowDefinition Height="1.2*"/>
+                        <RowDefinition Height="1.2*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="10*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Content="Gold Medal" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="1" Content="Silver Medal" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="2" Content="Bronze Medal" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="3" Content="First Standing" HorizontalAlignment="Center"/>
+                    <Label Grid.Column="2" Content="First Blood" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="1" Grid.Column="2" Content="Last Accept" HorizontalAlignment="Center"/>
+                    <Label Grid.Row="2" Grid.Column="2" Content="Group Top" HorizontalAlignment="Center" FontStyle="Normal"/>
+                    <TextBox x:Name="GoldNumber" Text="0" Grid.Column="1" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="SilverNumber" Text="0" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="BronzeNumber" Text="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" Width="125"/>
+                    <TextBox x:Name="FirstStandingTitle" Text="" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" Width="125"/>
+                    <CheckBox x:Name="FirstBlood" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="LastAccept" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <CheckBox x:Name="GroupTop" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <ListView x:Name="AwardView" Grid.Row="5" Grid.ColumnSpan="4" Margin="0,22,0,0" Grid.RowSpan="7" SelectionChanged="AwardView_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Id" Width="40" DisplayMemberBinding="{Binding Id}"/>
+                                <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Solved" Width="45" DisplayMemberBinding="{Binding Solved}"/>
+                                <GridViewColumn Header="Time" Width="45" DisplayMemberBinding="{Binding Time}"/>
+                                <GridViewColumn Header="Awards"  HeaderContainerStyle="{StaticResource HeaderLeft}" Width="2000" DisplayMemberBinding="{Binding Awards}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Button x:Name="EditAward" Content="Edit" Grid.Column="2" Grid.Row="5"  HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" Click="EditAward_OnClick"/>
+                    <Button x:Name="DeleteAward" Content="Delete" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right" IsEnabled="False" Click="DeleteAward_OnClick"/>
+                    <Button Content="Calculate" x:Name="CalculateAwardsBtn" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0" Width="69" Grid.ColumnSpan="2" Click="CalculateAwards_OnClick" IsEnabled="False"/>
+                    <GridSplitter Grid.ColumnSpan="4" HorizontalAlignment="Center" Height="5" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Center" Width="454"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Animation Config">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" Content="Team Grid Height"/>
+                    <Label Grid.Column="0" Grid.Row="1" Content="Max Display Count"/>
+                    <Label Grid.Column="0" Grid.Row="2" Content="Max Render Count"/>
+                    <Label Grid.Column="0" Grid.Row="3" Content="Scroll Down Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="4" Content="Scroll Down Interval (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="5" Content="Cursor Up Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="6" Content="Update Team Rank Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="7" Content="Animation Frame Rate"/>
+                    <Label Grid.Column="0" Grid.Row="8" Content="Update Problem Status Duration (ms)"/>
+                    <Label Grid.Column="0" Grid.Row="9" Content="Update Team Rank Automatically Until Rank"/>
+                    <TextBox Grid.Column="1" Grid.Row="0" x:Name="TeamGridHeight" Text="100"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" x:Name="MaxDisplayCount" Text="11"/>
+                    <TextBox Grid.Column="1" Grid.Row="2" x:Name="MaxRenderCount" Text="13"/>
+                    <TextBox Grid.Column="1" Grid.Row="3" x:Name="ScrollDownDuration" Text="200"/>
+                    <TextBox Grid.Column="1" Grid.Row="4" x:Name="ScrollDownInterval" Text="0"/>
+                    <TextBox Grid.Column="1" Grid.Row="5" x:Name="CursorUpDuration" Text="500"/>
+                    <TextBox Grid.Column="1" Grid.Row="6" x:Name="UpdateTeamRankDuration" Text="1000"/>
+                    <TextBox Grid.Column="1" Grid.Row="7" x:Name="AnimationFrameRate" Text="120"/>
+                    <TextBox Grid.Column="1" Grid.Row="8" x:Name="UpdateProblemStatusDuration" Text="400,600"/>
+                    <TextBox Grid.Column="1" Grid.Row="9" x:Name="AutoUpdateTeamRankUntilRank" Text="114514"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+            <Button x:Name="SaveButton" Content="Save Config" HorizontalAlignment="Left" Margin="0 0 17 11" IsEnabled="False" Width="100" Click="SaveButton_OnClick"/>
+            <Button x:Name="RunButton" Content="Run!" Margin="0 0 17 11" Click="Run_OnClick" IsEnabled="False"/>
+        </StackPanel>
+    </Grid>
+</Window>

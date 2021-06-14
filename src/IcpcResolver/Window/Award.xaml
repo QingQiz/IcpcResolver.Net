@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="Award" WindowState="Maximized" WindowStyle="None" Height="300" Width="400">
+        Title="Award" WindowState="Maximized" WindowStyle="None">
     <Window.Resources>
         <Style TargetType="Label">
             <Setter Property="FontSize" Value="20"/>
@@ -13,11 +13,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid.Background>
-            <SolidColorBrush Color="Black"/>
-        </Grid.Background>
-
+    <Grid x:Name="LayoutGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="1*"/>
@@ -25,7 +21,7 @@
 
         <Grid Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.Background>
-                <SolidColorBrush Color="White" Opacity="0.2"/>
+                <SolidColorBrush Color="White" Opacity="0.4"/>
             </Grid.Background>
             
             <Grid.RowDefinitions>
@@ -34,20 +30,14 @@
             </Grid.RowDefinitions>
             
             <!-- team info -->
-            <Grid Grid.Row="0" HorizontalAlignment="Left" Margin="10 10 10 10">
+            <Grid Grid.Row="0" HorizontalAlignment="Left" Margin="10 10 10 10" x:Name="TeamInfoGrid">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
                 <!-- school icon -->
-                <Border Grid.Column="0"
-                        Width="200"
-                        Height="200"
-                        VerticalAlignment="Top"
-                        Background="Chartreuse">
-                    <Label Content="School Icon"/>
-                </Border>
+                <Image Grid.Column="0" Width="200" Height="200" VerticalAlignment="Top" x:Name="SchoolIcon"/>
                 
                 <StackPanel Grid.Column="1" x:Name="AwardsPanel" Margin="5 0 0 0">
                     <StackPanel Orientation="Horizontal">

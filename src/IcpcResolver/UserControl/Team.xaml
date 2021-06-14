@@ -6,13 +6,14 @@
              mc:Ignorable="d"
              VerticalAlignment="Top"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <Grid>
+    <Grid x:Name="LayoutGrid">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -24,7 +25,11 @@
                HorizontalContentAlignment="Center"
                FontSize="45" Width="90"/>
 
-        <Grid Grid.Row="0" Grid.Column="1">
+        <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+               Stretch="Fill" x:Name="SchoolIcon"
+               Margin="5 12 10 12"/>
+
+        <Grid Grid.Row="0" Grid.Column="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="80"/>
@@ -51,6 +56,6 @@
         </Grid>
 
         <!-- problems -->
-        <Grid Grid.Row="1" Grid.Column="1" x:Name="Problems"/>
+        <Grid Grid.Row="1" Grid.Column="2" x:Name="Problems"/>
     </Grid>
 </UserControl>
